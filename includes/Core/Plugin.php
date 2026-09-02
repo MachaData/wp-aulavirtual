@@ -10,11 +10,17 @@ declare( strict_types = 1 );
 namespace SIQA\AulaVirtual\Core;
 
 use SIQA\AulaVirtual\Core\Events\EventBus;
+use SIQA\AulaVirtual\Admin\AdminServiceProvider;
+use SIQA\AulaVirtual\Campus\CampusServiceProvider;
 use SIQA\AulaVirtual\Courses\CoursesServiceProvider;
+use SIQA\AulaVirtual\Curriculum\CurriculumServiceProvider;
 use SIQA\AulaVirtual\Database\DatabaseServiceProvider;
 use SIQA\AulaVirtual\Database\Migrator;
 use SIQA\AulaVirtual\Database\Schema;
+use SIQA\AulaVirtual\Editions\EditionsServiceProvider;
+use SIQA\AulaVirtual\Enrollments\EnrollmentsServiceProvider;
 use SIQA\AulaVirtual\Permissions\PermissionsServiceProvider;
+use SIQA\AulaVirtual\Progress\ProgressServiceProvider;
 use SIQA\AulaVirtual\REST\RestServiceProvider;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -147,6 +153,12 @@ final class Plugin {
 			new DatabaseServiceProvider(),
 			new PermissionsServiceProvider(),
 			new CoursesServiceProvider(),
+			new EditionsServiceProvider(),
+			new CurriculumServiceProvider(),
+			new EnrollmentsServiceProvider(),
+			new ProgressServiceProvider(),
+			new AdminServiceProvider(),
+			new CampusServiceProvider(),
 			new RestServiceProvider(),
 		);
 

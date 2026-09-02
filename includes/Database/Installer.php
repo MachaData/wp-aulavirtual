@@ -110,26 +110,14 @@ final class Installer {
 	 * @return void
 	 */
 	private static function create_pages(): void {
+		// Solo se crean las paginas cuyo shortcode existe ya. Login, recuperacion
+		// y catalogo se anaden con su modulo, para no publicar paginas que
+		// mostrarian el shortcode en crudo.
 		$pages = array(
-			'campus'   => array(
+			'campus' => array(
 				'title'     => __( 'Campus', 'aula-virtual' ),
 				'slug'      => 'campus',
 				'shortcode' => '[av_campus]',
-			),
-			'login'    => array(
-				'title'     => __( 'Ingresar al campus', 'aula-virtual' ),
-				'slug'      => 'campus-login',
-				'shortcode' => '[av_login]',
-			),
-			'recover'  => array(
-				'title'     => __( 'Recuperar contrasena', 'aula-virtual' ),
-				'slug'      => 'campus-recuperar-contrasena',
-				'shortcode' => '[av_lost_password]',
-			),
-			'catalog'  => array(
-				'title'     => __( 'Cursos', 'aula-virtual' ),
-				'slug'      => 'cursos',
-				'shortcode' => '[av_catalog]',
 			),
 		);
 

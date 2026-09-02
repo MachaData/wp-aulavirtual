@@ -3,6 +3,41 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.2.0] - 2026-09-02
+
+Vertical fina de punta a punta: crear una edicion, cargarle sesiones, matricular a mano un
+alumno y que ese alumno entre al campus, vea el temario y marque una sesion como completada.
+
+### Anadido
+
+- Ediciones: estados (borrador, proxima, matricula abierta, en curso, finalizada, archivada),
+  ventana de acceso independiente del estado, codigo unico autogenerado y validacion de fechas.
+- Temario: lecciones por edicion con tipo, orden y estado; reordenado que ignora los ids que no
+  pertenecen a la edicion.
+- Matriculas: alta manual idempotente, control de cupo, cambio de estado con auditoria y rol de
+  alumno asignado sin pisar roles existentes.
+- Progreso: marcar sesion completada, porcentaje cacheado en la matricula y cierre automatico del
+  curso con evento `course_completed` cuando se completan todas las sesiones.
+- Administracion: menu Aula Virtual con listado y alta de ediciones, y detalle con alta rapida de
+  sesiones y matricula manual.
+- Campus: shortcode `[av_campus]` con login, mis cursos, temario con progreso y vista de sesion.
+  Las plantillas se pueden sobrescribir desde el tema en `aula-virtual/campus/`.
+- El modulo de matriculas responde al filtro `aula_virtual/can_access_edition`, que es como
+  `AccessControl` decide si un alumno puede abrir el contenido.
+- Smoke test ampliado a 66 comprobaciones, incluida la resolucion completa del grafo de
+  dependencias del contenedor.
+
+### Cambiado
+
+- El plugin pasa a llamarse Aula Virtual SIQA: namespace `SIQA\AulaVirtual`, slug y text domain
+  `aula-virtual`, prefijo de tablas y opciones `av_`, constantes `AV_`, hooks `aula_virtual/` y
+  REST `aula-virtual/v1`.
+- El post type de curso deja de tener menu propio y se muestra dentro de Aula Virtual.
+- La activacion crea solo la pagina del Campus. Login, recuperacion de contrasena y catalogo se
+  crearan con su modulo: publicarlas ahora mostraria el shortcode en crudo.
+- El bloqueo de wp-admin para alumnos redirige a la pagina de Campus creada en la activacion, no
+  a `/campus/` a ciegas.
+
 ## [0.1.0] - 2026-09-02
 
 Primera entrega: **Core**. Corresponde al punto 72 del brief (arquitectura y núcleo antes

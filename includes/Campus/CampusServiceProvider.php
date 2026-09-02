@@ -1,0 +1,69 @@
+<?php
+/**
+ * Campus module.
+ *
+ * @package SIQA\AulaVirtual
+ */
+
+declare( strict_types = 1 );
+
+namespace SIQA\AulaVirtual\Campus;
+
+use SIQA\AulaVirtual\Core\Container;
+use SIQA\AulaVirtual\Core\ServiceProvider;
+use SIQA\AulaVirtual\Curriculum\LessonRepository;
+use SIQA\AulaVirtual\Editions\EditionRepository;
+use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
+use SIQA\AulaVirtual\Enrollments\EnrollmentService;
+use SIQA\AulaVirtual\Progress\ProgressRepository;
+use SIQA\AulaVirtual\Progress\ProgressService;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Registers the campus shortcode and its form handler.
+ */
+final class CampusServiceProvider implements ServiceProvider {
+
+	/**
+	 * Binds the module services.
+	 *
+	 * @param Container $container Plugin container.
+	 * @return void
+	 */
+	public function register( Container $container ): void {
+		$container->singleton(
+			CampusController::class,
+			static fn( Container $c ): CampusController => new CampusController(
+				$c->get( EnrollmentRepository::class ),
+				$c->get( EnrollmentService::class ),
+				$c->get( EditionRepository::class ),
+				$c->get( LessonRepository::class ),
+				$c->get( ProgressRepository::class ),
+				$c->get( ProgressService::class )
+			)
+		);
+	}
+
+	/**
+	 * Registers the module hooks.
+	 *
+	 * @param Container $container Plugin container.
+	 * @return void
+	 */
+	public function boot( Container $container ): void {
+		add_shortcode(
+			'av_campus',
+			static fn(): string => $container->get( CampusController::class )->render()
+		);
+
+		add_action(
+			'admin_post_' . CampusController::ACTION_COMPLETE,
+			static function () use ( $container ): void {
+				$container->get( CampusController::class )->handle_complete();
+			}
+		);
+	}
+}

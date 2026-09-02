@@ -78,7 +78,8 @@ final class CoursePostType {
 			'labels'              => $labels,
 			'public'              => true,
 			'show_ui'             => true,
-			'show_in_menu'        => true,
+			// El curso se muestra dentro del menu Aula Virtual, no como menu propio.
+			'show_in_menu'        => false,
 			'show_in_rest'        => true,
 			'menu_icon'           => 'dashicons-welcome-learn-more',
 			'menu_position'       => 26,

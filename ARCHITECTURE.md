@@ -118,25 +118,25 @@ wordpress-plugin/aula-virtual/
 │   ├── Database/                # Schema, Migrator, Installer, Repository base
 │   ├── Permissions/             # Capabilities, Roles, AccessControl, provider
 │   ├── Courses/                 # CoursePostType, CourseMeta, CourseRepository, provider
-│   ├── Editions/                # (fase Core-2) Edition, EditionRepository, EditionService
-│   ├── Curriculum/              # (fase Core-2) módulos y lecciones
-│   ├── Enrollments/             # (fase Core-3) matrículas, solicitudes, enlaces privados
-│   ├── Students/                # (fase Core-3) vista de alumno
-│   ├── Progress/                # (fase Core-3)
-│   ├── LiveClasses/             # (fase Core-2)
-│   ├── Videos/                  # (fase Core-2) registry de proveedores
-│   ├── Materials/               # (fase Core-2)
+│   ├── Editions/                # EditionStatus, EditionRepository, EditionService
+│   ├── Curriculum/              # LessonType, LessonRepository, LessonService
+│   ├── Enrollments/             # EnrollmentStatus, repositorio y servicio
+│   ├── Progress/                # ProgressCalculator, repositorio y servicio
+│   ├── Students/                # (pendiente) ficha de alumno
+│   ├── LiveClasses/             # (pendiente)
+│   ├── Videos/                  # (pendiente) registry de proveedores
+│   ├── Materials/               # (pendiente)
 │   ├── WooCommerce/             # (fase Core-4) integración opcional
 │   ├── Emails/                  # (fase Core-4) plantillas + suscriptores de eventos
 │   ├── Notifications/           # (fase Core-4) puente eventos → emails
 │   ├── Imports/                 # (fase Core-4) Excel/CSV por lotes
-│   ├── Campus/                  # (fase Core-5) login, dashboard, aula
-│   ├── Announcements/           # (fase Core-5)
+│   ├── Campus/                  # CampusController: dashboard, temario, sesion
+│   ├── Announcements/           # (pendiente)
 │   ├── Certificates/            # (fase 2)
 │   ├── Reports/                 # (fase 2)
 │   ├── Security/                # Sanitizer, verificación de nonces y uploads
 │   ├── REST/                    # AbstractController + controladores
-│   ├── Admin/                   # menús y pantallas (tras aprobación del Core)
+│   ├── Admin/                   # AdminMenu y EditionsScreen
 │   └── Support/                 # helpers compartidos
 ├── admin/{views,assets}/
 ├── frontend/{templates,assets}/
@@ -363,8 +363,9 @@ Al activar, `Database\Installer::activate()`:
 1. Ejecuta el migrador (crea las 15 tablas y guarda `av_db_version`).
 2. Crea los tres roles y otorga las capacidades al `administrator`.
 3. Añade las opciones por defecto **sin sobrescribir** valores existentes.
-4. Crea las páginas si no existen: Campus, Login, Recuperar contraseña, Catálogo —
-   reutilizando una página existente con el mismo slug antes de crear otra.
+4. Crea la página del Campus si no existe (`[av_campus]`), reutilizando una página existente
+   con el mismo slug antes de crear otra. Login, recuperación de contraseña y catálogo se
+   crearán con su módulo: publicar ahora esas páginas mostraría el shortcode en crudo.
 5. Registra el CPT y hace `flush_rewrite_rules()` (necesario para los permalinks del curso).
 6. Guarda `av_version` y dispara `aula_virtual/activated`.
 
@@ -415,22 +416,38 @@ Aplicado ya en el Core, y obligatorio en cada módulo siguiente:
 
 ## 12. Plan de desarrollo
 
-**Entrega 1 — Core (hecha, pendiente de aprobación)**
+**Entrega 1 — Core (hecha)**
 Bootstrap, contenedor, providers, esquema completo con migrador, Repository base, roles y
 capacidades, `AccessControl`, CPT de curso con meta y taxonomías, EventBus, Logger, AuditLog,
-Sanitizer, base REST + `/courses`, instalación/desinstalación, smoke test.
+Sanitizer, base REST + `/courses`, instalación/desinstalación.
 
-**Core-2 — Contenido:** Ediciones (CRUD, estados, duplicado), Course Builder (módulos y lecciones,
-reordenar), proveedores de vídeo, materiales, clases en vivo.
+**Entrega 2 — Vertical fina (hecha)**
+Un camino completo y estrecho de punta a punta, para poder instalar el plugin y verlo andar:
 
-**Core-3 — Personas:** Matrículas (manual, gratuita), solicitudes y enlaces privados, alumnos,
-progreso (modo flexible/estricto, autocompletado).
+- **Ediciones**: estados, ventana de acceso, código único autogenerado, validación de fechas.
+- **Temario**: lecciones por edición, tipos, orden, reordenado que ignora ids ajenos.
+- **Matrículas**: alta manual idempotente, control de cupo, estados, rol de alumno automático.
+- **Progreso**: marcar sesión completada, porcentaje cacheado en la matrícula, cierre automático
+  del curso al completar todas las sesiones.
+- **Administración**: menú Aula Virtual, listado y alta de ediciones, detalle con alta rápida de
+  sesiones y matrícula manual.
+- **Campus**: shortcode `[av_campus]` con login, lista de mis cursos, temario con progreso y
+  vista de sesión con "marcar como completada".
+
+Lo que la vertical deja fuera a propósito: módulos del temario, materiales, clases en vivo,
+solicitudes con enlace privado, importación Excel, WooCommerce, emails y anuncios.
+
+**Core-2 — Contenido:** módulos del temario, duplicado de curso y de edición, proveedores de
+vídeo, materiales, clases en vivo.
+
+**Core-3 — Personas:** solicitudes y enlaces privados, ficha de alumno, modo estricto de
+progreso, extensión y expiración de accesos.
 
 **Core-4 — Entradas y salidas:** WooCommerce, importación Excel por lotes, plantillas de email,
 notificaciones suscritas a eventos.
 
-**Core-5 — Campus:** login propio, dashboard del alumno, aula (temario + contenido), anuncios,
-configuración y diseño global.
+**Core-5 — Campus completo:** login propio con diseño configurable, URLs limpias
+(`/campus/curso/{codigo}/`), anuncios, configuración y diseño global.
 
 **Fase 2 (punto 69):** calendario avanzado, certificados, quizzes, tareas, reseñas, reportes
 avanzados, content drip, notificaciones automáticas.
@@ -443,6 +460,15 @@ implementación → revisión de seguridad → pruebas → documentación → va
 no rompe lo anterior. `CHANGELOG.md` y las migraciones se actualizan en cada entrega.
 
 ---
+
+### 12.1 Rutas del campus: decisión provisional
+
+El campus vive hoy en una sola página con vistas seleccionadas por argumentos de consulta
+(`?av_edicion=` y `?av_leccion=`). Es deliberado: funciona con cualquier tema y cualquier
+estructura de enlaces permanentes, sin tocar reglas de reescritura ni obligar a vaciar
+permalinks al activar. Las URLs limpias del punto 25 del brief llegan en Core-5, y el
+`CampusController` ya concentra la construcción de URLs en un solo método para que ese cambio no
+se propague por las plantillas.
 
 ## 13. Criterio de aceptación del Core
 
@@ -463,13 +489,17 @@ entrega. Lo que esta entrega debe permitir afirmar es que el esqueleto lo soport
 ```bash
 cd wordpress-plugin/aula-virtual
 php -l aula-virtual.php && php -l uninstall.php     # sintaxis
-php tests/smoke-test.php                       # 38 comprobaciones del core
+php tests/smoke-test.php                       # 66 comprobaciones
+php tests/lint-classes.php                     # carga las 45 clases del plugin
 composer install && composer lint              # WordPress Coding Standards (opcional)
 ```
 
-El smoke test corre sin WordPress: usa stubs mínimos (`tests/wp-stubs.php`) y cubre contenedor,
-esquema, repositorio (incluida la defensa contra columnas no declaradas), sanitizador y matriz de
-capacidades.
+Ambas comprobaciones corren sin WordPress, con stubs mínimos (`tests/wp-stubs.php`). El smoke
+test cubre contenedor, esquema, repositorio (incluida la defensa contra columnas no declaradas),
+sanitizador, matriz de capacidades, ventana de acceso de la edición, estados de matrícula,
+aritmética del progreso y el cableado completo del contenedor: resuelve el grafo de dependencias
+del campus y del administrador, de modo que un servicio mal registrado falla aquí y no en
+producción.
 
 ---
 

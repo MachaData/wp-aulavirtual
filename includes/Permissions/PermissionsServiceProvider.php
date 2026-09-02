@@ -75,7 +75,7 @@ final class PermissionsServiceProvider implements ServiceProvider {
 		 *
 		 * @param string $url Redirect target.
 		 */
-		$redirect = apply_filters( 'aula_virtual/campus_redirect_url', home_url( '/campus/' ) );
+		$redirect = apply_filters( 'aula_virtual/campus_redirect_url', $this->campus_url() );
 
 		wp_safe_redirect( $redirect );
 		exit;
@@ -89,6 +89,29 @@ final class PermissionsServiceProvider implements ServiceProvider {
 	 */
 	public function hide_admin_bar_for_students( $show ) {
 		return $this->is_student_only() ? false : (bool) $show;
+	}
+
+	/**
+	 * Returns the campus page created on activation.
+	 *
+	 * Falling back to /campus/ keeps the redirect working if the page was
+	 * deleted, instead of sending the student to a blank screen.
+	 *
+	 * @return string
+	 */
+	private function campus_url(): string {
+		$pages   = get_option( 'av_pages', array() );
+		$page_id = is_array( $pages ) && isset( $pages['campus'] ) ? (int) $pages['campus'] : 0;
+
+		if ( $page_id > 0 ) {
+			$permalink = get_permalink( $page_id );
+
+			if ( is_string( $permalink ) && '' !== $permalink ) {
+				return $permalink;
+			}
+		}
+
+		return home_url( '/campus/' );
 	}
 
 	/**
