@@ -2,12 +2,12 @@
 /**
  * Schema installation and versioned migrations.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Database;
+namespace SIQA\AulaVirtual\Database;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -26,7 +26,7 @@ final class Migrator {
 	/**
 	 * Transient guarding against concurrent migrations.
 	 */
-	private const LOCK_KEY = 'sev_lms_migration_lock';
+	private const LOCK_KEY = 'av_migration_lock';
 
 	/**
 	 * Table definitions.
@@ -114,12 +114,12 @@ final class Migrator {
 		update_option( Schema::VERSION_OPTION, Schema::VERSION, false );
 
 		/**
-		 * Fires after the SEV LMS schema has been installed or upgraded.
+		 * Fires after the Aula Virtual schema has been installed or upgraded.
 		 *
 		 * @param string $to   Schema version now installed.
 		 * @param string $from Schema version found before migrating.
 		 */
-		do_action( 'sev_lms/schema_migrated', Schema::VERSION, $from );
+		do_action( 'aula_virtual/schema_migrated', Schema::VERSION, $from );
 	}
 
 	/**

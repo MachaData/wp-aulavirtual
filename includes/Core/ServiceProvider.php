@@ -2,12 +2,12 @@
 /**
  * Service provider contract.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Core;
+namespace SIQA\AulaVirtual\Core;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

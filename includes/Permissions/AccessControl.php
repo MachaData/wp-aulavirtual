@@ -2,14 +2,14 @@
 /**
  * Central permission checks.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Permissions;
+namespace SIQA\AulaVirtual\Permissions;
 
-use SEV\LMS\Courses\CoursePostType;
+use SIQA\AulaVirtual\Courses\CoursePostType;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * REST controllers, admin screens and campus templates all go through this
  * class so that a permission rule is written once. Content access that depends
  * on an enrollment is resolved by the Enrollments module through the
- * `sev_lms/can_access_edition` filter.
+ * `aula_virtual/can_access_edition` filter.
  */
 final class AccessControl {
 
@@ -110,6 +110,6 @@ final class AccessControl {
 		 * @param int  $edition_id Edition id.
 		 * @param int  $user_id    User being checked.
 		 */
-		return (bool) apply_filters( 'sev_lms/can_access_edition', $allowed, $edition_id, $user_id );
+		return (bool) apply_filters( 'aula_virtual/can_access_edition', $allowed, $edition_id, $user_id );
 	}
 }

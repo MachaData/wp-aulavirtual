@@ -2,17 +2,17 @@
 /**
  * Courses REST controller.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\REST;
+namespace SIQA\AulaVirtual\REST;
 
-use SEV\LMS\Courses\CourseMeta;
-use SEV\LMS\Courses\CoursePostType;
-use SEV\LMS\Courses\CourseRepository;
-use SEV\LMS\Permissions\AccessControl;
+use SIQA\AulaVirtual\Courses\CourseMeta;
+use SIQA\AulaVirtual\Courses\CoursePostType;
+use SIQA\AulaVirtual\Courses\CourseRepository;
+use SIQA\AulaVirtual\Permissions\AccessControl;
 use WP_Post;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -87,7 +87,7 @@ final class CoursesController extends AbstractController {
 					'permission_callback' => '__return_true',
 					'args'                => array(
 						'id' => array(
-							'description'       => __( 'Identificador del curso.', 'sev-lms' ),
+							'description'       => __( 'Identificador del curso.', 'aula-virtual' ),
 							'type'              => 'integer',
 							'required'          => true,
 							'sanitize_callback' => 'absint',
@@ -184,14 +184,14 @@ final class CoursesController extends AbstractController {
 		$params = parent::get_collection_params();
 
 		$params['category'] = array(
-			'description'       => __( 'Filtra por slug de categoria.', 'sev-lms' ),
+			'description'       => __( 'Filtra por slug de categoria.', 'aula-virtual' ),
 			'type'              => 'string',
 			'default'           => '',
 			'sanitize_callback' => 'sanitize_title',
 		);
 
 		$params['tag'] = array(
-			'description'       => __( 'Filtra por slug de etiqueta.', 'sev-lms' ),
+			'description'       => __( 'Filtra por slug de etiqueta.', 'aula-virtual' ),
 			'type'              => 'string',
 			'default'           => '',
 			'sanitize_callback' => 'sanitize_title',
@@ -212,7 +212,7 @@ final class CoursesController extends AbstractController {
 
 		$this->schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'sev_lms_course',
+			'title'      => 'av_course',
 			'type'       => 'object',
 			'properties' => array(
 				'id'                => array(

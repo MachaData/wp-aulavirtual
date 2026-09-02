@@ -2,14 +2,14 @@
 /**
  * Administrative audit trail.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Core;
+namespace SIQA\AulaVirtual\Core;
 
-use SEV\LMS\Database\Schema;
+use SIQA\AulaVirtual\Database\Schema;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

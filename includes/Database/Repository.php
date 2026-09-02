@@ -2,12 +2,12 @@
 /**
  * Base repository for custom tables.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Database;
+namespace SIQA\AulaVirtual\Database;
 
 use InvalidArgumentException;
 
@@ -293,7 +293,7 @@ abstract class Repository {
 		foreach ( $where as $column => $value ) {
 			if ( ! isset( $columns[ $column ] ) ) {
 				throw new InvalidArgumentException(
-					sprintf( 'SEV LMS: columna "%s" no declarada en %s.', esc_html( (string) $column ), esc_html( static::class ) )
+					sprintf( 'Aula Virtual: columna "%s" no declarada en %s.', esc_html( (string) $column ), esc_html( static::class ) )
 				);
 			}
 

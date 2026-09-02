@@ -2,15 +2,15 @@
 /**
  * Course meta fields.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Courses;
+namespace SIQA\AulaVirtual\Courses;
 
-use SEV\LMS\Permissions\Capabilities;
-use SEV\LMS\Security\Sanitizer;
+use SIQA\AulaVirtual\Permissions\Capabilities;
+use SIQA\AulaVirtual\Security\Sanitizer;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,21 +25,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class CourseMeta {
 
-	public const SHORT_DESCRIPTION = '_sev_lms_short_description';
-	public const LEVEL             = '_sev_lms_level';
-	public const DURATION          = '_sev_lms_duration';
-	public const INSTRUCTOR_ID     = '_sev_lms_instructor_id';
-	public const INTRO_PROVIDER    = '_sev_lms_intro_provider';
-	public const INTRO_URL         = '_sev_lms_intro_url';
-	public const LEARNING_OUTCOMES = '_sev_lms_learning_outcomes';
-	public const BENEFITS          = '_sev_lms_benefits';
-	public const REQUIREMENTS      = '_sev_lms_requirements';
-	public const TARGET_AUDIENCE   = '_sev_lms_target_audience';
-	public const INCLUDED_MATERIAL = '_sev_lms_included_material';
-	public const FAQ               = '_sev_lms_faq';
-	public const PRICE_DISPLAY     = '_sev_lms_price_display';
-	public const PRODUCT_ID        = '_sev_lms_product_id';
-	public const DISPLAY_OVERRIDES = '_sev_lms_display_overrides';
+	public const SHORT_DESCRIPTION = '_av_short_description';
+	public const LEVEL             = '_av_level';
+	public const DURATION          = '_av_duration';
+	public const INSTRUCTOR_ID     = '_av_instructor_id';
+	public const INTRO_PROVIDER    = '_av_intro_provider';
+	public const INTRO_URL         = '_av_intro_url';
+	public const LEARNING_OUTCOMES = '_av_learning_outcomes';
+	public const BENEFITS          = '_av_benefits';
+	public const REQUIREMENTS      = '_av_requirements';
+	public const TARGET_AUDIENCE   = '_av_target_audience';
+	public const INCLUDED_MATERIAL = '_av_included_material';
+	public const FAQ               = '_av_faq';
+	public const PRICE_DISPLAY     = '_av_price_display';
+	public const PRODUCT_ID        = '_av_product_id';
+	public const DISPLAY_OVERRIDES = '_av_display_overrides';
 
 	/**
 	 * Levels accepted by the level field.

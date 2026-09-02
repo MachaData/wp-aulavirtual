@@ -2,20 +2,20 @@
 /**
  * Plugin orchestrator.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Core;
+namespace SIQA\AulaVirtual\Core;
 
-use SEV\LMS\Core\Events\EventBus;
-use SEV\LMS\Courses\CoursesServiceProvider;
-use SEV\LMS\Database\DatabaseServiceProvider;
-use SEV\LMS\Database\Migrator;
-use SEV\LMS\Database\Schema;
-use SEV\LMS\Permissions\PermissionsServiceProvider;
-use SEV\LMS\REST\RestServiceProvider;
+use SIQA\AulaVirtual\Core\Events\EventBus;
+use SIQA\AulaVirtual\Courses\CoursesServiceProvider;
+use SIQA\AulaVirtual\Database\DatabaseServiceProvider;
+use SIQA\AulaVirtual\Database\Migrator;
+use SIQA\AulaVirtual\Database\Schema;
+use SIQA\AulaVirtual\Permissions\PermissionsServiceProvider;
+use SIQA\AulaVirtual\REST\RestServiceProvider;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -96,7 +96,7 @@ final class Plugin {
 
 		$this->booted = true;
 
-		load_plugin_textdomain( 'sev-lms', false, dirname( SEV_LMS_BASENAME ) . '/languages' );
+		load_plugin_textdomain( 'aula-virtual', false, dirname( AV_BASENAME ) . '/languages' );
 
 		foreach ( $this->service_providers() as $provider ) {
 			$this->providers[] = $provider;
@@ -108,11 +108,11 @@ final class Plugin {
 		}
 
 		/**
-		 * Fires once every SEV LMS module has been registered and booted.
+		 * Fires once every Aula Virtual module has been registered and booted.
 		 *
 		 * @param Plugin $plugin Plugin instance.
 		 */
-		do_action( 'sev_lms/booted', $this );
+		do_action( 'aula_virtual/booted', $this );
 	}
 
 	/**
@@ -151,14 +151,14 @@ final class Plugin {
 		);
 
 		/**
-		 * Filters the service providers loaded by SEV LMS.
+		 * Filters the service providers loaded by Aula Virtual.
 		 *
 		 * Add-ons can append their own providers here. Entries that do not
 		 * implement the ServiceProvider contract are discarded.
 		 *
 		 * @param array<int, ServiceProvider> $providers Providers to boot.
 		 */
-		$providers = apply_filters( 'sev_lms/service_providers', $providers );
+		$providers = apply_filters( 'aula_virtual/service_providers', $providers );
 
 		return array_values(
 			array_filter(

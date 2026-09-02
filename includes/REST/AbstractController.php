@@ -2,12 +2,12 @@
 /**
  * Base REST controller.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\REST;
+namespace SIQA\AulaVirtual\REST;
 
 use WP_Error;
 use WP_REST_Controller;
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Shared behaviour for every SEV LMS REST controller.
+ * Shared behaviour for every Aula Virtual REST controller.
  *
  * Controllers must declare a `permission_callback` on every route; the helpers
  * here keep those callbacks one-liners and make the error payloads consistent
@@ -29,7 +29,7 @@ abstract class AbstractController extends WP_REST_Controller {
 	/**
 	 * REST namespace shared by the plugin.
 	 */
-	public const NAMESPACE_V1 = 'sev-lms/v1';
+	public const NAMESPACE_V1 = 'aula-virtual/v1';
 
 	/**
 	 * Constructor.
@@ -46,8 +46,8 @@ abstract class AbstractController extends WP_REST_Controller {
 	 */
 	protected function forbidden( string $message = '' ): WP_Error {
 		return new WP_Error(
-			'sev_lms_forbidden',
-			'' === $message ? __( 'No tienes permisos para realizar esta accion.', 'sev-lms' ) : $message,
+			'av_forbidden',
+			'' === $message ? __( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ) : $message,
 			array( 'status' => is_user_logged_in() ? 403 : 401 )
 		);
 	}
@@ -60,8 +60,8 @@ abstract class AbstractController extends WP_REST_Controller {
 	 */
 	protected function not_found( string $message = '' ): WP_Error {
 		return new WP_Error(
-			'sev_lms_not_found',
-			'' === $message ? __( 'El recurso solicitado no existe.', 'sev-lms' ) : $message,
+			'av_not_found',
+			'' === $message ? __( 'El recurso solicitado no existe.', 'aula-virtual' ) : $message,
 			array( 'status' => 404 )
 		);
 	}
@@ -75,7 +75,7 @@ abstract class AbstractController extends WP_REST_Controller {
 	 */
 	protected function invalid( string $message, array $data = array() ): WP_Error {
 		return new WP_Error(
-			'sev_lms_invalid_request',
+			'av_invalid_request',
 			$message,
 			array_merge( array( 'status' => 400 ), $data )
 		);
@@ -115,14 +115,14 @@ abstract class AbstractController extends WP_REST_Controller {
 	public function get_collection_params() {
 		return array(
 			'page'     => array(
-				'description'       => __( 'Pagina solicitada.', 'sev-lms' ),
+				'description'       => __( 'Pagina solicitada.', 'aula-virtual' ),
 				'type'              => 'integer',
 				'default'           => 1,
 				'minimum'           => 1,
 				'sanitize_callback' => 'absint',
 			),
 			'per_page' => array(
-				'description'       => __( 'Elementos por pagina.', 'sev-lms' ),
+				'description'       => __( 'Elementos por pagina.', 'aula-virtual' ),
 				'type'              => 'integer',
 				'default'           => 20,
 				'minimum'           => 1,
@@ -130,7 +130,7 @@ abstract class AbstractController extends WP_REST_Controller {
 				'sanitize_callback' => 'absint',
 			),
 			'search'   => array(
-				'description'       => __( 'Texto de busqueda.', 'sev-lms' ),
+				'description'       => __( 'Texto de busqueda.', 'aula-virtual' ),
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),

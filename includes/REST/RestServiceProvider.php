@@ -2,17 +2,17 @@
 /**
  * REST module.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\REST;
+namespace SIQA\AulaVirtual\REST;
 
-use SEV\LMS\Core\Container;
-use SEV\LMS\Core\ServiceProvider;
-use SEV\LMS\Courses\CourseRepository;
-use SEV\LMS\Permissions\AccessControl;
+use SIQA\AulaVirtual\Core\Container;
+use SIQA\AulaVirtual\Core\ServiceProvider;
+use SIQA\AulaVirtual\Courses\CourseRepository;
+use SIQA\AulaVirtual\Permissions\AccessControl;
 use WP_REST_Controller;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers the REST controllers under the sev-lms/v1 namespace.
+ * Registers the REST controllers under the aula-virtual/v1 namespace.
  */
 final class RestServiceProvider implements ServiceProvider {
 
@@ -53,11 +53,11 @@ final class RestServiceProvider implements ServiceProvider {
 				$controllers = array( CoursesController::class );
 
 				/**
-				 * Filters the REST controllers registered by SEV LMS.
+				 * Filters the REST controllers registered by Aula Virtual.
 				 *
 				 * @param array<int, string> $controllers Controller class names resolvable from the container.
 				 */
-				$controllers = apply_filters( 'sev_lms/rest_controllers', $controllers );
+				$controllers = apply_filters( 'aula_virtual/rest_controllers', $controllers );
 
 				foreach ( $controllers as $controller_class ) {
 					if ( ! is_string( $controller_class ) || ! $container->has( $controller_class ) ) {

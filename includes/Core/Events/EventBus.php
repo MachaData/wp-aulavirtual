@@ -2,12 +2,12 @@
 /**
  * Domain event dispatcher.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Core\Events;
+namespace SIQA\AulaVirtual\Core\Events;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,7 +25,7 @@ final class EventBus {
 	/**
 	 * Hook prefix used for every domain event.
 	 */
-	private const HOOK_PREFIX = 'sev_lms/event/';
+	private const HOOK_PREFIX = 'aula_virtual/event/';
 
 	/**
 	 * Dispatches an event to its subscribers.
@@ -45,19 +45,19 @@ final class EventBus {
 		$payload['dispatched'] = $payload['dispatched'] ?? current_time( 'mysql', true );
 
 		/**
-		 * Fires for a specific SEV LMS domain event.
+		 * Fires for a specific Aula Virtual domain event.
 		 *
 		 * @param array<string, mixed> $payload Event payload.
 		 */
 		do_action( self::HOOK_PREFIX . $event, $payload );
 
 		/**
-		 * Fires for every SEV LMS domain event.
+		 * Fires for every Aula Virtual domain event.
 		 *
 		 * @param string               $event   Event name.
 		 * @param array<string, mixed> $payload Event payload.
 		 */
-		do_action( 'sev_lms/event', $event, $payload );
+		do_action( 'aula_virtual/event', $event, $payload );
 	}
 
 	/**

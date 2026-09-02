@@ -5,7 +5,7 @@
  *
  *     php tests/lint-classes.php
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
@@ -99,7 +99,7 @@ abstract class WP_REST_Controller {
 
 spl_autoload_register(
 	static function ( string $class_name ): void {
-		$prefix = 'SEV\\LMS\\';
+		$prefix = 'SIQA\\AulaVirtual\\';
 
 		if ( ! str_starts_with( $class_name, $prefix ) ) {
 			return;
@@ -127,7 +127,7 @@ foreach ( $files as $file ) {
 	require_once $file->getRealPath();
 
 	$relative = str_replace( array( realpath( __DIR__ . '/../includes' ) . '/', '.php' ), '', $file->getRealPath() );
-	$expected = 'SEV\\LMS\\' . str_replace( '/', '\\', $relative );
+	$expected = 'SIQA\\AulaVirtual\\' . str_replace( '/', '\\', $relative );
 
 	if ( class_exists( $expected, false ) || interface_exists( $expected, false ) ) {
 		++$loaded;

@@ -2,15 +2,15 @@
 /**
  * Permissions module.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Permissions;
+namespace SIQA\AulaVirtual\Permissions;
 
-use SEV\LMS\Core\Container;
-use SEV\LMS\Core\ServiceProvider;
+use SIQA\AulaVirtual\Core\Container;
+use SIQA\AulaVirtual\Core\ServiceProvider;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,7 +24,7 @@ final class PermissionsServiceProvider implements ServiceProvider {
 	/**
 	 * Option toggling the wp-admin redirect for students.
 	 */
-	public const BLOCK_ADMIN_OPTION = 'sev_lms_block_wp_admin';
+	public const BLOCK_ADMIN_OPTION = 'av_block_wp_admin';
 
 	/**
 	 * Binds the module services.
@@ -75,7 +75,7 @@ final class PermissionsServiceProvider implements ServiceProvider {
 		 *
 		 * @param string $url Redirect target.
 		 */
-		$redirect = apply_filters( 'sev_lms/campus_redirect_url', home_url( '/campus/' ) );
+		$redirect = apply_filters( 'aula_virtual/campus_redirect_url', home_url( '/campus/' ) );
 
 		wp_safe_redirect( $redirect );
 		exit;

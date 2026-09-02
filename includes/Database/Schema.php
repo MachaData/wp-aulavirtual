@@ -2,12 +2,12 @@
 /**
  * Custom table definitions.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Database;
+namespace SIQA\AulaVirtual\Database;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -26,7 +26,7 @@ final class Schema {
 	/**
 	 * Prefix appended to the WordPress table prefix.
 	 */
-	public const PREFIX = 'sev_lms_';
+	public const PREFIX = 'av_';
 
 	/**
 	 * Schema version stored in the options table.
@@ -36,7 +36,7 @@ final class Schema {
 	/**
 	 * Option key holding the installed schema version.
 	 */
-	public const VERSION_OPTION = 'sev_lms_db_version';
+	public const VERSION_OPTION = 'av_db_version';
 
 	/**
 	 * Logical table names handled by the plugin.

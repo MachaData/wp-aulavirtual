@@ -2,12 +2,12 @@
 /**
  * Role installation and synchronisation.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Permissions;
+namespace SIQA\AulaVirtual\Permissions;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,14 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Roles {
 
-	public const ADMINISTRATOR = 'sev_lms_admin';
-	public const INSTRUCTOR    = 'sev_lms_instructor';
-	public const STUDENT       = 'sev_lms_student';
+	public const ADMINISTRATOR = 'av_admin';
+	public const INSTRUCTOR    = 'av_instructor';
+	public const STUDENT       = 'av_student';
 
 	/**
 	 * Option holding the role definition version already applied.
 	 */
-	public const VERSION_OPTION = 'sev_lms_roles_version';
+	public const VERSION_OPTION = 'av_roles_version';
 
 	/**
 	 * Bump this when the capability map changes.
@@ -44,19 +44,19 @@ final class Roles {
 	public static function install(): void {
 		self::add_role(
 			self::ADMINISTRATOR,
-			__( 'Administrador LMS', 'sev-lms' ),
+			__( 'Administrador LMS', 'aula-virtual' ),
 			Capabilities::administrator_capabilities()
 		);
 
 		self::add_role(
 			self::INSTRUCTOR,
-			__( 'Instructor LMS', 'sev-lms' ),
+			__( 'Instructor LMS', 'aula-virtual' ),
 			Capabilities::instructor_capabilities()
 		);
 
 		self::add_role(
 			self::STUDENT,
-			__( 'Estudiante LMS', 'sev-lms' ),
+			__( 'Estudiante LMS', 'aula-virtual' ),
 			Capabilities::student_capabilities()
 		);
 

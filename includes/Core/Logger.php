@@ -2,14 +2,14 @@
 /**
  * Plugin logger.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Core;
+namespace SIQA\AulaVirtual\Core;
 
-use SEV\LMS\Database\Schema;
+use SIQA\AulaVirtual\Database\Schema;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -33,7 +33,7 @@ final class Logger {
 	/**
 	 * Option controlling the minimum level that gets persisted.
 	 */
-	public const LEVEL_OPTION = 'sev_lms_log_level';
+	public const LEVEL_OPTION = 'av_log_level';
 
 	/**
 	 * Severity order used to compare levels.

@@ -2,15 +2,15 @@
 /**
  * Activation and deactivation routines.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Database;
+namespace SIQA\AulaVirtual\Database;
 
-use SEV\LMS\Courses\CoursePostType;
-use SEV\LMS\Permissions\Roles;
+use SIQA\AulaVirtual\Courses\CoursePostType;
+use SIQA\AulaVirtual\Permissions\Roles;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -28,17 +28,17 @@ final class Installer {
 	/**
 	 * Option storing the plugin version that was last activated.
 	 */
-	public const VERSION_OPTION = 'sev_lms_version';
+	public const VERSION_OPTION = 'av_version';
 
 	/**
 	 * Option storing the ids of the pages created on activation.
 	 */
-	public const PAGES_OPTION = 'sev_lms_pages';
+	public const PAGES_OPTION = 'av_pages';
 
 	/**
 	 * Option controlling data removal on uninstall.
 	 */
-	public const DELETE_DATA_OPTION = 'sev_lms_delete_data_on_uninstall';
+	public const DELETE_DATA_OPTION = 'av_delete_data_on_uninstall';
 
 	/**
 	 * Runs on plugin activation.
@@ -58,12 +58,12 @@ final class Installer {
 		CoursePostType::register();
 		flush_rewrite_rules();
 
-		update_option( self::VERSION_OPTION, SEV_LMS_VERSION, false );
+		update_option( self::VERSION_OPTION, AV_VERSION, false );
 
 		/**
 		 * Fires once the plugin finished its activation routine.
 		 */
-		do_action( 'sev_lms/activated' );
+		do_action( 'aula_virtual/activated' );
 	}
 
 	/**
@@ -80,7 +80,7 @@ final class Installer {
 		/**
 		 * Fires once the plugin finished its deactivation routine.
 		 */
-		do_action( 'sev_lms/deactivated' );
+		do_action( 'aula_virtual/deactivated' );
 	}
 
 	/**
@@ -91,12 +91,12 @@ final class Installer {
 	private static function install_default_options(): void {
 		$defaults = array(
 			self::DELETE_DATA_OPTION          => false,
-			'sev_lms_log_level'               => 'info',
-			'sev_lms_block_wp_admin'          => true,
+			'av_log_level'               => 'info',
+			'av_block_wp_admin'          => true,
 			CoursePostType::SLUG_OPTION       => CoursePostType::DEFAULT_SLUG,
-			'sev_lms_enrollment_auto_approve' => false,
-			'sev_lms_send_welcome_email'      => true,
-			'sev_lms_progress_mode'           => 'flexible',
+			'av_enrollment_auto_approve' => false,
+			'av_send_welcome_email'      => true,
+			'av_progress_mode'           => 'flexible',
 		);
 
 		foreach ( $defaults as $option => $value ) {
@@ -112,24 +112,24 @@ final class Installer {
 	private static function create_pages(): void {
 		$pages = array(
 			'campus'   => array(
-				'title'     => __( 'Campus', 'sev-lms' ),
+				'title'     => __( 'Campus', 'aula-virtual' ),
 				'slug'      => 'campus',
-				'shortcode' => '[sev_lms_campus]',
+				'shortcode' => '[av_campus]',
 			),
 			'login'    => array(
-				'title'     => __( 'Ingresar al campus', 'sev-lms' ),
+				'title'     => __( 'Ingresar al campus', 'aula-virtual' ),
 				'slug'      => 'campus-login',
-				'shortcode' => '[sev_lms_login]',
+				'shortcode' => '[av_login]',
 			),
 			'recover'  => array(
-				'title'     => __( 'Recuperar contrasena', 'sev-lms' ),
+				'title'     => __( 'Recuperar contrasena', 'aula-virtual' ),
 				'slug'      => 'campus-recuperar-contrasena',
-				'shortcode' => '[sev_lms_lost_password]',
+				'shortcode' => '[av_lost_password]',
 			),
 			'catalog'  => array(
-				'title'     => __( 'Cursos', 'sev-lms' ),
+				'title'     => __( 'Cursos', 'aula-virtual' ),
 				'slug'      => 'cursos',
-				'shortcode' => '[sev_lms_catalog]',
+				'shortcode' => '[av_catalog]',
 			),
 		);
 

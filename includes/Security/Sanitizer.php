@@ -2,12 +2,12 @@
 /**
  * Sanitisation helpers.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Security;
+namespace SIQA\AulaVirtual\Security;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

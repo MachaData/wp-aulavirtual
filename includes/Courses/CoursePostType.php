@@ -2,14 +2,14 @@
 /**
  * Course post type and taxonomies.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Courses;
+namespace SIQA\AulaVirtual\Courses;
 
-use SEV\LMS\Permissions\Capabilities;
+use SIQA\AulaVirtual\Permissions\Capabilities;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,10 +25,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class CoursePostType {
 
-	public const POST_TYPE     = 'sev_lms_course';
-	public const TAX_CATEGORY  = 'sev_lms_course_cat';
-	public const TAX_TAG       = 'sev_lms_course_tag';
-	public const SLUG_OPTION   = 'sev_lms_course_slug';
+	public const POST_TYPE     = 'av_course';
+	public const TAX_CATEGORY  = 'av_course_cat';
+	public const TAX_TAG       = 'av_course_tag';
+	public const SLUG_OPTION   = 'av_course_slug';
 	public const DEFAULT_SLUG  = 'curso';
 
 	/**
@@ -60,18 +60,18 @@ final class CoursePostType {
 	 */
 	private static function register_post_type(): void {
 		$labels = array(
-			'name'               => __( 'Cursos', 'sev-lms' ),
-			'singular_name'      => __( 'Curso', 'sev-lms' ),
-			'add_new'            => __( 'Anadir curso', 'sev-lms' ),
-			'add_new_item'       => __( 'Anadir nuevo curso', 'sev-lms' ),
-			'edit_item'          => __( 'Editar curso', 'sev-lms' ),
-			'new_item'           => __( 'Nuevo curso', 'sev-lms' ),
-			'view_item'          => __( 'Ver curso', 'sev-lms' ),
-			'search_items'       => __( 'Buscar cursos', 'sev-lms' ),
-			'not_found'          => __( 'No se encontraron cursos', 'sev-lms' ),
-			'not_found_in_trash' => __( 'No hay cursos en la papelera', 'sev-lms' ),
-			'all_items'          => __( 'Todos los cursos', 'sev-lms' ),
-			'menu_name'          => __( 'Cursos', 'sev-lms' ),
+			'name'               => __( 'Cursos', 'aula-virtual' ),
+			'singular_name'      => __( 'Curso', 'aula-virtual' ),
+			'add_new'            => __( 'Anadir curso', 'aula-virtual' ),
+			'add_new_item'       => __( 'Anadir nuevo curso', 'aula-virtual' ),
+			'edit_item'          => __( 'Editar curso', 'aula-virtual' ),
+			'new_item'           => __( 'Nuevo curso', 'aula-virtual' ),
+			'view_item'          => __( 'Ver curso', 'aula-virtual' ),
+			'search_items'       => __( 'Buscar cursos', 'aula-virtual' ),
+			'not_found'          => __( 'No se encontraron cursos', 'aula-virtual' ),
+			'not_found_in_trash' => __( 'No hay cursos en la papelera', 'aula-virtual' ),
+			'all_items'          => __( 'Todos los cursos', 'aula-virtual' ),
+			'menu_name'          => __( 'Cursos', 'aula-virtual' ),
 		);
 
 		$args = array(
@@ -101,7 +101,7 @@ final class CoursePostType {
 		 *
 		 * @param array<string, mixed> $args Registration arguments.
 		 */
-		register_post_type( self::POST_TYPE, apply_filters( 'sev_lms/course_post_type_args', $args ) );
+		register_post_type( self::POST_TYPE, apply_filters( 'aula_virtual/course_post_type_args', $args ) );
 	}
 
 	/**
@@ -115,8 +115,8 @@ final class CoursePostType {
 			self::POST_TYPE,
 			array(
 				'labels'            => array(
-					'name'          => __( 'Categorias de curso', 'sev-lms' ),
-					'singular_name' => __( 'Categoria de curso', 'sev-lms' ),
+					'name'          => __( 'Categorias de curso', 'aula-virtual' ),
+					'singular_name' => __( 'Categoria de curso', 'aula-virtual' ),
 				),
 				'public'            => true,
 				'hierarchical'      => true,
@@ -134,8 +134,8 @@ final class CoursePostType {
 			self::POST_TYPE,
 			array(
 				'labels'            => array(
-					'name'          => __( 'Etiquetas de curso', 'sev-lms' ),
-					'singular_name' => __( 'Etiqueta de curso', 'sev-lms' ),
+					'name'          => __( 'Etiquetas de curso', 'aula-virtual' ),
+					'singular_name' => __( 'Etiqueta de curso', 'aula-virtual' ),
 				),
 				'public'            => true,
 				'hierarchical'      => false,

@@ -1,6 +1,6 @@
 {
-    "name": "fargil/sev-lms",
-    "description": "SEV LMS - Sistema de gestion de cursos, ediciones y matriculas para WordPress.",
+    "name": "siqatech/aula-virtual",
+    "description": "Aula Virtual - Sistema de gestion de cursos, ediciones y matriculas para WordPress.",
     "type": "wordpress-plugin",
     "license": "proprietary",
     "require": {
@@ -13,7 +13,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SEV\\LMS\\": "includes/"
+            "SIQA\\AulaVirtual\\": "includes/"
         }
     },
     "config": {
@@ -24,6 +24,6 @@
         }
     },
     "scripts": {
-        "lint": "phpcs --standard=WordPress includes/ sev-lms.php uninstall.php"
+        "lint": "phpcs --standard=WordPress includes/ aula-virtual.php uninstall.php"
     }
 }

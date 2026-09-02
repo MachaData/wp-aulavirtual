@@ -7,7 +7,7 @@
  *
  *     php tests/smoke-test.php
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
@@ -16,7 +16,7 @@ require_once __DIR__ . '/wp-stubs.php';
 
 spl_autoload_register(
 	static function ( string $class_name ): void {
-		$prefix = 'SEV\\LMS\\';
+		$prefix = 'SIQA\\AulaVirtual\\';
 
 		if ( ! str_starts_with( $class_name, $prefix ) ) {
 			return;
@@ -30,14 +30,14 @@ spl_autoload_register(
 	}
 );
 
-use SEV\LMS\Core\Container;
-use SEV\LMS\Database\Repository;
-use SEV\LMS\Database\Schema;
-use SEV\LMS\Permissions\Capabilities;
-use SEV\LMS\Security\Sanitizer;
+use SIQA\AulaVirtual\Core\Container;
+use SIQA\AulaVirtual\Database\Repository;
+use SIQA\AulaVirtual\Database\Schema;
+use SIQA\AulaVirtual\Permissions\Capabilities;
+use SIQA\AulaVirtual\Security\Sanitizer;
 
-$sev_lms_failures = 0;
-$sev_lms_checks   = 0;
+$av_failures = 0;
+$av_checks   = 0;
 
 /**
  * Asserts a condition and reports the result.
@@ -47,9 +47,9 @@ $sev_lms_checks   = 0;
  * @return void
  */
 function check( string $label, bool $condition ): void {
-	global $sev_lms_failures, $sev_lms_checks;
+	global $av_failures, $av_checks;
 
-	++$sev_lms_checks;
+	++$av_checks;
 
 	if ( $condition ) {
 		echo "  ok   {$label}\n";
@@ -57,7 +57,7 @@ function check( string $label, bool $condition ): void {
 		return;
 	}
 
-	++$sev_lms_failures;
+	++$av_failures;
 	echo "  FAIL {$label}\n";
 }
 
@@ -142,13 +142,13 @@ echo "\nSchema\n";
 $schema      = new Schema();
 $definitions = $schema->definitions();
 check( 'declara las 15 tablas del MVP', 15 === count( $definitions ) );
-check( 'usa el prefijo de WordPress', 'wp_sev_lms_enrollments' === $schema->table( 'enrollments' ) );
+check( 'usa el prefijo de WordPress', 'wp_av_enrollments' === $schema->table( 'enrollments' ) );
 check( 'expone los nombres logicos', count( $schema->table_names() ) === count( $definitions ) );
 
 $structure_ok = true;
 $primary_ok   = true;
 foreach ( $definitions as $name => $sql ) {
-	$structure_ok = $structure_ok && str_contains( $sql, "CREATE TABLE wp_sev_lms_{$name} (" );
+	$structure_ok = $structure_ok && str_contains( $sql, "CREATE TABLE wp_av_{$name} (" );
 	$primary_ok   = $primary_ok && str_contains( $sql, 'PRIMARY KEY  (id)' );
 }
 check( 'cada sentencia crea su tabla', $structure_ok );
@@ -165,7 +165,7 @@ check(
 
 echo "\nRepository\n";
 $repository = new TestEnrollmentRepository( $schema );
-check( 'resuelve el nombre completo de la tabla', 'wp_sev_lms_enrollments' === $repository->table() );
+check( 'resuelve el nombre completo de la tabla', 'wp_av_enrollments' === $repository->table() );
 
 $values = array();
 $where  = $repository->build_where(
@@ -236,11 +236,11 @@ check( 'el instructor no administra el LMS', ! in_array( Capabilities::MANAGE_LM
 check( 'el instructor no modifica precios', ! in_array( Capabilities::MANAGE_PRICES, $instructor, true ) );
 check( 'el instructor no toca WooCommerce', ! in_array( Capabilities::MANAGE_COMMERCE, $instructor, true ) );
 check( 'el instructor gestiona su temario', in_array( Capabilities::MANAGE_CURRICULUM, $instructor, true ) );
-check( 'el instructor no edita cursos ajenos', ! in_array( 'edit_others_sev_lms_courses', $instructor, true ) );
+check( 'el instructor no edita cursos ajenos', ! in_array( 'edit_others_av_courses', $instructor, true ) );
 
 $student = Capabilities::student_capabilities();
 check( 'el alumno solo entra al campus', array( 'read', Capabilities::ACCESS_CAMPUS ) === $student );
 
-echo "\n{$sev_lms_checks} comprobaciones, {$sev_lms_failures} fallos\n";
+echo "\n{$av_checks} comprobaciones, {$av_failures} fallos\n";
 
-exit( $sev_lms_failures > 0 ? 1 : 0 );
+exit( $av_failures > 0 ? 1 : 0 );

@@ -2,12 +2,12 @@
 /**
  * Minimal service container.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Core;
+namespace SIQA\AulaVirtual\Core;
 
 use InvalidArgumentException;
 
@@ -92,13 +92,13 @@ final class Container {
 
 		if ( ! isset( $this->factories[ $id ] ) ) {
 			throw new InvalidArgumentException(
-				sprintf( 'SEV LMS: el servicio "%s" no esta registrado.', esc_html( $id ) )
+				sprintf( 'Aula Virtual: el servicio "%s" no esta registrado.', esc_html( $id ) )
 			);
 		}
 
 		if ( isset( $this->resolving[ $id ] ) ) {
 			throw new InvalidArgumentException(
-				sprintf( 'SEV LMS: dependencia circular al resolver "%s".', esc_html( $id ) )
+				sprintf( 'Aula Virtual: dependencia circular al resolver "%s".', esc_html( $id ) )
 			);
 		}
 

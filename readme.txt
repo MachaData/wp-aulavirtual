@@ -1,4 +1,4 @@
-=== SEV LMS ===
+=== Aula Virtual ===
 Contributors: fargil
 Tags: lms, cursos, matriculas, elearning, woocommerce
 Requires at least: 6.4
@@ -12,7 +12,7 @@ Gestion academica para WordPress basada en el modelo Curso -> Ediciones -> Matri
 
 == Description ==
 
-SEV LMS separa el curso (producto educativo permanente, con su landing publica) de sus
+Aula Virtual separa el curso (producto educativo permanente, con su landing publica) de sus
 ediciones (cohortes con fechas, cupo, modalidad e instructor propios). Las matriculas
 apuntan siempre a una edicion, de modo que un mismo curso puede ejecutarse cada año sin
 duplicar contenido ni mezclar alumnos.
@@ -28,7 +28,7 @@ Caracteristicas del nucleo:
 
 == Installation ==
 
-1. Copiar la carpeta `sev-lms` en `wp-content/plugins/`.
+1. Copiar la carpeta `aula-virtual` en `wp-content/plugins/`.
 2. Ejecutar `composer install` dentro de la carpeta del plugin (o desplegar con `vendor/` incluido).
 3. Activar el plugin desde el listado de plugins de WordPress.
 

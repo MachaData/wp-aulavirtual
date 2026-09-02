@@ -1,4 +1,4 @@
-# SEV LMS — Arquitectura propuesta (Entrega 1: Core)
+# Aula Virtual — Arquitectura propuesta (Entrega 1: Core)
 
 > Documento de la **primera entrega** exigida en el punto 72 del brief: analizar los
 > requerimientos y proponer arquitectura, modelo de datos, roles, eventos, endpoints,
@@ -14,20 +14,20 @@
 Este plugin es un producto **distinto** de la plataforma SIQA (Django + HTMX + Postgres) que vive en
 la raíz de este repositorio. El brief pide expresamente un plugin para WordPress, de modo que el stack
 es WordPress/PHP por decisión explícita del encargo, no por sustitución del stack de SIQA. Ambos
-productos conviven sin acoplarse: el plugin está aislado en `wordpress-plugin/sev-lms/`.
+productos conviven sin acoplarse: el plugin está aislado en `wordpress-plugin/aula-virtual/`.
 
 Nombres técnicos (todos configurables antes de publicar comercialmente, punto 74):
 
 | Concepto | Valor |
 |---|---|
-| Plugin | SEV LMS |
-| Slug | `sev-lms` |
-| Namespace | `SEV\LMS` |
-| Prefijo de tablas | `{$wpdb->prefix}sev_lms_` |
-| REST namespace | `sev-lms/v1` |
-| Text domain | `sev-lms` |
-| Prefijo de hooks | `sev_lms/` |
-| Prefijo de opciones | `sev_lms_` |
+| Plugin | Aula Virtual |
+| Slug | `aula-virtual` |
+| Namespace | `SIQA\AulaVirtual` |
+| Prefijo de tablas | `{$wpdb->prefix}av_` |
+| REST namespace | `aula-virtual/v1` |
+| Text domain | `aula-virtual` |
+| Prefijo de hooks | `aula_virtual/` |
+| Prefijo de opciones | `av_` |
 
 ---
 
@@ -64,7 +64,7 @@ Consecuencias de diseño que atraviesan todo el plugin:
 |---|---|---|
 | WordPress | Usuarios, auth, roles, Media Library, emails, cron, REST, permalinks, plantillas | No modela cursos ni matrículas |
 | WooCommerce (opcional) | Productos, precios, checkout, pasarelas, pedidos, cupones, reembolsos | No decide quién accede al contenido |
-| SEV LMS | Cursos, ediciones, temario, matrículas, progreso, clases en vivo, materiales, campus, certificados, reportes | No reimplementa pagos ni autenticación |
+| Aula Virtual | Cursos, ediciones, temario, matrículas, progreso, clases en vivo, materiales, campus, certificados, reportes | No reimplementa pagos ni autenticación |
 
 WooCommerce es **integración opcional y desacoplada**: el LMS arranca y funciona sin él (matrícula
 manual, Excel, enlace privado y gratuita). El módulo WooCommerce se registra sólo si la clase
@@ -77,16 +77,16 @@ manual, Excel, enlace privado y gratuita). El módulo WooCommerce se registra s�
 ### 3.1 Bootstrap y contenedor
 
 ```
-sev-lms.php
+aula-virtual.php
   ├── comprueba PHP >= 8.1 y WP >= 6.4  (aviso en admin y salida limpia si no)
-  ├── define constantes (SEV_LMS_FILE, SEV_LMS_PATH, SEV_LMS_URL, ...)
+  ├── define constantes (AV_FILE, AV_PATH, AV_URL, ...)
   ├── registra el autoloader (Composer si hay vendor/, PSR-4 propio si no)
   ├── register_activation_hook   → Database\Installer::activate()
   ├── register_deactivation_hook → Database\Installer::deactivate()
   └── plugins_loaded (prioridad 5) → Core\Plugin::instance()->boot()
 ```
 
-`Core\Plugin` es el único orquestador. No hay funciones globales salvo `SEV\LMS\sev_lms()`, que
+`Core\Plugin` es el único orquestador. No hay funciones globales salvo `SIQA\AulaVirtual\aula_virtual()`, que
 devuelve la instancia, y los helpers del bootstrap.
 
 **Ciclo de arranque en dos fases** (`Core\ServiceProvider`):
@@ -99,14 +99,14 @@ devuelve la instancia, y los helpers del bootstrap.
 dependencias circulares. No se usa autowiring por reflexión: las fábricas explícitas hacen que las
 dependencias de cada módulo sean legibles de un vistazo.
 
-Extensibilidad: `apply_filters( 'sev_lms/service_providers', $providers )` permite que un add-on
+Extensibilidad: `apply_filters( 'aula_virtual/service_providers', $providers )` permite que un add-on
 añada su propio módulo sin tocar el core. Las entradas que no implementan el contrato se descartan.
 
 ### 3.2 Árbol de carpetas
 
 ```
-wordpress-plugin/sev-lms/
-├── sev-lms.php                  # bootstrap
+wordpress-plugin/aula-virtual/
+├── aula-virtual.php                  # bootstrap
 ├── uninstall.php                # borrado opt-in
 ├── composer.json                # PSR-4 + PhpSpreadsheet
 ├── ARCHITECTURE.md              # este documento
@@ -163,12 +163,12 @@ Carpetas marcadas "(fase …)" ya están reservadas en el plan; se crean con su 
 
 ### 4.1 Qué es CPT y qué es tabla propia (decisión y motivo)
 
-**Custom Post Type — sólo `sev_lms_course`.**
+**Custom Post Type — sólo `av_course`.**
 El curso necesita permalink, SEO, imagen destacada, Gutenberg, Elementor, revisiones y autor. Todo
 eso lo da WordPress gratis. Sus campos comerciales se registran con `register_post_meta()`, lo que
 aporta esquema REST, `sanitize_callback` y `auth_callback` sin escribir código repetido.
 
-Taxonomías: `sev_lms_course_cat` (jerárquica) y `sev_lms_course_tag` (plana).
+Taxonomías: `av_course_cat` (jerárquica) y `av_course_tag` (plana).
 
 **Tablas propias — todo lo transaccional.**
 Ediciones, módulos, lecciones, matrículas y progreso se consultan por rangos de fecha, por estado y
@@ -180,7 +180,7 @@ es un índice, no un escaneo.
 curso y año, con su `postmeta` asociado, contaminando `wp_posts` y las consultas del sitio. El
 contenido enriquecido de la lección se guarda en `lessons.content` (sanitizado con `wp_kses_post`).
 Si en el futuro se necesitara Gutenberg dentro de la lección, la migración es aditiva: se añade
-`lessons.post_id` apuntando a un CPT `sev_lms_lesson` sin tocar el resto del modelo.
+`lessons.post_id` apuntando a un CPT `av_lesson` sin tocar el resto del modelo.
 
 ### 4.2 Tablas (15 en el esquema 1.0.0)
 
@@ -221,14 +221,14 @@ Decisiones concretas que conviene revisar en la aprobación:
 
 ### 4.3 Versionado del esquema
 
-`Database\Schema::VERSION` (hoy `1.0.0`) se guarda en la opción `sev_lms_db_version`.
+`Database\Schema::VERSION` (hoy `1.0.0`) se guarda en la opción `av_db_version`.
 `Database\Migrator`:
 
 - ejecuta `dbDelta()` sobre todas las definiciones sólo cuando la versión instalada es menor;
 - aplica, en orden, las migraciones de datos registradas por versión (backfills, limpiezas — lo que
   `dbDelta` no sabe hacer);
 - usa un *transient* como cerrojo para que dos peticiones simultáneas no migren a la vez;
-- dispara `sev_lms/schema_migrated` al terminar.
+- dispara `aula_virtual/schema_migrated` al terminar.
 
 Comprobación en `admin_init` (prioridad 1) además de en la activación, para cubrir el caso de
 actualización por FTP o por Git, donde el hook de activación no vuelve a ejecutarse.
@@ -241,9 +241,9 @@ actualización por FTP o por Git, donde el hook de activación no vuelve a ejecu
 
 | Rol | Slug | Para quién |
 |---|---|---|
-| Administrador LMS | `sev_lms_admin` | Coordinación académica; todo el LMS sin ser admin de WordPress |
-| Instructor LMS | `sev_lms_instructor` | Docente a cargo de sus cursos y sus alumnos |
-| Estudiante LMS | `sev_lms_student` | Alumno; sólo Campus |
+| Administrador LMS | `av_admin` | Coordinación académica; todo el LMS sin ser admin de WordPress |
+| Instructor LMS | `av_instructor` | Docente a cargo de sus cursos y sus alumnos |
+| Estudiante LMS | `av_student` | Alumno; sólo Campus |
 
 El `administrator` de WordPress recibe todas las capacidades del LMS al activar. Las capacidades se
 resincronizan solas cuando cambia `Roles::VERSION`, porque los roles viven en base de datos y una
@@ -251,18 +251,18 @@ versión nueva del plugin no los actualizaría por sí sola.
 
 ### 5.2 Capacidades
 
-**Del curso (delegadas al CPT con `map_meta_cap`):** `edit_sev_lms_course`,
-`edit_sev_lms_courses`, `edit_others_sev_lms_courses`, `publish_sev_lms_courses`,
-`delete_sev_lms_courses`, `read_private_sev_lms_courses`, etc.
+**Del curso (delegadas al CPT con `map_meta_cap`):** `edit_av_course`,
+`edit_av_courses`, `edit_others_av_courses`, `publish_av_courses`,
+`delete_av_courses`, `read_private_av_courses`, etc.
 Al delegar en `map_meta_cap`, la propiedad ("un instructor sólo edita **sus** cursos") la resuelve
 el core de WordPress; no la reimplementamos.
 
-**Del LMS (tablas propias):** `sev_lms_manage_lms`, `sev_lms_manage_editions`,
-`sev_lms_manage_curriculum`, `sev_lms_manage_materials`, `sev_lms_manage_live_classes`,
-`sev_lms_view_students`, `sev_lms_enroll_students`, `sev_lms_import_students`,
-`sev_lms_approve_requests`, `sev_lms_manage_announcements`, `sev_lms_view_reports`,
-`sev_lms_issue_certificates`, `sev_lms_manage_commerce`, `sev_lms_manage_prices`,
-`sev_lms_access_campus`.
+**Del LMS (tablas propias):** `av_manage_lms`, `av_manage_editions`,
+`av_manage_curriculum`, `av_manage_materials`, `av_manage_live_classes`,
+`av_view_students`, `av_enroll_students`, `av_import_students`,
+`av_approve_requests`, `av_manage_announcements`, `av_view_reports`,
+`av_issue_certificates`, `av_manage_commerce`, `av_manage_prices`,
+`av_access_campus`.
 
 Matriz resumida (punto 40):
 
@@ -281,10 +281,10 @@ Matriz resumida (punto 40):
 
 `Permissions\AccessControl` es el **único** lugar donde se responde "¿puede este usuario hacer X?".
 El acceso al contenido de una edición (que depende de una matrícula activa y de las fechas) se
-resuelve con el filtro `sev_lms/can_access_edition`, que implementará el módulo de matrículas.
+resuelve con el filtro `aula_virtual/can_access_edition`, que implementará el módulo de matrículas.
 
 Los alumnos no ven wp-admin: se les redirige al Campus y se les oculta la barra de administración.
-La comprobación exige que el rol **sea exactamente** `sev_lms_student`, para no alterar el
+La comprobación exige que el rol **sea exactamente** `av_student`, para no alterar el
 comportamiento de los suscriptores u otros roles ya existentes en el sitio.
 
 ---
@@ -292,7 +292,7 @@ comportamiento de los suscriptores u otros roles ya existentes en el sitio.
 ## 6. Eventos internos (punto 35)
 
 `Core\Events\EventBus` publica sobre el sistema de hooks de WordPress
-(`sev_lms/event/{nombre}` y el genérico `sev_lms/event`), de modo que las integraciones externas
+(`aula_virtual/event/{nombre}` y el genérico `aula_virtual/event`), de modo que las integraciones externas
 sean idiomáticas y el plugin tenga un único punto de entrada rastreable.
 
 **Regla de oro: la lógica de matrícula nunca envía emails.** Dispara un evento; el módulo de
@@ -311,7 +311,7 @@ la marca `dispatched` en UTC.
 
 ## 7. REST API (punto 48)
 
-Namespace `sev-lms/v1`. `REST\AbstractController` extiende `WP_REST_Controller` y aporta
+Namespace `aula-virtual/v1`. `REST\AbstractController` extiende `WP_REST_Controller` y aporta
 `forbidden()` / `not_found()` / `invalid()` (401 vs 403 según haya sesión), cabeceras
 `X-WP-Total` y `X-WP-TotalPages`, y parámetros de colección validados.
 
@@ -360,18 +360,18 @@ El manejador de pedidos es idempotente: busca el usuario por email, crea la matr
 
 Al activar, `Database\Installer::activate()`:
 
-1. Ejecuta el migrador (crea las 15 tablas y guarda `sev_lms_db_version`).
+1. Ejecuta el migrador (crea las 15 tablas y guarda `av_db_version`).
 2. Crea los tres roles y otorga las capacidades al `administrator`.
 3. Añade las opciones por defecto **sin sobrescribir** valores existentes.
 4. Crea las páginas si no existen: Campus, Login, Recuperar contraseña, Catálogo —
    reutilizando una página existente con el mismo slug antes de crear otra.
 5. Registra el CPT y hace `flush_rewrite_rules()` (necesario para los permalinks del curso).
-6. Guarda `sev_lms_version` y dispara `sev_lms/activated`.
+6. Guarda `av_version` y dispara `aula_virtual/activated`.
 
 Al desactivar: sólo `flush_rewrite_rules()`. **No se borra nada.**
 
-Al desinstalar (`uninstall.php`): no hace nada salvo que `sev_lms_delete_data_on_uninstall` esté
-activada (por defecto **OFF**). Si lo está, elimina tablas, roles y opciones `sev_lms_*`, y deja
+Al desinstalar (`uninstall.php`): no hace nada salvo que `av_delete_data_on_uninstall` esté
+activada (por defecto **OFF**). Si lo está, elimina tablas, roles y opciones `av_*`, y deja
 intactos los posts de curso, que son contenido normal de WordPress.
 
 ---
@@ -461,8 +461,8 @@ entrega. Lo que esta entrega debe permitir afirmar es que el esqueleto lo soport
 ## 14. Cómo verificar esta entrega
 
 ```bash
-cd wordpress-plugin/sev-lms
-php -l sev-lms.php && php -l uninstall.php     # sintaxis
+cd wordpress-plugin/aula-virtual
+php -l aula-virtual.php && php -l uninstall.php     # sintaxis
 php tests/smoke-test.php                       # 38 comprobaciones del core
 composer install && composer lint              # WordPress Coding Standards (opcional)
 ```
@@ -475,7 +475,7 @@ capacidades.
 
 ## 15. Decisiones que necesitan confirmación antes de Core-2
 
-1. **Nombre comercial y prefijos.** `SEV LMS` / `sev-lms` es temporal (punto 74). Cambiarlo después
+1. **Nombre comercial y prefijos.** `Aula Virtual` / `aula-virtual` es temporal (punto 74). Cambiarlo después
    de tener datos en producción obliga a renombrar tablas y opciones: conviene decidirlo ahora.
 2. **Lecciones como tabla** (propuesto) frente a CPT. La propuesta prioriza rendimiento; el coste es
    no tener Gutenberg dentro de la lección en el MVP.

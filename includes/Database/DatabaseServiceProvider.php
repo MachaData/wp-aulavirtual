@@ -2,15 +2,15 @@
 /**
  * Database module.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Database;
+namespace SIQA\AulaVirtual\Database;
 
-use SEV\LMS\Core\Container;
-use SEV\LMS\Core\ServiceProvider;
+use SIQA\AulaVirtual\Core\Container;
+use SIQA\AulaVirtual\Core\ServiceProvider;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

@@ -2,12 +2,12 @@
 /**
  * Course queries.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Courses;
+namespace SIQA\AulaVirtual\Courses;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

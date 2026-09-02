@@ -2,12 +2,12 @@
 /**
  * Catalogue of internal domain events.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
-namespace SEV\LMS\Core\Events;
+namespace SIQA\AulaVirtual\Core\Events;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -66,7 +66,7 @@ final class Events {
 		 * @param array<int, string> $events Event names.
 		 */
 		return apply_filters(
-			'sev_lms/events',
+			'aula_virtual/events',
 			array_values( ( new \ReflectionClass( self::class ) )->getConstants() )
 		);
 	}

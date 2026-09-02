@@ -4,21 +4,21 @@
  * WordPress installation. Only the functions touched by the smoke test are
  * defined; anything else would hide a real integration problem.
  *
- * @package SEV\LMS
+ * @package SIQA\AulaVirtual
  */
 
 declare( strict_types = 1 );
 
 define( 'ABSPATH', __DIR__ . '/' );
 define( 'MINUTE_IN_SECONDS', 60 );
-define( 'SEV_LMS_VERSION', '0.1.0' );
+define( 'AV_VERSION', '0.1.0' );
 
-$GLOBALS['sev_lms_test_options'] = array();
+$GLOBALS['av_test_options'] = array();
 
 /**
  * Stub $wpdb exposing only the API the core relies on.
  */
-class SEV_LMS_Test_WPDB {
+class AV_Test_WPDB {
 
 	public string $prefix = 'wp_';
 
@@ -69,7 +69,7 @@ class SEV_LMS_Test_WPDB {
 	}
 }
 
-$GLOBALS['wpdb'] = new SEV_LMS_Test_WPDB();
+$GLOBALS['wpdb'] = new AV_Test_WPDB();
 
 function esc_html( $text ) {
 	return htmlspecialchars( (string) $text, ENT_QUOTES );
@@ -132,17 +132,17 @@ function get_current_user_id() {
 }
 
 function get_option( $name, $default = false ) {
-	return $GLOBALS['sev_lms_test_options'][ $name ] ?? $default;
+	return $GLOBALS['av_test_options'][ $name ] ?? $default;
 }
 
 function update_option( $name, $value, $autoload = null ) {
-	$GLOBALS['sev_lms_test_options'][ $name ] = $value;
+	$GLOBALS['av_test_options'][ $name ] = $value;
 
 	return true;
 }
 
 function add_option( $name, $value, $deprecated = '', $autoload = null ) {
-	if ( array_key_exists( $name, $GLOBALS['sev_lms_test_options'] ) ) {
+	if ( array_key_exists( $name, $GLOBALS['av_test_options'] ) ) {
 		return false;
 	}
 
@@ -150,7 +150,7 @@ function add_option( $name, $value, $deprecated = '', $autoload = null ) {
 }
 
 function delete_option( $name ) {
-	unset( $GLOBALS['sev_lms_test_options'][ $name ] );
+	unset( $GLOBALS['av_test_options'][ $name ] );
 
 	return true;
 }
