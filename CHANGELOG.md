@@ -3,6 +3,38 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.12.2] - 2026-09-28
+
+Correcciones de la primera revision de seguridad (administracion, campus y nucleo).
+
+### Corregido
+
+- **Campus inutilizable para alumnos.** El bloqueo de wp-admin tambien cortaba
+  `admin-post.php`, por donde el campus envia completar sesion, comentar, perfil, repetir y
+  descargar. Un usuario solo con rol alumno era redirigido antes de llegar al manejador.
+  Ahora `admin-post.php` queda exento; cada manejador ya verifica sesion, nonce y permisos.
+- **Editor de sesion con error fatal.** `LessonScreen` no guardaba el servicio de
+  comentarios. Nueva prueba generica: ningun servicio queda con propiedades sin inicializar.
+- **Asunto de correos con entidades** (`O&#039;Brien &amp; Cia`): el asunto usa ahora texto
+  plano y el cuerpo HTML escapado.
+
+### Seguridad
+
+- Materiales: solo se puede adjuntar un archivo propio (o con permiso de editar medios
+  ajenos) y que no sea ya material de otro curso. Evita que un instructor mueva a la carpeta
+  protegida el archivo de otro curso o del sitio.
+- Video por shortcode: lista blanca (`video`, `audio`, `playlist`, `embed`, `presto_player`,
+  `bunny_video`, filtro `aula_virtual/allowed_video_shortcodes`), validada al guardar y al
+  mostrar. Antes un instructor podia ejecutar cualquier shortcode del sitio.
+- Sesiones en borrador: el campus y el registro de "iniciada" exigen sesion publicada.
+- Solicitudes: un instructor solo ve las de sus cursos (antes veia nombre, correo y telefono
+  de solicitantes de cursos ajenos).
+- Cambio de contrasena desde el campus cierra las demas sesiones abiertas.
+- Importacion: la sesion de importacion queda ligada al usuario que subio el archivo; ver un
+  trabajo exige permisos sobre su edicion.
+- Registro de errores de correo sin asunto ni direccion en claro.
+- Smoke test: 252 comprobaciones.
+
 ## [0.12.1] - 2026-09-28
 
 ### Seguridad

@@ -158,7 +158,9 @@ final class VideoEmbed {
 				return self::sanitize_iframe( $source );
 
 			case self::SHORTCODE:
-				return wp_kses_post( do_shortcode( $source ) );
+				$source = \SIQA\AulaVirtual\Curriculum\LessonService::allowed_shortcode( $source );
+
+				return '' === $source ? '' : wp_kses_post( do_shortcode( $source ) );
 
 			case self::YOUTUBE:
 			case self::VIMEO:

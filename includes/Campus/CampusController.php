@@ -13,6 +13,7 @@ use SIQA\AulaVirtual\Announcements\AnnouncementRepository;
 use SIQA\AulaVirtual\Certificates\CertificateRepository;
 use SIQA\AulaVirtual\Certificates\CertificateService;
 use SIQA\AulaVirtual\Comments\CommentService;
+use SIQA\AulaVirtual\Curriculum\LessonType;
 use SIQA\AulaVirtual\Curriculum\ReleaseSchedule;
 use SIQA\AulaVirtual\Materials\DownloadController;
 use SIQA\AulaVirtual\Permissions\Capabilities;
@@ -327,7 +328,7 @@ final class CampusController {
 	private function render_lesson( int $user_id, int $lesson_id ): string {
 		$lesson = $this->lessons->find( $lesson_id );
 
-		if ( null === $lesson || ! $this->enrollment_service->has_access( $user_id, (int) $lesson['edition_id'] ) ) {
+		if ( null === $lesson || LessonType::STATUS_PUBLISH !== $lesson['status'] || ! $this->enrollment_service->has_access( $user_id, (int) $lesson['edition_id'] ) ) {
 			return $this->denied();
 		}
 
@@ -575,6 +576,8 @@ final class CampusController {
 			}
 
 			wp_set_password( $new_password, $user_id );
+			// Cierra las demas sesiones: quien tuviera la cookie antigua queda fuera.
+			wp_destroy_all_sessions();
 			// wp_set_password destroys the session; log the student back in.
 			wp_set_auth_cookie( $user_id, true );
 		}

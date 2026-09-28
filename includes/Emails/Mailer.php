@@ -72,7 +72,8 @@ final class Mailer {
 				'No se pudo enviar el correo.',
 				array(
 					'context' => $context,
-					'subject' => $subject,
+					// Sin asunto ni correo en claro: el registro general no guarda datos personales.
+					'to_hash' => substr( wp_hash( $to ), 0, 12 ),
 				),
 				'emails'
 			);

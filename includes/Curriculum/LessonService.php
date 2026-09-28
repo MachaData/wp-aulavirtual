@@ -180,6 +180,10 @@ final class LessonService {
 			$provider = \SIQA\AulaVirtual\Videos\VideoEmbed::detect( $source );
 		}
 
+		if ( 'shortcode' === $provider ) {
+			return self::allowed_shortcode( (string) $source );
+		}
+
 		if ( in_array( $provider, array( 'embed', 'shortcode' ), true ) ) {
 			return wp_kses( $source, array( 'iframe' => array( 'src' => true, 'width' => true, 'height' => true, 'allow' => true, 'allowfullscreen' => true, 'frameborder' => true, 'title' => true ) ) );
 		}
@@ -224,5 +228,31 @@ final class LessonService {
 		}
 
 		return $moved;
+	}
+	/**
+	 * Keeps a video shortcode only when its tag is on the allow-list.
+	 *
+	 * Instructors do not have unfiltered_html; running any shortcode of the
+	 * site (checkout, forms, third-party plugins) inside a lesson would give
+	 * them more power than their role. Only video/audio players are allowed.
+	 *
+	 * @param string $source Raw shortcode text.
+	 * @return string The shortcode, or an empty string when not allowed.
+	 */
+	public static function allowed_shortcode( string $source ): string {
+		$source = trim( wp_strip_all_tags( $source ) );
+
+		/**
+		 * Filters the shortcode tags accepted as lesson video.
+		 *
+		 * @param array<int, string> $tags Shortcode tags.
+		 */
+		$tags = (array) apply_filters( 'aula_virtual/allowed_video_shortcodes', array( 'video', 'audio', 'playlist', 'embed', 'presto_player', 'bunny_video' ) );
+
+		if ( ! preg_match( '/^\[([a-z0-9_-]+)(?:\s[^\[\]]*)?\](?:[^\[]*\[\/\1\])?$/i', $source, $match ) ) {
+			return '';
+		}
+
+		return in_array( strtolower( $match[1] ), array_map( 'strtolower', $tags ), true ) ? $source : '';
 	}
 }

@@ -173,7 +173,7 @@ final class ProgressService {
 	public function start( int $user_id, int $lesson_id ): void {
 		$lesson = $this->lessons->find( $lesson_id );
 
-		if ( null === $lesson || ! $this->enrollment_service->has_access( $user_id, (int) $lesson['edition_id'] ) ) {
+		if ( null === $lesson || LessonType::STATUS_PUBLISH !== $lesson['status'] || ! $this->enrollment_service->has_access( $user_id, (int) $lesson['edition_id'] ) ) {
 			return;
 		}
 

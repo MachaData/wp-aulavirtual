@@ -135,6 +135,7 @@ final class LessonScreen {
 		$this->materials        = $materials;
 		$this->material_service = $material_service;
 		$this->access           = $access;
+		$this->comments         = $comments;
 	}
 
 	/**

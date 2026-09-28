@@ -104,6 +104,11 @@ final class RequestsScreen {
 			$args['where'] = array( 'status' => $status );
 		}
 
+		// Un instructor solo ve las solicitudes de sus propios cursos.
+		if ( ! $this->access->can_manage() ) {
+			$args['where']['course_id'] = $this->access->own_course_ids();
+		}
+
 		$result   = $this->requests->paginate( $args, $page, 30 );
 		$editions = array();
 

@@ -138,6 +138,12 @@ final class MaterialService {
 		$title         = Sanitizer::text( $input['title'] ?? '' );
 
 		if ( $attachment_id > 0 ) {
+			$allowed = self::can_use_attachment( $attachment_id, $course_id, $this->materials->all( array( 'where' => array( 'attachment_id' => $attachment_id ), 'limit' => 50 ) ) );
+
+			if ( $allowed instanceof WP_Error ) {
+				return $allowed;
+			}
+
 			$file = get_attached_file( $attachment_id );
 
 			if ( ! is_string( $file ) || '' === $file ) {
@@ -214,6 +220,32 @@ final class MaterialService {
 	 */
 	public function delete( int $material_id ): bool {
 		return $this->materials->delete( $material_id );
+	}
+
+	/**
+	 * Whether the current user may attach a media file to a course.
+	 *
+	 * The file is moved to the protected folder when it becomes a material,
+	 * so it must be the user's own upload (or the user must be able to edit
+	 * others' media) and must not already belong to another course.
+	 *
+	 * @param int                              $attachment_id Attachment id.
+	 * @param int                              $course_id     Target course.
+	 * @param array<int, array<string, mixed>> $existing      Materials already using that attachment.
+	 * @return true|WP_Error
+	 */
+	public static function can_use_attachment( int $attachment_id, int $course_id, array $existing ) {
+		if ( 'attachment' !== get_post_type( $attachment_id ) || ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new WP_Error( 'av_attachment_forbidden', __( 'No puedes usar ese archivo como material.', 'aula-virtual' ), array( 'status' => 403 ) );
+		}
+
+		foreach ( $existing as $material ) {
+			if ( (int) $material['course_id'] !== $course_id ) {
+				return new WP_Error( 'av_attachment_in_use', __( 'Ese archivo ya es material de otro curso. Subelo de nuevo para este curso.', 'aula-virtual' ), array( 'status' => 409 ) );
+			}
+		}
+
+		return true;
 	}
 
 	/**

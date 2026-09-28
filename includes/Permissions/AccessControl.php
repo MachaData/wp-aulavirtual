@@ -41,6 +41,33 @@ final class AccessControl {
 	}
 
 	/**
+	 * Ids of the courses the user authored (any status).
+	 *
+	 * @param int|null $user_id User id, defaults to the current user.
+	 * @return array<int, int>
+	 */
+	public function own_course_ids( ?int $user_id = null ): array {
+		$user_id = $user_id ?? get_current_user_id();
+
+		if ( $user_id <= 0 ) {
+			return array();
+		}
+
+		$ids = get_posts(
+			array(
+				'post_type'      => \SIQA\AulaVirtual\Courses\CoursePostType::POST_TYPE,
+				'post_status'    => 'any',
+				'author'         => $user_id,
+				'fields'         => 'ids',
+				'posts_per_page' => -1,
+				'no_found_rows'  => true,
+			)
+		);
+
+		return array_map( 'intval', (array) $ids );
+	}
+
+	/**
 	 * Whether the user may administer the LMS as a whole.
 	 *
 	 * @param int|null $user_id User id, defaults to the current user.

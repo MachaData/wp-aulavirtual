@@ -116,12 +116,22 @@ final class VariableResolver {
 	}
 
 	/**
-	 * Resolves the variables for an event payload.
+	 * Resolves the variables for an event payload, escaped for the HTML body.
 	 *
 	 * @param array<string, mixed> $payload Event payload with ids.
 	 * @return array<string, string>
 	 */
 	public function resolve( array $payload ): array {
+		return self::escape_all( $this->resolve_raw( $payload ) );
+	}
+
+	/**
+	 * Resolves the variables without escaping (for the plain-text subject).
+	 *
+	 * @param array<string, mixed> $payload Event payload with ids.
+	 * @return array<string, string>
+	 */
+	public function resolve_raw( array $payload ): array {
 		$vars = array_fill_keys( array_keys( self::catalogue() ), '' );
 
 		$vars['site_name']  = wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES );
@@ -208,16 +218,25 @@ final class VariableResolver {
 		 * @param array<string, string> $vars    Resolved variables.
 		 * @param array<string, mixed>  $payload Event payload.
 		 */
-		return (array) apply_filters( 'aula_virtual/email_variables', self::escape_all( $vars ), $payload );
+		return array_map( 'strval', (array) apply_filters( 'aula_virtual/email_variables', $vars, $payload ) );
+	}
+
+	/**
+	 * Flattens every value to one line of plain text (email subject).
+	 *
+	 * @param array<string, string> $vars Resolved variables.
+	 * @return array<string, string>
+	 */
+	public static function plain_all( array $vars ): array {
+		foreach ( $vars as $key => $value ) {
+			$vars[ $key ] = trim( preg_replace( '/[\r\n]+/', ' ', wp_strip_all_tags( html_entity_decode( (string) $value, ENT_QUOTES, 'UTF-8' ) ) ) ?? '' );
+		}
+
+		return $vars;
 	}
 
 	/**
 	 * Escapes every value for insertion into the HTML email.
-	 *
-	 * Text coming from forms (names, phone, rejection reason, titles) is
-	 * HTML-escaped; URLs go through esc_url; the two variables that carry
-	 * HTML on purpose (comment_content, announcement_content) are already
-	 * sanitised where they are built and are left untouched.
 	 *
 	 * @param array<string, string> $vars Resolved variables.
 	 * @return array<string, string>

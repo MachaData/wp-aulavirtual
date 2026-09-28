@@ -57,6 +57,7 @@ use SIQA\AulaVirtual\Reports\ReportsServiceProvider;
 use SIQA\AulaVirtual\Admin\ReportsScreen;
 use SIQA\AulaVirtual\Admin\CertificatesScreen;
 use SIQA\AulaVirtual\Core\Events\Events;
+use SIQA\AulaVirtual\Curriculum\LessonService;
 use SIQA\AulaVirtual\REST\AbstractController;
 use SIQA\AulaVirtual\REST\EditionsController;
 use SIQA\AulaVirtual\REST\EnrollmentsController;
@@ -553,6 +554,32 @@ check( 'los nombres se escapan antes de entrar al HTML del correo', '&lt;script&
 check( 'una URL javascript: se descarta', '' === $escaped['course_url'] );
 check( 'el contenido del comentario conserva su HTML ya saneado', 'a<br />b' === $escaped['comment_content'] );
 check( 'las URLs validas se conservan', 'https://example.test/aula/sesion/1/' === $escaped['lesson_url'] );
+
+echo "\nSeguridad\n";
+$uninitialised = array();
+foreach ( array( CampusController::class, EditionsScreen::class, LessonScreen::class, ImportScreen::class, ReportsScreen::class, CertificatesScreen::class, SettingsScreen::class, AdminMenu::class, CommentService::class, CertificateService::class, DownloadController::class, EditionsController::class, RegistrationsController::class, EnrollmentsController::class ) as $av_class ) {
+	try {
+		$av_obj = $plugin_container->get( $av_class );
+	} catch ( Throwable $e ) {
+		$uninitialised[] = $av_class . ': ' . $e->getMessage();
+		continue;
+	}
+	foreach ( ( new ReflectionObject( $av_obj ) )->getProperties() as $av_prop ) {
+		if ( $av_prop->hasType() && ! $av_prop->isStatic() && ! $av_prop->isInitialized( $av_obj ) ) {
+			$uninitialised[] = $av_class . '::$' . $av_prop->getName();
+		}
+	}
+}
+check( 'ningun servicio queda con propiedades sin inicializar: ' . implode( ', ', $uninitialised ), array() === $uninitialised );
+check( 'solo se aceptan shortcodes de video permitidos', '[video src="https://example.test/a.mp4"]' === LessonService::allowed_shortcode( '[video src="https://example.test/a.mp4"]' ) );
+check( 'un shortcode de checkout se rechaza', '' === LessonService::allowed_shortcode( '[woocommerce_checkout]' ) );
+check( 'dos shortcodes encadenados se rechazan', '' === LessonService::allowed_shortcode( '[video src="x"][woocommerce_my_account]' ) );
+check( 'un shortcode con cierre permitido pasa', '[embed]https://youtu.be/x[/embed]' === LessonService::allowed_shortcode( '[embed]https://youtu.be/x[/embed]' ) );
+$GLOBALS['pagenow'] = 'admin-post.php';
+check( 'admin-post.php se reconoce para no bloquear el campus', PermissionsServiceProvider::is_admin_post_request() );
+$GLOBALS['pagenow'] = 'index.php';
+$plain = VariableResolver::plain_all( array( 'first_name' => "O'Brien &amp; Cia", 'comment_content' => "a<br />\nb" ) );
+check( 'el asunto del correo sale en texto plano', "O'Brien & Cia" === $plain['first_name'] && 'a b' === $plain['comment_content'] );
 
 echo "\nClases en vivo\n";
 check( 'antes de la ventana el boton no aparece', LiveClassService::WINDOW_BEFORE === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:44:59' ) );

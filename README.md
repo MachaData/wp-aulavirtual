@@ -26,7 +26,7 @@ El flujo completo funciona de punta a punta:
 `Landing → Inscripción o Compra → Aprobación → Pago → Matrícula → Bienvenida → Campus →
 Clase en vivo / Materiales → Progreso`.
 
-**Nada de esto ha corrido todavía contra un WordPress real.** Las 245 comprobaciones
+**Nada de esto ha corrido todavía contra un WordPress real.** Las 252 comprobaciones
 automáticas cubren la lógica pura y el cableado de los módulos; el SQL, los hooks de
 WooCommerce y las pantallas se validan siguiendo `docs/PRUEBAS-STAGING.md`.
 
@@ -61,7 +61,7 @@ WordPress 6.4+, PHP 8.1+, MySQL 5.7+ o MariaDB 10.3+. WooCommerce es opcional.
 ## Verificación rápida
 
 ```bash
-php tests/smoke-test.php      # 245 comprobaciones de logica y cableado
+php tests/smoke-test.php      # 252 comprobaciones de logica y cableado
 php tests/lint-classes.php    # carga las 110 clases del plugin
 composer install && composer lint   # WordPress Coding Standards (opcional)
 ```

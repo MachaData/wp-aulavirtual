@@ -117,12 +117,14 @@ final class ImportScreen {
 			$job = $this->jobs->find( $job_id );
 
 			if ( null !== $job ) {
+				$this->assert_edition( (int) $job['edition_id'] );
+
 				$data['step']   = 'run';
 				$data['job']    = $job;
 				$data['errors'] = json_decode( (string) $job['errors'], true ) ?: array();
 			}
 		} elseif ( '' !== $token ) {
-			$stash = get_transient( 'av_import_stash_' . $token );
+			$stash = self::own_stash( get_transient( 'av_import_stash_' . $token ) );
 
 			if ( is_array( $stash ) ) {
 				$data['token'] = $token;
@@ -177,6 +179,7 @@ final class ImportScreen {
 			array(
 				'edition_id' => $edition_id,
 				'filename'   => $filename,
+				'user_id'    => get_current_user_id(),
 				'headers'    => $parsed['headers'],
 				'rows'       => $parsed['rows'],
 				'mapping'    => ImportParser::guess_mapping( $parsed['headers'] ),
@@ -198,7 +201,7 @@ final class ImportScreen {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
 		$token = isset( $_POST['token'] ) ? preg_replace( '/[^a-z0-9]/', '', (string) wp_unslash( $_POST['token'] ) ) : '';
-		$stash = get_transient( 'av_import_stash_' . $token );
+		$stash = self::own_stash( get_transient( 'av_import_stash_' . $token ) );
 
 		if ( ! is_array( $stash ) ) {
 			$this->finish( 'error', __( 'La sesion de importacion caduco. Vuelve a subir el archivo.', 'aula-virtual' ) );
@@ -238,7 +241,7 @@ final class ImportScreen {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
 		$token = isset( $_POST['token'] ) ? preg_replace( '/[^a-z0-9]/', '', (string) wp_unslash( $_POST['token'] ) ) : '';
-		$stash = get_transient( 'av_import_stash_' . $token );
+		$stash = self::own_stash( get_transient( 'av_import_stash_' . $token ) );
 
 		if ( ! is_array( $stash ) ) {
 			$this->finish( 'error', __( 'La sesion de importacion caduco. Vuelve a subir el archivo.', 'aula-virtual' ) );
@@ -290,6 +293,20 @@ final class ImportScreen {
 
 		wp_safe_redirect( add_query_arg( array( 'page' => self::SLUG, 'job' => $job_id ), admin_url( 'admin.php' ) ) );
 		exit;
+	}
+
+	/**
+	 * Returns the stash only when it belongs to the current user.
+	 *
+	 * @param mixed $stash Transient value.
+	 * @return array<string, mixed>|false
+	 */
+	private static function own_stash( mixed $stash ) {
+		if ( ! is_array( $stash ) || (int) ( $stash['user_id'] ?? 0 ) !== get_current_user_id() ) {
+			return false;
+		}
+
+		return $stash;
 	}
 
 	/**

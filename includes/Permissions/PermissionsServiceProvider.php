@@ -62,6 +62,13 @@ final class PermissionsServiceProvider implements ServiceProvider {
 			return;
 		}
 
+		// El campus envia sus formularios (completar, comentar, perfil, descargar)
+		// a admin-post.php, que tambien dispara admin_init. Cada manejador
+		// comprueba sesion, nonce y permisos por su cuenta.
+		if ( self::is_admin_post_request() ) {
+			return;
+		}
+
 		if ( ! $this->is_student_only() ) {
 			return;
 		}
@@ -112,6 +119,23 @@ final class PermissionsServiceProvider implements ServiceProvider {
 		}
 
 		return home_url( '/campus/' );
+	}
+
+	/**
+	 * Whether the request is wp-admin/admin-post.php (form handlers).
+	 *
+	 * @return bool
+	 */
+	public static function is_admin_post_request(): bool {
+		$page = $GLOBALS['pagenow'] ?? '';
+
+		if ( 'admin-post.php' === $page ) {
+			return true;
+		}
+
+		$script = isset( $_SERVER['SCRIPT_NAME'] ) ? basename( (string) $_SERVER['SCRIPT_NAME'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- compared with a literal.
+
+		return 'admin-post.php' === $script;
 	}
 
 	/**

@@ -108,12 +108,14 @@ final class EmailNotifier {
 			}
 
 			if ( null === $vars ) {
-				$vars = $this->variables->resolve( $payload );
+				$raw          = $this->variables->resolve_raw( $payload );
+				$vars         = VariableResolver::escape_all( $raw );
+				$subject_vars = VariableResolver::plain_all( $raw );
 			}
 
 			$this->mailer->send(
 				$to,
-				TemplateRenderer::render( (string) $template['subject'], $vars ),
+				TemplateRenderer::render( (string) $template['subject'], $subject_vars ),
 				TemplateRenderer::render( (string) $template['body'], $vars ),
 				$event
 			);
