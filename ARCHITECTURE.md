@@ -437,8 +437,17 @@ Un camino completo y estrecho de punta a punta, para poder instalar el plugin y 
 Lo que la vertical deja fuera a propósito: módulos del temario, materiales, clases en vivo,
 solicitudes con enlace privado, importación Excel, WooCommerce, emails y anuncios.
 
-**Core-2 — Contenido:** módulos del temario, duplicado de curso y de edición, proveedores de
-vídeo, materiales, clases en vivo.
+**Entregas 3 a 7 (hechas, 2026-09-28)**
+Inscripción con aprobación y emails editables (0.3), matrícula por compra en WooCommerce
+(0.4), migración desde Tutor LMS (0.5), landing por secciones (0.6), perfil del alumno,
+editor de sesión, clases en vivo y materiales (0.7). El detalle operativo está en
+`docs/GUIA-ADMINISTRADOR.md`; el técnico en `docs/GUIA-TECNICA.md`.
+
+**Pendiente del MVP:** importación por Excel, anuncios, duplicado de curso y de edición,
+content drip aplicado en el campus, URLs limpias del campus, pantalla de configuración.
+
+**Core-2 — Contenido (parcialmente hecho):** duplicado de curso y de edición, registry de
+proveedores de vídeo.
 
 **Core-3 — Personas:** solicitudes y enlaces privados, ficha de alumno, modo estricto de
 progreso, extensión y expiración de accesos.
@@ -489,8 +498,8 @@ entrega. Lo que esta entrega debe permitir afirmar es que el esqueleto lo soport
 ```bash
 cd wordpress-plugin/aula-virtual
 php -l aula-virtual.php && php -l uninstall.php     # sintaxis
-php tests/smoke-test.php                       # 66 comprobaciones
-php tests/lint-classes.php                     # carga las 45 clases del plugin
+php tests/smoke-test.php                       # 139 comprobaciones
+php tests/lint-classes.php                     # carga las 80 clases del plugin
 composer install && composer lint              # WordPress Coding Standards (opcional)
 ```
 

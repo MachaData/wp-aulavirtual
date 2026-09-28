@@ -3,6 +3,28 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.7.0] - 2026-09-28
+
+Perfil del alumno, editor de sesion, clases en vivo, materiales y documentacion de entrega.
+
+### Anadido
+
+- Campus > Mis datos: el alumno edita nombre, telefono y documento, y cambia su contrasena
+  pidiendo la actual. El correo es de solo lectura porque identifica la matricula.
+- Editor de sesion (desde el detalle de la edicion): contenido enriquecido, video, duracion,
+  vista previa, estado y liberacion programada (se guarda; se aplica en la fase de content
+  drip).
+- Clases en vivo por sesion: plataforma, inicio y fin en la zona horaria de la edicion
+  (guardados en UTC), enlace, ID y codigo, ventana de visibilidad del boton (minutos antes y
+  despues), mensaje y grabacion. El enlace de la reunion solo sale del servidor dentro de la
+  ventana. Evento `live_class_recorded` al anadir la grabacion.
+- Materiales por sesion desde la biblioteca de medios o por enlace externo, con lista blanca
+  de extensiones (nunca php, exe ni html) y marca de "solo lectura". Evento `material_added`.
+- El campus muestra la clase en vivo (con estado antes / abierta / terminada), la grabacion y
+  los materiales de la sesion.
+- Documentacion: README, guia del administrador, guia tecnica y plan de pruebas en staging.
+- Smoke test ampliado a 139 comprobaciones y 80 clases.
+
 ## [0.6.0] - 2026-09-28
 
 Landing por curso, administrable por secciones y orientada a conversion.

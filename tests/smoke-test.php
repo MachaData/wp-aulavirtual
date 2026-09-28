@@ -46,6 +46,11 @@ use SIQA\AulaVirtual\Emails\EmailsServiceProvider;
 use SIQA\AulaVirtual\Emails\TemplateRenderer;
 use SIQA\AulaVirtual\Emails\VariableResolver;
 use SIQA\AulaVirtual\Admin\AdminMenu;
+use SIQA\AulaVirtual\Admin\LessonScreen;
+use SIQA\AulaVirtual\LiveClasses\LiveClassService;
+use SIQA\AulaVirtual\LiveClasses\LiveClassesServiceProvider;
+use SIQA\AulaVirtual\Materials\MaterialService;
+use SIQA\AulaVirtual\Materials\MaterialsServiceProvider;
 use SIQA\AulaVirtual\Landing\LandingData;
 use SIQA\AulaVirtual\Landing\LandingServiceProvider;
 use SIQA\AulaVirtual\Landing\LandingTemplate;
@@ -314,6 +319,8 @@ foreach (
 		new CurriculumServiceProvider(),
 		new EnrollmentsServiceProvider(),
 		new ProgressServiceProvider(),
+		new LiveClassesServiceProvider(),
+		new MaterialsServiceProvider(),
 		new EmailsServiceProvider(),
 		new WooCommerceServiceProvider(),
 		new MigrationServiceProvider(),
@@ -369,6 +376,34 @@ try {
 	$landing_template = null;
 }
 check( 'la landing resuelve renderer y plantilla', $landing_template instanceof LandingTemplate && '' === $landing_error );
+
+$lesson_error = '';
+try {
+	$lesson_screen = $plugin_container->get( LessonScreen::class );
+} catch ( Throwable $e ) {
+	$lesson_error  = $e->getMessage();
+	$lesson_screen = null;
+}
+check( 'el editor de sesion resuelve clase en vivo y materiales', $lesson_screen instanceof LessonScreen && '' === $lesson_error );
+
+echo "\nClases en vivo\n";
+check( 'antes de la ventana el boton no aparece', LiveClassService::WINDOW_BEFORE === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:44:59' ) );
+check( '15 minutos antes ya se puede entrar', LiveClassService::WINDOW_OPEN === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:45:00' ) );
+check( 'durante la clase se puede entrar', LiveClassService::WINDOW_OPEN === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 20:10:00' ) );
+check( '30 minutos despues del fin todavia se puede entrar', LiveClassService::WINDOW_OPEN === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 21:30:00' ) );
+check( 'pasado el margen posterior el boton desaparece', LiveClassService::WINDOW_AFTER === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 21:30:01' ) );
+check( 'las 19:00 de Lima son las 00:00 UTC del dia siguiente', '2027-07-02 00:00:00' === LiveClassService::to_utc( '2027-07-01 19:00', 'America/Lima' ) );
+check( 'la conversion inversa devuelve la hora local', '2027-07-01 19:00' === LiveClassService::to_local( '2027-07-02 00:00:00', 'America/Lima' ) );
+check( 'las 19:00 de Madrid en julio son las 17:00 UTC (horario de verano)', '2027-07-01 17:00:00' === LiveClassService::to_utc( '2027-07-01 19:00', 'Europe/Madrid' ) );
+check( 'una fecha vacia no se convierte', null === LiveClassService::to_utc( '', 'America/Lima' ) );
+check( 'una zona horaria invalida no rompe', null === LiveClassService::to_utc( '2027-07-01 19:00', 'Marte/Olympus' ) );
+
+echo "\nMateriales\n";
+check( 'un PDF se admite', MaterialService::is_allowed_extension( 'pdf' ) );
+check( 'la extension no distingue mayusculas ni el punto', MaterialService::is_allowed_extension( '.PDF' ) );
+check( 'un PHP nunca se admite como material', ! MaterialService::is_allowed_extension( 'php' ) );
+check( 'un ejecutable nunca se admite como material', ! MaterialService::is_allowed_extension( 'exe' ) );
+check( 'un HTML no se admite como material', ! MaterialService::is_allowed_extension( 'html' ) );
 
 echo "\nLanding por secciones\n";
 $defaults = LandingData::defaults( 0 );

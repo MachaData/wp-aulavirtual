@@ -120,6 +120,48 @@ final class LessonService {
 	}
 
 	/**
+	 * Updates an existing lesson.
+	 *
+	 * @param int                  $lesson_id Lesson id.
+	 * @param array<string, mixed> $input     Raw input.
+	 * @return true|WP_Error
+	 */
+	public function update( int $lesson_id, array $input ) {
+		$lesson = $this->lessons->find( $lesson_id );
+
+		if ( null === $lesson ) {
+			return new WP_Error( 'av_lesson_not_found', __( 'La sesion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+		}
+
+		$title = Sanitizer::text( $input['title'] ?? $lesson['title'] );
+
+		if ( '' === $title ) {
+			return new WP_Error( 'av_missing_title', __( 'La sesion necesita un titulo.', 'aula-virtual' ), array( 'status' => 400 ) );
+		}
+
+		$data = array(
+			'title'          => $title,
+			'description'    => Sanitizer::textarea( $input['description'] ?? $lesson['description'] ),
+			'content'        => Sanitizer::html( $input['content'] ?? $lesson['content'] ),
+			'lesson_type'    => Sanitizer::enum( $input['lesson_type'] ?? $lesson['lesson_type'], LessonType::all(), LessonType::VIDEO ),
+			'video_provider' => Sanitizer::key( $input['video_provider'] ?? $lesson['video_provider'] ),
+			'video_url'      => Sanitizer::url( $input['video_url'] ?? $lesson['video_url'] ),
+			'duration'       => max( 0, Sanitizer::int( $input['duration'] ?? $lesson['duration'] ) ),
+			'featured_image' => max( 0, Sanitizer::int( $input['featured_image'] ?? $lesson['featured_image'] ) ),
+			'is_preview'     => Sanitizer::bool( $input['is_preview'] ?? $lesson['is_preview'] ) ? 1 : 0,
+			'release_type'   => Sanitizer::enum( $input['release_type'] ?? $lesson['release_type'], array( 'immediate', 'date', 'offset' ), 'immediate' ),
+			'release_date'   => Sanitizer::datetime( $input['release_date'] ?? ( $lesson['release_date'] ?? '' ) ),
+			'release_offset' => max( 0, Sanitizer::int( $input['release_offset'] ?? $lesson['release_offset'] ) ),
+			'status'         => Sanitizer::enum( $input['status'] ?? $lesson['status'], LessonType::statuses(), LessonType::STATUS_PUBLISH ),
+			'updated_at'     => current_time( 'mysql', true ),
+		);
+
+		$this->lessons->update( $lesson_id, $data );
+
+		return true;
+	}
+
+	/**
 	 * Deletes a lesson.
 	 *
 	 * @param int $lesson_id Lesson id.

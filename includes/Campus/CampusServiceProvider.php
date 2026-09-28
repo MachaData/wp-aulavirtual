@@ -15,6 +15,8 @@ use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
+use SIQA\AulaVirtual\LiveClasses\LiveClassRepository;
+use SIQA\AulaVirtual\Materials\MaterialRepository;
 use SIQA\AulaVirtual\Progress\ProgressRepository;
 use SIQA\AulaVirtual\Progress\ProgressService;
 
@@ -42,7 +44,9 @@ final class CampusServiceProvider implements ServiceProvider {
 				$c->get( EditionRepository::class ),
 				$c->get( LessonRepository::class ),
 				$c->get( ProgressRepository::class ),
-				$c->get( ProgressService::class )
+				$c->get( ProgressService::class ),
+				$c->get( LiveClassRepository::class ),
+				$c->get( MaterialRepository::class )
 			)
 		);
 	}
@@ -63,6 +67,13 @@ final class CampusServiceProvider implements ServiceProvider {
 			'admin_post_' . CampusController::ACTION_COMPLETE,
 			static function () use ( $container ): void {
 				$container->get( CampusController::class )->handle_complete();
+			}
+		);
+
+		add_action(
+			'admin_post_' . CampusController::ACTION_PROFILE,
+			static function () use ( $container ): void {
+				$container->get( CampusController::class )->handle_profile();
 			}
 		);
 	}

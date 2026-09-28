@@ -254,6 +254,8 @@ la vez a un curso de Tutor y a una edición de Aula Virtual.
 2. ~~**Landing por secciones**~~ Hecho en v0.6.0: caja "Landing del curso" en el editor del
    curso con las 8 secciones, plantilla propia de conversión, barra fija en móvil, etiquetas
    sociales y datos estructurados, shortcodes `[av_course_landing]` y `[av_course_editions]`.
-3. **Perfil del alumno** en el campus (datos, teléfono, contraseña).
+3. ~~**Perfil del alumno**~~ Hecho en v0.7.0, junto con el editor de sesión, clases en vivo
+   y materiales.
 4. **Integración con el otro WordPress**, según la decisión 3.
-5. Después: materiales, clases en vivo con enlace, importación Excel, anuncios.
+5. Después: importación Excel, anuncios, content drip, URLs limpias del campus, pantalla de
+   configuración, endpoint de descarga protegido para materiales.

@@ -15,6 +15,7 @@
 
 use SIQA\AulaVirtual\Admin\AdminMenu;
 use SIQA\AulaVirtual\Admin\EditionsScreen;
+use SIQA\AulaVirtual\Admin\LessonScreen;
 use SIQA\AulaVirtual\Curriculum\LessonType;
 use SIQA\AulaVirtual\Editions\EditionStatus;
 use SIQA\AulaVirtual\Enrollments\EnrollmentStatus;
@@ -120,7 +121,7 @@ $av_edition_id = (int) $edition['id'];
 			<?php foreach ( $lessons as $av_lesson ) : ?>
 				<tr>
 					<td><?php echo esc_html( (string) (int) $av_lesson['position'] ); ?></td>
-					<td><strong><?php echo esc_html( (string) $av_lesson['title'] ); ?></strong></td>
+					<td><strong><a href="<?php echo esc_url( LessonScreen::url( (int) $av_lesson['id'] ) ); ?>"><?php echo esc_html( (string) $av_lesson['title'] ); ?></a></strong></td>
 					<td><?php echo esc_html( LessonType::label( (string) $av_lesson['lesson_type'] ) ); ?></td>
 					<td><?php echo esc_html( LessonType::STATUS_PUBLISH === $av_lesson['status'] ? __( 'Publicada', 'aula-virtual' ) : __( 'Borrador', 'aula-virtual' ) ); ?></td>
 				</tr>

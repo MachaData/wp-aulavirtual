@@ -23,6 +23,10 @@ use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
 use SIQA\AulaVirtual\Enrollments\RegistrationRequestRepository;
 use SIQA\AulaVirtual\Enrollments\RegistrationService;
+use SIQA\AulaVirtual\LiveClasses\LiveClassRepository;
+use SIQA\AulaVirtual\LiveClasses\LiveClassService;
+use SIQA\AulaVirtual\Materials\MaterialRepository;
+use SIQA\AulaVirtual\Materials\MaterialService;
 use SIQA\AulaVirtual\Migration\TutorMigrator;
 use SIQA\AulaVirtual\Migration\TutorReader;
 use SIQA\AulaVirtual\Permissions\AccessControl;
@@ -78,6 +82,20 @@ final class AdminServiceProvider implements ServiceProvider {
 		);
 
 		$container->singleton(
+			LessonScreen::class,
+			static fn( Container $c ): LessonScreen => new LessonScreen(
+				$c->get( LessonRepository::class ),
+				$c->get( LessonService::class ),
+				$c->get( EditionRepository::class ),
+				$c->get( LiveClassRepository::class ),
+				$c->get( LiveClassService::class ),
+				$c->get( MaterialRepository::class ),
+				$c->get( MaterialService::class ),
+				$c->get( AccessControl::class )
+			)
+		);
+
+		$container->singleton(
 			MigrationScreen::class,
 			static fn( Container $c ): MigrationScreen => new MigrationScreen(
 				$c->get( TutorReader::class ),
@@ -111,6 +129,18 @@ final class AdminServiceProvider implements ServiceProvider {
 			'admin_menu',
 			static function () use ( $container ): void {
 				$container->get( AdminMenu::class )->register();
+
+				// Editor de sesion: pagina sin entrada de menu, se llega desde la edicion.
+				add_submenu_page(
+					'',
+					__( 'Sesion', 'aula-virtual' ),
+					__( 'Sesion', 'aula-virtual' ),
+					\SIQA\AulaVirtual\Permissions\Capabilities::MANAGE_CURRICULUM,
+					LessonScreen::SLUG,
+					static function () use ( $container ): void {
+						$container->get( LessonScreen::class )->render();
+					}
+				);
 			}
 		);
 
@@ -125,6 +155,12 @@ final class AdminServiceProvider implements ServiceProvider {
 			EmailsScreen::ACTION_SAVE           => array( EmailsScreen::class, 'handle_save' ),
 			EmailsScreen::ACTION_TEST           => array( EmailsScreen::class, 'handle_test' ),
 			MigrationScreen::ACTION_MIGRATE     => array( MigrationScreen::class, 'handle_migrate' ),
+			LessonScreen::ACTION_SAVE           => array( LessonScreen::class, 'handle_save' ),
+			LessonScreen::ACTION_DELETE         => array( LessonScreen::class, 'handle_delete' ),
+			LessonScreen::ACTION_SAVE_LIVE      => array( LessonScreen::class, 'handle_save_live' ),
+			LessonScreen::ACTION_REMOVE_LIVE    => array( LessonScreen::class, 'handle_remove_live' ),
+			LessonScreen::ACTION_ADD_MATERIAL   => array( LessonScreen::class, 'handle_add_material' ),
+			LessonScreen::ACTION_DELETE_MATERIAL => array( LessonScreen::class, 'handle_delete_material' ),
 		);
 
 		foreach ( $handlers as $action => $target ) {

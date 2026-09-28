@@ -6,6 +6,7 @@
  *
  * @var array<int, array<string, mixed>> $cards
  * @var WP_User                          $user
+ * @var \SIQA\AulaVirtual\Campus\CampusController $controller
  */
 
 use SIQA\AulaVirtual\Editions\EditionStatus;
@@ -24,6 +25,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		);
 		?>
 	</h2>
+
+	<p class="av-campus__nav">
+		<a href="<?php echo esc_url( $controller->campus_url( array( \SIQA\AulaVirtual\Campus\CampusController::QUERY_PROFILE => 1 ) ) ); ?>"><?php esc_html_e( 'Mis datos', 'aula-virtual' ); ?></a>
+		&middot;
+		<a href="<?php echo esc_url( wp_logout_url( $controller->campus_url() ) ); ?>"><?php esc_html_e( 'Salir', 'aula-virtual' ); ?></a>
+	</p>
 
 	<?php if ( empty( $cards ) ) : ?>
 		<p><?php esc_html_e( 'Todavia no estas matriculado en ningun curso.', 'aula-virtual' ); ?></p>
