@@ -423,6 +423,26 @@ delete_option( 'av_bunny_token_key' );
 check( 'Bunny: sin clave el iframe no lleva token', ! str_contains( VideoEmbed::render( 'bunny', 'abcdef12-1234-1234-1234-abcdef123456' ), 'token=' ) );
 delete_option( 'av_bunny_library_id' );
 
+$cdn = 'https://vz-3c47b71f-11e.b-cdn.net/ea779f39-2171-4024-935e-d46f70abe0e2/playlist.m3u8';
+check( 'Bunny CDN: la playlist del CDN se detecta como Bunny', 'bunny' === VideoEmbed::detect( $cdn ) );
+check( 'Bunny CDN: con biblioteca configurada se extrae el GUID de la ruta', array( '777', 'ea779f39-2171-4024-935e-d46f70abe0e2' ) === VideoEmbed::bunny_parse( $cdn, '777' ) );
+check( 'Bunny CDN: sin biblioteca no se puede convertir a embed', null === VideoEmbed::bunny_parse( $cdn, '' ) );
+update_option( 'av_bunny_library_id', '777' );
+check( 'Bunny CDN: con biblioteca, la playlist se convierte en el embed de Stream', str_contains( VideoEmbed::render( 'bunny', $cdn ), 'iframe.mediadelivery.net/embed/777/ea779f39-2171-4024-935e-d46f70abe0e2' ) );
+delete_option( 'av_bunny_library_id' );
+$hls_html = VideoEmbed::render( 'bunny', $cdn );
+check( 'Bunny CDN: sin biblioteca se reproduce como HLS directo', str_contains( $hls_html, 'data-hls="' ) && str_contains( $hls_html, 'playlist.m3u8' ) );
+check( 'Bunny CDN: sin clave del CDN la URL no se firma', ! str_contains( $hls_html, 'token=' ) );
+update_option( 'av_bunny_cdn_token_key', 'clave-cdn' );
+check( 'Bunny CDN: con clave del CDN la URL lleva token y expiracion', str_contains( VideoEmbed::render( 'bunny', $cdn ), 'token=' ) );
+delete_option( 'av_bunny_cdn_token_key' );
+$cdn_token = VideoEmbed::bunny_cdn_token( 'k', '/ea779f39/playlist.m3u8', 1800000000 );
+check( 'Bunny CDN: el token es base64url del SHA-256 en bruto, sin relleno', rtrim( strtr( base64_encode( hash( 'sha256', 'k/ea779f39/playlist.m3u8' . '1800000000', true ) ), '+/', '-_' ), '=' ) === $cdn_token && ! str_contains( $cdn_token, '=' ) );
+
+$tutor_cdn = TutorMapping::video( array( 'source' => 'external_url', 'source_external_url' => $cdn, 'runtime' => array( 'hours' => '1', 'minutes' => '59', 'seconds' => '42' ) ) );
+check( 'Tutor: una "URL externa" del CDN de Bunny migra como Bunny con su duracion', 'bunny' === $tutor_cdn['provider'] && 119 === $tutor_cdn['minutes'] );
+check( 'Tutor: una "URL externa" de YouTube migra como YouTube', 'youtube' === TutorMapping::video( array( 'source' => 'external_url', 'source_external_url' => 'https://www.youtube.com/watch?v=x' ) )['provider'] );
+
 check( 'un iframe de un host permitido se conserva', str_contains( VideoEmbed::render( 'embed', '<iframe src="https://player.vimeo.com/video/1" width="640"></iframe>' ), 'player.vimeo.com' ) );
 check( 'un iframe de un host desconocido se descarta entero', '' === VideoEmbed::render( 'embed', '<iframe src="https://malicioso.test/x"></iframe>' ) );
 check( 'un MP4 se sirve con la etiqueta video', str_starts_with( VideoEmbed::render( 'html5', 'https://cdn.test/clase.mp4' ), '<video' ) );
@@ -485,7 +505,8 @@ $yt = TutorMapping::video( array( 'source' => 'youtube', 'source_youtube' => 'ht
 check( 'un video de YouTube conserva proveedor, URL y duracion en minutos', array( 'youtube', 'https://youtu.be/abc', 90 ) === array( $yt['provider'], $yt['url'], $yt['minutes'] ) );
 $vm = TutorMapping::video( array( 'source' => 'vimeo', 'source_vimeo' => 'https://vimeo.com/1', 'runtime' => array( 'hours' => 0, 'minutes' => 0, 'seconds' => 45 ) ) );
 check( 'menos de un minuto redondea a un minuto', 1 === $vm['minutes'] && 'vimeo' === $vm['provider'] );
-check( 'una URL externa se mapea al proveedor url', 'url' === TutorMapping::video( array( 'source' => 'external_url', 'source_external_url' => 'https://x.test/v.mp4' ) )['provider'] );
+check( 'una URL externa a un MP4 se reclasifica como archivo directo', 'html5' === TutorMapping::video( array( 'source' => 'external_url', 'source_external_url' => 'https://x.test/v.mp4' ) )['provider'] );
+check( 'una URL externa generica se queda como url', 'url' === TutorMapping::video( array( 'source' => 'external_url', 'source_external_url' => 'https://loom.com/share/x' ) )['provider'] );
 check( 'un video sin URL no deja proveedor colgado', '' === TutorMapping::video( array( 'source' => 'youtube', 'source_youtube' => '' ) )['provider'] );
 check( 'un meta que no es array se ignora', array( 'provider' => '', 'url' => '', 'minutes' => 0 ) === TutorMapping::video( 'basura' ) );
 check( 'una fuente desconocida se ignora', '' === TutorMapping::video( array( 'source' => 'tiktok', 'source_tiktok' => 'https://t' ) )['url'] );

@@ -75,6 +75,17 @@ final class TutorMapping {
 			$minutes = 1;
 		}
 
+		// Tutor no tiene fuente "Bunny CDN": en este sitio los videos privados se
+		// cargan como "URL externa" con la playlist.m3u8 del CDN. Se reclasifican
+		// por la URL para que el campus sepa como reproducirlos.
+		if ( 'url' === $provider && '' !== $url ) {
+			$detected = \SIQA\AulaVirtual\Videos\VideoEmbed::detect( $url );
+
+			if ( in_array( $detected, array( 'bunny', 'html5', 'youtube', 'vimeo' ), true ) ) {
+				$provider = $detected;
+			}
+		}
+
 		return array(
 			'provider' => '' === $url ? '' : $provider,
 			'url'      => $url,

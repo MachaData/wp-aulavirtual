@@ -34,6 +34,7 @@ final class VideoEmbed {
 	public const OPTION_BUNNY_LIBRARY   = 'av_bunny_library_id';
 	public const OPTION_BUNNY_TOKEN_KEY = 'av_bunny_token_key';
 	public const OPTION_BUNNY_TOKEN_TTL = 'av_bunny_token_ttl';
+	public const OPTION_BUNNY_CDN_KEY   = 'av_bunny_cdn_token_key';
 
 	/**
 	 * Providers offered in the editors, with labels.
@@ -140,12 +141,18 @@ final class VideoEmbed {
 
 		switch ( $provider ) {
 			case self::BUNNY:
-				return self::iframe( self::bunny_embed_url( $source ) );
+				$embed = self::bunny_embed_url( $source );
+
+				if ( '' !== $embed ) {
+					return self::iframe( $embed );
+				}
+
+				// Sin biblioteca configurada, una URL del CDN (playlist.m3u8) se
+				// reproduce directamente, firmada si la pull zone exige token.
+				return self::html5( self::bunny_cdn_url( $source ) );
 
 			case self::HTML5:
-				$url = esc_url_raw( $source );
-
-				return '' === $url ? '' : '<video controls playsinline preload="metadata" controlsList="nodownload" src="' . esc_url( $url ) . '"></video>';
+				return self::html5( $source );
 
 			case self::EMBED:
 				return self::sanitize_iframe( $source );
@@ -237,7 +244,82 @@ final class VideoEmbed {
 			return array( $default_library, $source );
 		}
 
+		// URL del CDN de Bunny Stream: https://vz-xxxx.b-cdn.net/{guid}/playlist.m3u8
+		// El GUID esta en la ruta; la biblioteca solo se conoce por configuracion.
+		if ( '' !== $default_library && preg_match( '#b-cdn\.net/([0-9a-f-]{36})/#i', $source, $m ) ) {
+			return array( $default_library, $m[1] );
+		}
+
 		return null;
+	}
+
+	/**
+	 * Signs a Bunny CDN (pull zone) URL when the zone uses token authentication.
+	 *
+	 * Bunny's URL token: base64url( sha256_raw( key . path . expires ) ), sent
+	 * as `?token=…&expires=…`. Without a configured key the URL is returned
+	 * untouched.
+	 *
+	 * @param string $url CDN URL.
+	 * @return string
+	 */
+	public static function bunny_cdn_url( string $url ): string {
+		$url = esc_url_raw( $url );
+		$key = (string) get_option( self::OPTION_BUNNY_CDN_KEY, '' );
+
+		if ( '' === $url || '' === $key ) {
+			return $url;
+		}
+
+		$ttl     = max( 300, (int) get_option( self::OPTION_BUNNY_TOKEN_TTL, 6 * HOUR_IN_SECONDS ) );
+		$expires = time() + $ttl;
+
+		return add_query_arg(
+			array(
+				'token'   => self::bunny_cdn_token( $key, (string) wp_parse_url( $url, PHP_URL_PATH ), $expires ),
+				'expires' => (string) $expires,
+			),
+			$url
+		);
+	}
+
+	/**
+	 * Bunny CDN token for a path: base64url of the raw SHA-256 of key + path + expires.
+	 *
+	 * @param string $key     Pull zone token authentication key.
+	 * @param string $path    URL path, starting with "/".
+	 * @param int    $expires Unix timestamp.
+	 * @return string
+	 */
+	public static function bunny_cdn_token( string $key, string $path, int $expires ): string {
+		$raw = hash( 'sha256', $key . $path . $expires, true );
+
+		return rtrim( strtr( base64_encode( $raw ), '+/', '-_' ), '=' );
+	}
+
+	/**
+	 * Player for a direct file. HLS playlists get the hls.js loader for the
+	 * browsers that cannot play them natively.
+	 *
+	 * @param string $url File or playlist URL.
+	 * @return string
+	 */
+	private static function html5( string $url ): string {
+		$url = esc_url_raw( $url );
+
+		if ( '' === $url ) {
+			return '';
+		}
+
+		if ( preg_match( '/\.m3u8(\?.*)?$/i', $url ) ) {
+			if ( function_exists( 'wp_enqueue_script' ) ) {
+				wp_enqueue_script( 'av-player', AV_URL . 'assets/js/player.js', array(), AV_VERSION, true );
+			}
+
+			return '<video controls playsinline preload="metadata" controlsList="nodownload" data-hls="' . esc_url( $url ) . '"></video>';
+		}
+
+		return '<video controls playsinline preload="metadata" controlsList="nodownload" src="' . esc_url( $url ) . '"></video>';
 	}
 
 	/**

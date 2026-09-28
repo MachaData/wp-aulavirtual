@@ -69,19 +69,30 @@ automáticamente" basta pegar la URL:
 | Código incrustado | El `<iframe>` que da la plataforma. Solo se aceptan hosts conocidos (YouTube, Vimeo, Bunny, Drive, Loom, Wistia) |
 | Shortcode | Por ejemplo, el de un reproductor externo |
 
-**Videos privados en Bunny.** Bunny puede exigir un token en cada reproducción ("Token
-Authentication" en la configuración de la biblioteca de Stream). Para que el campus genere
-ese token en cada carga, definir dos opciones:
+**Cómo están hoy los videos en Tutor.** Las sesiones usan "URL externa" con la playlist del
+CDN de Bunny (`https://vz-….b-cdn.net/{guid}/playlist.m3u8`). La migración las reconoce como
+Bunny y el campus las reproduce de una de estas dos formas:
 
-| Opción | Valor |
-|---|---|
-| `av_bunny_library_id` | El ID numérico de la biblioteca de Stream |
-| `av_bunny_token_key` | La *Token Authentication Key* de esa biblioteca (en Bunny: Stream → biblioteca → Security) |
-| `av_bunny_token_ttl` | Segundos de validez del token. Por defecto 21600 (6 horas) |
+| Modo | Cuándo | Qué hace |
+|---|---|---|
+| **Embed de Stream** (recomendado) | `av_bunny_library_id` está configurada | Convierte la playlist en el reproductor oficial de Bunny (`iframe.mediadelivery.net/embed/{biblioteca}/{guid}`), con calidad adaptativa, y lo firma con la clave de la biblioteca si existe |
+| **HLS directo** | Sin biblioteca configurada | Reproduce la playlist en el propio campus (en Chrome y Firefox carga `hls.js` desde cdnjs), firmándola con la clave del CDN si existe |
 
-Con la clave configurada, el reproductor del campus firma cada URL con un token que caduca;
-copiar el enlace del video fuera del campus deja de servir pasadas esas horas. Sin la clave,
-los videos se incrustan sin firmar (sirve para bibliotecas públicas).
+**Videos privados.** Bunny puede exigir un token en cada reproducción. Hay dos claves
+distintas según el modo:
+
+| Opción | Valor | Dónde está en Bunny |
+|---|---|---|
+| `av_bunny_library_id` | ID numérico de la biblioteca de Stream | Stream → biblioteca → la URL o la pestaña API |
+| `av_bunny_token_key` | *Token Authentication Key* de la biblioteca (modo embed) | Stream → biblioteca → Security → Embed view token authentication |
+| `av_bunny_cdn_token_key` | *Token Authentication Key* de la pull zone (modo HLS directo) | CDN → pull zone → Security → Token authentication |
+| `av_bunny_token_ttl` | Segundos de validez del token. Por defecto 21600 (6 horas) | — |
+
+Con la clave del modo en uso configurada, cada reproducción lleva un token que caduca: copiar
+el enlace fuera del campus deja de servir pasadas esas horas. Sin claves, los videos se
+reproducen sin firmar, que es lo que necesita una biblioteca pública. Recomendación para este
+sitio: configurar `av_bunny_library_id` y `av_bunny_token_key`, y activar la autenticación por
+token en la biblioteca de Stream.
 
 ## 5. Cómo llegan los alumnos
 
@@ -190,7 +201,8 @@ Hacerlo primero en un sitio de pruebas y comparar los conteos con los de Tutor.
 | `av_admin_notification_email` | correo | el del sitio |
 | `av_log_level` | `debug`, `info`, `warning`, `error`, `off` | `info` |
 | `av_bunny_library_id` | ID de biblioteca de Bunny Stream | vacío |
-| `av_bunny_token_key` | clave de token de la biblioteca | vacío (sin firma) |
+| `av_bunny_token_key` | clave de token de la biblioteca (embed) | vacío (sin firma) |
+| `av_bunny_cdn_token_key` | clave de token de la pull zone (HLS directo) | vacío (sin firma) |
 | `av_bunny_token_ttl` | segundos | `21600` |
 
 Se cambian con `wp option update` o con un plugin de opciones hasta que exista la pantalla

@@ -3,6 +3,20 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.8.1] - 2026-09-28
+
+Videos de Bunny cargados como "URL externa" del CDN, que es como estan hoy en Tutor.
+
+### Anadido
+
+- Una playlist HLS del CDN de Bunny (`vz-….b-cdn.net/{guid}/playlist.m3u8`) se reconoce como
+  Bunny. Con `av_bunny_library_id` se convierte al embed oficial de Stream (firmado con la
+  clave de la biblioteca); sin biblioteca se reproduce como HLS directo con `hls.js` en los
+  navegadores que lo necesitan, firmada con la clave de la pull zone (`av_bunny_cdn_token_key`).
+- Migracion: una "URL externa" de Tutor se reclasifica por su URL (Bunny, MP4, YouTube, Vimeo)
+  para que el campus sepa reproducirla; la duracion en horas, minutos y segundos se conserva.
+- Smoke test ampliado a 171 comprobaciones.
+
 ## [0.8.0] - 2026-09-28
 
 Videos con Bunny Stream y migracion completa de las lecciones de Tutor.

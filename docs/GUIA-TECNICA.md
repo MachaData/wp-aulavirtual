@@ -135,8 +135,13 @@ una función nueva, añadirla ahí imitando a WordPress, no simplificándola.
 video (campus, landing, grabaciones). Con proveedor vacío detecta por la URL. Bunny se
 resuelve a `iframe.mediadelivery.net/embed/{lib}/{guid}` y, si `av_bunny_token_key` está
 definida, añade `token=sha256(clave + guid + expires)` y `expires`, según la autenticación por
-token de Bunny Stream. Los iframes (pegados o devueltos por oEmbed) solo se conservan si su
-host está en la lista blanca; `wp_kses_post` los eliminaría, por eso no se usa ahí.
+token de Bunny Stream. Una URL del CDN (`*.b-cdn.net/{guid}/playlist.m3u8`) se convierte al embed cuando hay
+biblioteca configurada; si no, se reproduce como HLS: `<video data-hls>` más
+`assets/js/player.js`, que carga `hls.js` desde cdnjs solo en navegadores sin HLS nativo, y se
+firma con la clave de la pull zone (`base64url(sha256_raw(clave + ruta + expires))`) si
+`av_bunny_cdn_token_key` existe. Los iframes (pegados o devueltos por oEmbed) solo se
+conservan si su host está en la lista blanca; `wp_kses_post` los eliminaría, por eso no se
+usa ahí.
 
 ## 9. Limitaciones conocidas
 
