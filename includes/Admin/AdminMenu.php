@@ -56,18 +56,43 @@ final class AdminMenu {
 	private MigrationScreen $migration;
 
 	/**
+	 * Announcements screen.
+	 *
+	 * @var AnnouncementsScreen
+	 */
+	private AnnouncementsScreen $announcements;
+
+	/**
+	 * Settings screen.
+	 *
+	 * @var SettingsScreen
+	 */
+	private SettingsScreen $settings;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EditionsScreen $editions Editions screen.
 	 * @param RequestsScreen $requests Requests screen.
 	 * @param EmailsScreen    $emails    Emails screen.
-	 * @param MigrationScreen $migration Migration screen.
+	 * @param MigrationScreen     $migration     Migration screen.
+	 * @param AnnouncementsScreen $announcements Announcements screen.
+	 * @param SettingsScreen      $settings      Settings screen.
 	 */
-	public function __construct( EditionsScreen $editions, RequestsScreen $requests, EmailsScreen $emails, MigrationScreen $migration ) {
-		$this->editions  = $editions;
-		$this->requests  = $requests;
-		$this->emails    = $emails;
-		$this->migration = $migration;
+	public function __construct(
+		EditionsScreen $editions,
+		RequestsScreen $requests,
+		EmailsScreen $emails,
+		MigrationScreen $migration,
+		AnnouncementsScreen $announcements,
+		SettingsScreen $settings
+	) {
+		$this->editions      = $editions;
+		$this->requests      = $requests;
+		$this->emails        = $emails;
+		$this->migration     = $migration;
+		$this->announcements = $announcements;
+		$this->settings      = $settings;
 	}
 
 	/**
@@ -106,6 +131,15 @@ final class AdminMenu {
 
 		add_submenu_page(
 			self::EDITIONS_SLUG,
+			__( 'Anuncios', 'aula-virtual' ),
+			__( 'Anuncios', 'aula-virtual' ),
+			Capabilities::MANAGE_ANNOUNCE,
+			AnnouncementsScreen::SLUG,
+			array( $this->announcements, 'render' )
+		);
+
+		add_submenu_page(
+			self::EDITIONS_SLUG,
 			__( 'Emails', 'aula-virtual' ),
 			__( 'Emails', 'aula-virtual' ),
 			Capabilities::MANAGE_LMS,
@@ -130,6 +164,15 @@ final class AdminMenu {
 			__( 'Cursos', 'aula-virtual' ),
 			Capabilities::course_capabilities()['edit_posts'],
 			'edit.php?post_type=av_course'
+		);
+
+		add_submenu_page(
+			self::EDITIONS_SLUG,
+			__( 'Configuracion', 'aula-virtual' ),
+			__( 'Configuracion', 'aula-virtual' ),
+			Capabilities::MANAGE_LMS,
+			SettingsScreen::SLUG,
+			array( $this->settings, 'render' )
 		);
 	}
 

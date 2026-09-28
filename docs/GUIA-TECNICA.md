@@ -32,13 +32,14 @@ final porque consumen servicios de todos los demás.
 | `Progress` | ProgressCalculator, repositorio, servicio | Curriculum, Enrollments |
 | `LiveClasses` | repositorio, servicio (ventana, zonas horarias) | Curriculum |
 | `Videos` | VideoEmbed: registro de proveedores, embeds firmados de Bunny, saneado de iframes | — |
+| `Announcements` | repositorio y servicio; el envio por correo dispara un evento por alumno | Enrollments |
 | `Materials` | repositorio, servicio (lista blanca de extensiones) | Curriculum |
 | `Emails` | plantillas, variables, renderer, mailer, notificador | Enrollments, Curriculum |
 | `WooCommerce` | ProductLink, OrderHandler, Settings | Enrollments |
 | `Migration` | TutorReader, TutorMapping, TutorMigrator | Editions, Curriculum, Enrollments, Progress |
 | `Landing` | LandingData, renderer, plantilla, meta box | Editions, Curriculum, Enrollments |
 | `Campus` | CampusController (dashboard, temario, sesión, perfil) | casi todo |
-| `Admin` | AdminMenu y pantallas (ediciones, sesión, solicitudes, emails, migración) | casi todo |
+| `Admin` | AdminMenu y pantallas (ediciones, sesión, solicitudes, emails, anuncios, migración, configuración) | casi todo |
 | `REST` | AbstractController, CoursesController | Courses |
 
 Reglas de dependencia: los servicios de negocio **no** conocen a Admin, Campus ni Emails. La
@@ -69,6 +70,7 @@ genérico `aula_virtual/event`. El payload lleva ids, nunca datos personales. Ma
 | `registration_request_created/approved/rejected` | RegistrationService | Emails |
 | `enrollment_created/approved/suspended/cancelled/expired` | EnrollmentService | Emails |
 | `lesson_started/completed`, `course_completed` | ProgressService | Emails |
+| `announcement_created` (uno por alumno) | AnnouncementService | Emails |
 | `live_class_recorded`, `material_added` | LiveClassService, MaterialService | Emails (sin plantilla por defecto) |
 | `order_processed` | OrderHandler | — (silencioso) |
 
@@ -98,6 +100,10 @@ venir instalado, en `EmailDefaults::definitions()`.
 `aula-virtual/emails/layout.php`.
 
 **Shortcodes:** `[av_campus]`, `[av_course_landing id=""]`, `[av_course_editions id=""]`.
+
+**Opciones:** el registro de campos de `Admin\SettingsScreen::tabs()` es la lista canónica de
+opciones del plugin, con tipo, valor por defecto y saneado. Añadir una opción = añadir una
+entrada ahí.
 
 ## 6. Esquema y migraciones
 
@@ -152,7 +158,8 @@ usa ahí.
   el campus.
 - Las URLs del campus usan argumentos de consulta (`?av_edicion=`, `?av_leccion=`,
   `?av_perfil=`); las URLs limpias llegan con las reglas de reescritura de la fase Campus.
-- No hay pantalla de configuración: las opciones se listan en la guía del administrador.
+- El envío por correo de un anuncio recorre a los alumnos en la misma petición (bien para
+  cientos; con miles conviene pasarlo a Action Scheduler).
 - REST expone solo `/aula-virtual/v1/courses`; el resto de recursos llegan con la integración
   externa.
 - Sin importación por Excel ni anuncios todavía (siguiente bloque).

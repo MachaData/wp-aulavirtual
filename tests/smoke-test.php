@@ -46,6 +46,9 @@ use SIQA\AulaVirtual\Emails\EmailsServiceProvider;
 use SIQA\AulaVirtual\Emails\TemplateRenderer;
 use SIQA\AulaVirtual\Emails\VariableResolver;
 use SIQA\AulaVirtual\Admin\AdminMenu;
+use SIQA\AulaVirtual\Admin\SettingsScreen;
+use SIQA\AulaVirtual\Announcements\AnnouncementService;
+use SIQA\AulaVirtual\Announcements\AnnouncementsServiceProvider;
 use SIQA\AulaVirtual\Videos\VideoEmbed;
 use SIQA\AulaVirtual\Admin\LessonScreen;
 use SIQA\AulaVirtual\LiveClasses\LiveClassService;
@@ -322,6 +325,7 @@ foreach (
 		new ProgressServiceProvider(),
 		new LiveClassesServiceProvider(),
 		new MaterialsServiceProvider(),
+		new AnnouncementsServiceProvider(),
 		new EmailsServiceProvider(),
 		new WooCommerceServiceProvider(),
 		new MigrationServiceProvider(),
@@ -398,6 +402,34 @@ check( 'la conversion inversa devuelve la hora local', '2027-07-01 19:00' === Li
 check( 'las 19:00 de Madrid en julio son las 17:00 UTC (horario de verano)', '2027-07-01 17:00:00' === LiveClassService::to_utc( '2027-07-01 19:00', 'Europe/Madrid' ) );
 check( 'una fecha vacia no se convierte', null === LiveClassService::to_utc( '', 'America/Lima' ) );
 check( 'una zona horaria invalida no rompe', null === LiveClassService::to_utc( '2027-07-01 19:00', 'Marte/Olympus' ) );
+
+$ann_error = '';
+try {
+	$ann = $plugin_container->get( AnnouncementService::class );
+} catch ( Throwable $e ) {
+	$ann_error = $e->getMessage();
+	$ann       = null;
+}
+check( 'el servicio de anuncios resuelve sus dependencias', $ann instanceof AnnouncementService && '' === $ann_error );
+
+echo "\nConfiguracion\n";
+$all_fields = array();
+foreach ( SettingsScreen::tabs() as $tab ) {
+	foreach ( $tab['fields'] as $option => $field ) {
+		$all_fields[ $option ] = $field;
+	}
+}
+check( 'cada opcion aparece en una sola pestana', count( $all_fields ) === array_sum( array_map( static fn( array $t ): int => count( $t['fields'] ), SettingsScreen::tabs() ) ) );
+check( 'todas las opciones llevan prefijo av_', array() === array_filter( array_keys( $all_fields ), static fn( string $o ): bool => ! str_starts_with( $o, 'av_' ) ) );
+check( 'un color invalido vuelve al valor por defecto', '#1d4ed8' === SettingsScreen::sanitize_field( $all_fields['av_brand_color'], 'rojo' ) );
+check( 'un color valido se guarda en minusculas', '#3e64de' === SettingsScreen::sanitize_field( $all_fields['av_brand_color'], '#3E64DE' ) );
+check( 'un slug se normaliza', 'cursos' === SettingsScreen::sanitize_field( $all_fields['av_course_slug'], ' Cursos ' ) );
+check( 'un slug vacio vuelve al valor por defecto', 'curso' === SettingsScreen::sanitize_field( $all_fields['av_course_slug'], '' ) );
+check( 'el TTL del token respeta el minimo', 300 === SettingsScreen::sanitize_field( $all_fields['av_bunny_token_ttl'], '5' ) );
+check( 'un disparador de Woo desconocido vuelve a procesando', 'processing' === SettingsScreen::sanitize_field( $all_fields['av_wc_enroll_status'], 'pagado' ) );
+check( 'un correo invalido queda vacio', '' === SettingsScreen::sanitize_field( $all_fields['av_admin_notification_email'], 'no-es-correo' ) );
+check( 'un booleano acepta "1" y "on"', true === SettingsScreen::sanitize_field( $all_fields['av_block_wp_admin'], '1' ) && true === SettingsScreen::sanitize_field( $all_fields['av_block_wp_admin'], 'on' ) );
+check( 'la plantilla de anuncio usa solo variables del catalogo', array() === array_diff( TemplateRenderer::placeholders( EmailDefaults::definitions()[5]['body'] ), array_keys( VariableResolver::catalogue() ) ) );
 
 echo "\nVideos\n";
 check( 'detecta YouTube', 'youtube' === VideoEmbed::detect( 'https://youtu.be/dQw4w9WgXcQ' ) );

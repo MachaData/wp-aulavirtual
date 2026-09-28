@@ -8,6 +8,7 @@
  * @var WP_Post|null                     $course
  * @var array<int, array<string, mixed>> $items
  * @var float                            $percentage
+ * @var array<int, array<string, mixed>> $announcements
  * @var string                           $back_url
  */
 
@@ -33,6 +34,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 		);
 		?>
 	</p>
+
+	<?php if ( ! empty( $announcements ) ) : ?>
+		<section class="av-announcements">
+			<h3><?php esc_html_e( 'Anuncios', 'aula-virtual' ); ?></h3>
+			<?php foreach ( $announcements as $av_news ) : ?>
+				<details class="av-announcement">
+					<summary><?php echo esc_html( (string) $av_news['title'] ); ?> <small><?php echo esc_html( mysql2date( (string) get_option( 'date_format' ), (string) $av_news['created_at'] ) ); ?></small></summary>
+					<div class="av-announcement__body"><?php echo wp_kses_post( wpautop( (string) $av_news['content'] ) ); ?></div>
+				</details>
+			<?php endforeach; ?>
+		</section>
+	<?php endif; ?>
 
 	<?php if ( empty( $items ) ) : ?>
 		<p><?php esc_html_e( 'Esta edicion todavia no tiene sesiones publicadas.', 'aula-virtual' ); ?></p>

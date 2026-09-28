@@ -188,22 +188,25 @@ Hacerlo primero en un sitio de pruebas y comparar los conteos con los de Tutor.
 | Instructor LMS | Sus cursos: ediciones, sesiones, materiales, clases en vivo, alumnos, solicitudes |
 | Estudiante LMS | Solo el campus |
 
-## 11. Configuración por opciones (sin pantalla todavía)
+## 11. Configuración
 
-| Opción | Valores | Por defecto |
-|---|---|---|
-| `av_wc_enroll_status` | `processing`, `completed` | `processing` |
-| `av_wc_refund_action` | `none`, `suspend`, `cancel` | `suspend` |
-| `av_enrollment_auto_approve` | `1`, `0` | `0` |
-| `av_block_wp_admin` | `1`, `0` | `1` |
-| `av_campus_slug` | slug | `campus` (`aula` si el sitio vive en `/campus/`) |
-| `av_brand_color` | `#rrggbb` | `#1d4ed8` |
-| `av_admin_notification_email` | correo | el del sitio |
-| `av_log_level` | `debug`, `info`, `warning`, `error`, `off` | `info` |
-| `av_bunny_library_id` | ID de biblioteca de Bunny Stream | vacío |
-| `av_bunny_token_key` | clave de token de la biblioteca (embed) | vacío (sin firma) |
-| `av_bunny_cdn_token_key` | clave de token de la pull zone (HLS directo) | vacío (sin firma) |
-| `av_bunny_token_ttl` | segundos | `21600` |
+*Aula Virtual → Configuración*, en pestañas:
 
-Se cambian con `wp option update` o con un plugin de opciones hasta que exista la pantalla
-de configuración.
+| Pestaña | Qué se define |
+|---|---|
+| General | Color principal, correo de avisos al administrador, remitente de los correos, slug de las landings (`/curso/…`). Enlace a la página del campus para cambiar su slug |
+| Matrículas | Aprobación automática de solicitudes, bloqueo de wp-admin a alumnos, **modo enfoque** (sesiones a pantalla limpia, sin cabecera ni pie del tema) |
+| Videos | Bunny Stream: ID de biblioteca, clave de token de la biblioteca, clave de token del CDN, validez del token |
+| WooCommerce | Cuándo matricula un pedido (procesando o completado) y qué hacer ante reembolso (nada, suspender, cancelar) |
+| Avanzado | Nivel de registro y borrado de datos al desinstalar (apagado por defecto) |
+
+Las claves se guardan pero nunca se muestran de vuelta; dejar el campo vacío conserva la
+guardada. Cambiar el slug de las landings regenera los enlaces permanentes.
+
+## 12. Anuncios
+
+*Aula Virtual → Anuncios*. Un anuncio va a todas las ediciones de un curso o a una sola. Queda
+visible en el campus (panel del alumno y temario de la edición) y, si se marca **Enviar
+también por correo**, cada alumno matriculado recibe la plantilla "Nuevo anuncio" de *Emails*,
+editable como las demás. Es el equivalente del correo manual de Tutor: un mensaje a los
+alumnos de una edición, con su título y contenido.

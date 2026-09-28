@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Campus;
 
+use SIQA\AulaVirtual\Announcements\AnnouncementRepository;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
@@ -97,6 +98,13 @@ final class CampusController {
 	private MaterialRepository $materials;
 
 	/**
+	 * Announcement persistence.
+	 *
+	 * @var AnnouncementRepository
+	 */
+	private AnnouncementRepository $announcements;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EnrollmentRepository $enrollments        Enrollment persistence.
@@ -107,6 +115,7 @@ final class CampusController {
 	 * @param ProgressService      $progress_service   Progress rules.
 	 * @param LiveClassRepository  $live_classes       Live class persistence.
 	 * @param MaterialRepository   $materials          Material persistence.
+	 * @param AnnouncementRepository $announcements    Announcement persistence.
 	 */
 	public function __construct(
 		EnrollmentRepository $enrollments,
@@ -116,7 +125,8 @@ final class CampusController {
 		ProgressRepository $progress,
 		ProgressService $progress_service,
 		LiveClassRepository $live_classes,
-		MaterialRepository $materials
+		MaterialRepository $materials,
+		AnnouncementRepository $announcements
 	) {
 		$this->enrollments        = $enrollments;
 		$this->enrollment_service = $enrollment_service;
@@ -126,6 +136,7 @@ final class CampusController {
 		$this->progress_service   = $progress_service;
 		$this->live_classes       = $live_classes;
 		$this->materials          = $materials;
+		$this->announcements      = $announcements;
 	}
 
 	/**
@@ -186,11 +197,23 @@ final class CampusController {
 			);
 		}
 
+		$news = array();
+
+		foreach ( $cards as $card ) {
+			foreach ( $this->announcements->for_student( (int) $card['enrollment']['course_id'], (int) $card['edition']['id'], 3 ) as $item ) {
+				$item['course_title'] = $card['course'] instanceof \WP_Post ? get_the_title( $card['course'] ) : '';
+				$news[]               = $item;
+			}
+		}
+
+		usort( $news, static fn( array $a, array $b ): int => strcmp( (string) $b['created_at'], (string) $a['created_at'] ) );
+
 		return $this->template(
 			'dashboard',
 			array(
-				'cards' => $cards,
-				'user'  => wp_get_current_user(),
+				'cards'         => $cards,
+				'user'          => wp_get_current_user(),
+				'announcements' => array_slice( $news, 0, 5 ),
 			)
 		);
 	}
@@ -230,6 +253,7 @@ final class CampusController {
 				'course'     => get_post( (int) $edition['course_id'] ),
 				'items'      => $items,
 				'percentage' => null === $enrollment ? 0.0 : (float) $enrollment['progress_percentage'],
+				'announcements' => $this->announcements->for_student( (int) $edition['course_id'], $edition_id, 10 ),
 				'back_url'   => $this->campus_url(),
 			)
 		);
@@ -469,6 +493,33 @@ final class CampusController {
 
 		wp_safe_redirect( $redirect );
 		exit;
+	}
+
+	/**
+	 * Swaps the theme template for a clean page when a lesson is viewed in
+	 * focus mode.
+	 *
+	 * @param string $template Template chosen by WordPress.
+	 * @return string
+	 */
+	public function focus_template( string $template ): string {
+		if ( ! get_option( 'av_campus_focus_mode', false ) || ! is_user_logged_in() ) {
+			return $template;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation.
+		if ( empty( $_GET[ self::QUERY_LESSON ] ) ) {
+			return $template;
+		}
+
+		$pages   = get_option( 'av_pages', array() );
+		$page_id = is_array( $pages ) && isset( $pages['campus'] ) ? (int) $pages['campus'] : 0;
+
+		if ( $page_id <= 0 || ! is_page( $page_id ) ) {
+			return $template;
+		}
+
+		return AV_PATH . 'templates/campus/focus.php';
 	}
 
 	/**

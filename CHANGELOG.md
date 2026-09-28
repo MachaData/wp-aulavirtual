@@ -3,6 +3,25 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.9.0] - 2026-09-28
+
+Pantalla de configuracion, anuncios con correo a la edicion y modo enfoque.
+
+### Anadido
+
+- Aula Virtual > Configuracion, en pestanas: General (color, correo de avisos, remitente, slug
+  de landings), Matriculas (aprobacion automatica, bloqueo de wp-admin, modo enfoque), Videos
+  (Bunny: biblioteca, claves, validez), WooCommerce (disparador y politica de reembolso) y
+  Avanzado (registro, borrado al desinstalar). Las claves nunca se muestran de vuelta. El
+  registro de campos es la lista canonica de opciones del plugin.
+- Anuncios: a todas las ediciones de un curso o a una sola; visibles en el panel del alumno y
+  en el temario; opcionalmente por correo a cada alumno matriculado con la plantilla editable
+  "Nuevo anuncio" (variables `{{announcement_title}}` y `{{announcement_content}}`). Sustituye
+  al correo manual de Tutor.
+- Modo enfoque: las sesiones se muestran sin cabecera ni pie del tema, con barra propia de
+  volver y salir. Se activa en Configuracion.
+- Smoke test ampliado a 183 comprobaciones y 86 clases.
+
 ## [0.8.1] - 2026-09-28
 
 Videos de Bunny cargados como "URL externa" del CDN, que es como estan hoy en Tutor.

@@ -93,6 +93,8 @@ final class VariableResolver {
 			'class_url'        => __( 'Enlace de la clase en vivo', 'aula-virtual' ),
 			'certificate_url'  => __( 'Enlace del certificado', 'aula-virtual' ),
 			'rejection_reason' => __( 'Motivo del rechazo', 'aula-virtual' ),
+			'announcement_title'   => __( 'Titulo del anuncio', 'aula-virtual' ),
+			'announcement_content' => __( 'Contenido del anuncio', 'aula-virtual' ),
 			'site_name'        => __( 'Nombre del sitio', 'aula-virtual' ),
 			'admin_requests_url' => __( 'Pantalla de solicitudes (para avisos al administrador)', 'aula-virtual' ),
 		);
@@ -130,6 +132,12 @@ final class VariableResolver {
 
 			if ( ! empty( $payload['with_password_link'] ) ) {
 				$vars['set_password_url'] = $this->set_password_url( $user );
+			}
+		}
+
+		foreach ( array( 'announcement_title', 'announcement_content' ) as $key ) {
+			if ( isset( $payload[ $key ] ) && is_string( $payload[ $key ] ) ) {
+				$vars[ $key ] = 'announcement_content' === $key ? wp_kses_post( $payload[ $key ] ) : sanitize_text_field( $payload[ $key ] );
 			}
 		}
 

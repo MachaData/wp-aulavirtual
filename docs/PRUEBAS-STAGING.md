@@ -15,10 +15,16 @@ con el mensaje exacto.
       sin enviarlos a alumnos reales.
 - [ ] En WooCommerce, activar una pasarela en modo prueba (Culqi sandbox) o "Transferencia
       bancaria".
+- [ ] **Tutor tiene sus propias páginas `/cart` y `/checkout`.** Comprobar en *WooCommerce →
+      Ajustes → Avanzado* que las páginas de carrito y finalizar compra son las de WooCommerce
+      (con el bloque o shortcode de checkout de Woo), no las de Tutor. El botón *Comprar* del
+      plugin usa la página de finalizar compra configurada en WooCommerce.
+- [ ] *Aula Virtual → Configuración*: rellenar las pestañas General y Videos con los valores de
+      la sección 0b (ya no hace falta `wp option update`).
 
 ## 0b. Opciones recomendadas para este sitio
 
-Antes de la sección 2, definir (con `wp option update` o un plugin de opciones):
+Antes de la sección 2, definir en *Aula Virtual → Configuración*:
 
 | Opción | Valor | Por qué |
 |---|---|---|
@@ -124,6 +130,13 @@ retirarlo para conservar las URLs antiguas.
 - [ ] Volver a pulsar *Reprocesar alumnos*: 0 matriculados nuevos, todo omitido.
 - [ ] Confirmar que **no llegó ningún correo** a los alumnos migrados.
 - [ ] Repetir con los otros dos cursos.
+
+## 8b. Anuncios y modo enfoque
+
+- [ ] *Anuncios*: publicar uno para la edición de prueba con envío por correo. Aparece en el
+      panel del alumno y en el temario; llega el correo con título y contenido.
+- [ ] Activar *modo enfoque* en Configuración → Matrículas y abrir una sesión: se ve a pantalla
+      limpia, con el video y el botón de completar, y "Volver al temario" funciona.
 
 ## 9. Emails
 

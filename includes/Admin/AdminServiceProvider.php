@@ -9,6 +9,9 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Admin;
 
+use SIQA\AulaVirtual\Announcements\AnnouncementRepository;
+use SIQA\AulaVirtual\Announcements\AnnouncementService;
+use SIQA\AulaVirtual\Core\AuditLog;
 use SIQA\AulaVirtual\Core\Container;
 use SIQA\AulaVirtual\Core\ServiceProvider;
 use SIQA\AulaVirtual\Courses\CourseRepository;
@@ -105,12 +108,29 @@ final class AdminServiceProvider implements ServiceProvider {
 		);
 
 		$container->singleton(
+			SettingsScreen::class,
+			static fn( Container $c ): SettingsScreen => new SettingsScreen( $c->get( AuditLog::class ) )
+		);
+
+		$container->singleton(
+			AnnouncementsScreen::class,
+			static fn( Container $c ): AnnouncementsScreen => new AnnouncementsScreen(
+				$c->get( AnnouncementRepository::class ),
+				$c->get( AnnouncementService::class ),
+				$c->get( EditionRepository::class ),
+				$c->get( AccessControl::class )
+			)
+		);
+
+		$container->singleton(
 			AdminMenu::class,
 			static fn( Container $c ): AdminMenu => new AdminMenu(
 				$c->get( EditionsScreen::class ),
 				$c->get( RequestsScreen::class ),
 				$c->get( EmailsScreen::class ),
-				$c->get( MigrationScreen::class )
+				$c->get( MigrationScreen::class ),
+				$c->get( AnnouncementsScreen::class ),
+				$c->get( SettingsScreen::class )
 			)
 		);
 	}
@@ -162,6 +182,9 @@ final class AdminServiceProvider implements ServiceProvider {
 			LessonScreen::ACTION_REMOVE_LIVE    => array( LessonScreen::class, 'handle_remove_live' ),
 			LessonScreen::ACTION_ADD_MATERIAL   => array( LessonScreen::class, 'handle_add_material' ),
 			LessonScreen::ACTION_DELETE_MATERIAL => array( LessonScreen::class, 'handle_delete_material' ),
+			SettingsScreen::ACTION_SAVE         => array( SettingsScreen::class, 'handle_save' ),
+			AnnouncementsScreen::ACTION_CREATE  => array( AnnouncementsScreen::class, 'handle_create' ),
+			AnnouncementsScreen::ACTION_DELETE  => array( AnnouncementsScreen::class, 'handle_delete' ),
 		);
 
 		foreach ( $handlers as $action => $target ) {

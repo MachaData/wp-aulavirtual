@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Campus;
 
+use SIQA\AulaVirtual\Announcements\AnnouncementRepository;
 use SIQA\AulaVirtual\Core\Container;
 use SIQA\AulaVirtual\Core\ServiceProvider;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
@@ -46,7 +47,8 @@ final class CampusServiceProvider implements ServiceProvider {
 				$c->get( ProgressRepository::class ),
 				$c->get( ProgressService::class ),
 				$c->get( LiveClassRepository::class ),
-				$c->get( MaterialRepository::class )
+				$c->get( MaterialRepository::class ),
+				$c->get( AnnouncementRepository::class )
 			)
 		);
 	}
@@ -58,6 +60,12 @@ final class CampusServiceProvider implements ServiceProvider {
 	 * @return void
 	 */
 	public function boot( Container $container ): void {
+		add_filter(
+			'template_include',
+			static fn( $template ): string => $container->get( CampusController::class )->focus_template( (string) $template ),
+			30
+		);
+
 		add_shortcode(
 			'av_campus',
 			static fn(): string => $container->get( CampusController::class )->render()

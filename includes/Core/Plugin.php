@@ -11,6 +11,7 @@ namespace SIQA\AulaVirtual\Core;
 
 use SIQA\AulaVirtual\Core\Events\EventBus;
 use SIQA\AulaVirtual\Admin\AdminServiceProvider;
+use SIQA\AulaVirtual\Announcements\AnnouncementsServiceProvider;
 use SIQA\AulaVirtual\Campus\CampusServiceProvider;
 use SIQA\AulaVirtual\Courses\CoursesServiceProvider;
 use SIQA\AulaVirtual\Curriculum\CurriculumServiceProvider;
@@ -165,6 +166,7 @@ final class Plugin {
 			new ProgressServiceProvider(),
 			new LiveClassesServiceProvider(),
 			new MaterialsServiceProvider(),
+			new AnnouncementsServiceProvider(),
 			new EmailsServiceProvider(),
 			new WooCommerceServiceProvider(),
 			new MigrationServiceProvider(),

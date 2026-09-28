@@ -6,6 +6,7 @@
  *
  * @var array<int, array<string, mixed>> $cards
  * @var WP_User                          $user
+ * @var array<int, array<string, mixed>> $announcements
  * @var \SIQA\AulaVirtual\Campus\CampusController $controller
  */
 
@@ -31,6 +32,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 		&middot;
 		<a href="<?php echo esc_url( wp_logout_url( $controller->campus_url() ) ); ?>"><?php esc_html_e( 'Salir', 'aula-virtual' ); ?></a>
 	</p>
+
+	<?php if ( ! empty( $announcements ) ) : ?>
+		<section class="av-announcements">
+			<h3><?php esc_html_e( 'Anuncios recientes', 'aula-virtual' ); ?></h3>
+			<?php foreach ( $announcements as $av_news ) : ?>
+				<article class="av-announcement">
+					<h4><?php echo esc_html( (string) $av_news['title'] ); ?></h4>
+					<p class="av-announcement__meta"><?php echo esc_html( (string) $av_news['course_title'] ); ?> &middot; <?php echo esc_html( mysql2date( (string) get_option( 'date_format' ), (string) $av_news['created_at'] ) ); ?></p>
+					<div class="av-announcement__body"><?php echo wp_kses_post( wpautop( (string) $av_news['content'] ) ); ?></div>
+				</article>
+			<?php endforeach; ?>
+		</section>
+	<?php endif; ?>
 
 	<?php if ( empty( $cards ) ) : ?>
 		<p><?php esc_html_e( 'Todavia no estas matriculado en ningun curso.', 'aula-virtual' ); ?></p>

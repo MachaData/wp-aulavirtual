@@ -20,12 +20,13 @@ Tutor LMS Pro, cuyos alumnos se migran con la herramienta incluida).
 | 0.6 | Landing por curso administrable por secciones |
 | 0.7 | Perfil del alumno, editor de sesión, clases en vivo, materiales |
 | 0.8 | Videos con Bunny Stream (embeds firmados), migración de adjuntos y cohortes como ediciones |
+| 0.9 | Pantalla de configuración, anuncios con correo a la edición, modo enfoque |
 
 El flujo completo funciona de punta a punta:
 `Landing → Inscripción o Compra → Aprobación → Pago → Matrícula → Bienvenida → Campus →
 Clase en vivo / Materiales → Progreso`.
 
-**Nada de esto ha corrido todavía contra un WordPress real.** Las 171 comprobaciones
+**Nada de esto ha corrido todavía contra un WordPress real.** Las 183 comprobaciones
 automáticas cubren la lógica pura y el cableado de los módulos; el SQL, los hooks de
 WooCommerce y las pantallas se validan siguiendo `docs/PRUEBAS-STAGING.md`.
 
@@ -47,7 +48,8 @@ WooCommerce y las pantallas se validan siguiendo `docs/PRUEBAS-STAGING.md`.
    solo hace falta para la importación por Excel (fase siguiente) y para el linter.
 2. Activar desde *Plugins*. La activación crea las tablas, los roles, las plantillas de correo
    por defecto y la página del campus (`/campus/aula/` en esa instalación).
-3. Ir a *Aula Virtual → Emails* y revisar remitente y textos.
+3. Ir a *Aula Virtual → Configuración* (color, remitente, Bunny, WooCommerce) y a *Emails*
+   para revisar los textos.
 4. Si hay WooCommerce, instalar las pasarelas (Culqi, PayPal) desde *WooCommerce → Pagos*.
 5. Seguir `docs/PRUEBAS-STAGING.md` antes de abrir el campus a alumnos reales.
 
@@ -58,8 +60,8 @@ WordPress 6.4+, PHP 8.1+, MySQL 5.7+ o MariaDB 10.3+. WooCommerce es opcional.
 ## Verificación rápida
 
 ```bash
-php tests/smoke-test.php      # 171 comprobaciones de logica y cableado
-php tests/lint-classes.php    # carga las 81 clases del plugin
+php tests/smoke-test.php      # 183 comprobaciones de logica y cableado
+php tests/lint-classes.php    # carga las 86 clases del plugin
 composer install && composer lint   # WordPress Coding Standards (opcional)
 ```
 

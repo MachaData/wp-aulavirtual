@@ -253,3 +253,4 @@ function add_query_arg( ...$args ) {
 
 	return $base . ( array() === $query ? '' : '?' . http_build_query( $query ) );
 }
+

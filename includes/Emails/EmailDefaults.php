@@ -125,6 +125,13 @@ final class EmailDefaults {
 				'enabled'   => true,
 			),
 			array(
+				'event'     => Events::ANNOUNCEMENT_CREATED,
+				'recipient' => $student,
+				'subject'   => '{{course_name}}: {{announcement_title}}',
+				'body'      => "<p>Hola {{first_name}},</p>\n<p>Hay un nuevo anuncio en <strong>{{course_name}}</strong> ({{edition_name}}):</p>\n<h2>{{announcement_title}}</h2>\n{{announcement_content}}\n<p><a href=\"{{campus_url}}\">Ir al campus</a></p>\n<p>{{site_name}}</p>",
+				'enabled'   => true,
+			),
+			array(
 				'event'     => Events::COURSE_COMPLETED,
 				'recipient' => $student,
 				'subject'   => 'Completaste {{course_name}}',
