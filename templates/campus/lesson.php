@@ -13,6 +13,7 @@
 
 use SIQA\AulaVirtual\Campus\CampusController;
 use SIQA\AulaVirtual\LiveClasses\LiveClassService;
+use SIQA\AulaVirtual\Videos\VideoEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -54,12 +55,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="av-live__recording">
 					<h4><?php esc_html_e( 'Grabacion', 'aula-virtual' ); ?></h4>
 					<?php
-					$av_rec = wp_oembed_get( $live['recording'] );
-					if ( false === $av_rec ) {
-						printf( '<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>', esc_url( $live['recording'] ), esc_html__( 'Ver la grabacion', 'aula-virtual' ) );
-					} else {
-						echo wp_kses_post( $av_rec );
-					}
+					echo '<div class="av-video">' . VideoEmbed::render( '', $live['recording'] ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- VideoEmbed escapes.
 					?>
 				</div>
 			<?php endif; ?>
@@ -67,20 +63,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php endif; ?>
 
 	<?php if ( ! empty( $lesson['video_url'] ) ) : ?>
-		<div class="av-lesson__video">
+		<div class="av-lesson__video av-video">
 			<?php
-			// wp_oembed_get() covers YouTube and Vimeo; anything else falls back to a link.
-			$av_embed = wp_oembed_get( (string) $lesson['video_url'] );
-
-			if ( false === $av_embed ) {
-				printf(
-					'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
-					esc_url( (string) $lesson['video_url'] ),
-					esc_html__( 'Abrir el video', 'aula-virtual' )
-				);
-			} else {
-				echo wp_kses_post( $av_embed );
-			}
+			// VideoEmbed escapa y firma (Bunny) segun el proveedor.
+			echo VideoEmbed::render( (string) $lesson['video_provider'], (string) $lesson['video_url'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 		</div>
 	<?php endif; ?>

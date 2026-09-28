@@ -7,6 +7,7 @@
  * @var bool                                      $available
  * @var array<int, array<string, mixed>>          $courses
  * @var array<int, array<string, mixed>>          $map
+ * @var array<int, WP_Post>                       $targets
  * @var array{type: string, message: string}|null $notice
  * @var array<string, int|string>|null            $report
  */
@@ -33,7 +34,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<ul style="list-style:disc;margin-left:20px">
 			<li><?php esc_html_e( 'Crea un curso de Aula Virtual por cada curso de Tutor, con su landing, imagen, nivel, beneficios y categorias.', 'aula-virtual' ); ?></li>
 			<li><?php esc_html_e( 'Crea una edicion "Alumnos actuales" en estado En curso, con el producto de WooCommerce que tuviera el curso.', 'aula-virtual' ); ?></li>
-			<li><?php esc_html_e( 'Copia los temas como modulos y las lecciones con su video y contenido. Los quizzes y tareas de Tutor no se migran.', 'aula-virtual' ); ?></li>
+			<li><?php esc_html_e( 'Copia los temas como modulos y las lecciones con su video (YouTube, Vimeo, Bunny, URL, incrustado), contenido y adjuntos como materiales. Los quizzes y tareas de Tutor no se migran.', 'aula-virtual' ); ?></li>
+			<li><?php esc_html_e( 'Si en Tutor tienes varias cohortes como cursos separados (G1, G3, G4...), migra la primera como curso nuevo y las demas como "Edicion de" ese curso.', 'aula-virtual' ); ?></li>
 			<li><?php esc_html_e( 'Matricula a cada alumno conservando su fecha original, sus lecciones completadas y si termino el curso.', 'aula-virtual' ); ?></li>
 			<li><strong><?php esc_html_e( 'No envia ningun correo, no modifica ni borra nada de Tutor, y se puede repetir sin duplicar.', 'aula-virtual' ); ?></strong></li>
 		</ul>
@@ -52,6 +54,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<tr><td><?php esc_html_e( 'Alumnos omitidos (ya migrados o sin usuario)', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['skipped'] ); ?></td></tr>
 				<tr><td><?php esc_html_e( 'Lecciones completadas copiadas', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['progress_rows'] ); ?></td></tr>
 				<tr><td><?php esc_html_e( 'Cursos terminados', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['completions'] ); ?></td></tr>
+				<tr><td><?php esc_html_e( 'Materiales (adjuntos) copiados', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) ( $report['materials'] ?? 0 ) ); ?></td></tr>
 				<tr><td><?php esc_html_e( 'Alumnos pendientes', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['remaining'] ); ?></td></tr>
 			</tbody>
 		</table>
@@ -95,6 +98,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<input type="hidden" name="action" value="<?php echo esc_attr( MigrationScreen::ACTION_MIGRATE ); ?>">
 						<input type="hidden" name="tutor_course_id" value="<?php echo esc_attr( (string) $av_course['id'] ); ?>">
 						<?php wp_nonce_field( MigrationScreen::ACTION_MIGRATE ); ?>
+						<?php if ( null === $av_entry && ! empty( $targets ) ) : ?>
+							<select name="target_course_id" style="max-width:180px;margin-bottom:4px">
+								<option value="0"><?php esc_html_e( 'Como curso nuevo', 'aula-virtual' ); ?></option>
+								<?php foreach ( $targets as $av_target ) : ?>
+									<option value="<?php echo esc_attr( (string) $av_target->ID ); ?>"><?php echo esc_html( sprintf( /* translators: %s: course title. */ __( 'Edicion de: %s', 'aula-virtual' ), get_the_title( $av_target ) ) ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						<?php endif; ?>
 						<button type="submit" class="button <?php echo null === $av_entry ? 'button-primary' : ''; ?>">
 							<?php echo esc_html( null === $av_entry ? __( 'Migrar', 'aula-virtual' ) : __( 'Reprocesar alumnos', 'aula-virtual' ) ); ?>
 						</button>

@@ -42,6 +42,8 @@ final class TutorMapping {
 
 		$source = isset( $video['source'] ) ? strtolower( (string) $video['source'] ) : '';
 
+		// Tutor guarda la fuente en `source` y la referencia en `source_{fuente}`.
+		// Bunny (Tutor Pro) usa `bunnynet` y guarda la URL de embed o de reproduccion.
 		$map = array(
 			'youtube'      => array( 'youtube', 'source_youtube' ),
 			'vimeo'        => array( 'vimeo', 'source_vimeo' ),
@@ -49,6 +51,8 @@ final class TutorMapping {
 			'embedded'     => array( 'embed', 'source_embedded' ),
 			'html5'        => array( 'html5', 'source_html5' ),
 			'shortcode'    => array( 'shortcode', 'source_shortcode' ),
+			'bunnynet'     => array( 'bunny', 'source_bunnynet' ),
+			'bunny'        => array( 'bunny', 'source_bunny' ),
 		);
 
 		if ( ! isset( $map[ $source ] ) ) {

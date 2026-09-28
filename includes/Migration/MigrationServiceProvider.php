@@ -18,6 +18,7 @@ use SIQA\AulaVirtual\Curriculum\ModuleRepository;
 use SIQA\AulaVirtual\Editions\EditionService;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
+use SIQA\AulaVirtual\Materials\MaterialRepository;
 use SIQA\AulaVirtual\Progress\ProgressRepository;
 use SIQA\AulaVirtual\Progress\ProgressService;
 
@@ -54,7 +55,8 @@ final class MigrationServiceProvider implements ServiceProvider {
 				$c->get( ProgressRepository::class ),
 				$c->get( ProgressService::class ),
 				$c->get( AuditLog::class ),
-				$c->get( Logger::class )
+				$c->get( Logger::class ),
+				$c->get( MaterialRepository::class )
 			)
 		);
 	}

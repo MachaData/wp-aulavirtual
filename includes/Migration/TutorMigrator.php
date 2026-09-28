@@ -21,6 +21,8 @@ use SIQA\AulaVirtual\Editions\EditionStatus;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
 use SIQA\AulaVirtual\Enrollments\EnrollmentStatus;
+use SIQA\AulaVirtual\Materials\MaterialRepository;
+use SIQA\AulaVirtual\Materials\MaterialService;
 use SIQA\AulaVirtual\Progress\ProgressRepository;
 use SIQA\AulaVirtual\Progress\ProgressService;
 use WP_Error;
@@ -118,6 +120,13 @@ final class TutorMigrator {
 	private Logger $logger;
 
 	/**
+	 * Material persistence.
+	 *
+	 * @var MaterialRepository
+	 */
+	private MaterialRepository $materials;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param TutorReader          $tutor            Tutor reader.
@@ -130,6 +139,7 @@ final class TutorMigrator {
 	 * @param ProgressService      $progress_service Progress rules.
 	 * @param AuditLog             $audit            Audit trail.
 	 * @param Logger               $logger           Logger.
+	 * @param MaterialRepository   $materials        Material persistence.
 	 */
 	public function __construct(
 		TutorReader $tutor,
@@ -141,7 +151,8 @@ final class TutorMigrator {
 		ProgressRepository $progress,
 		ProgressService $progress_service,
 		AuditLog $audit,
-		Logger $logger
+		Logger $logger,
+		MaterialRepository $materials
 	) {
 		$this->tutor            = $tutor;
 		$this->editions         = $editions;
@@ -153,6 +164,7 @@ final class TutorMigrator {
 		$this->progress_service = $progress_service;
 		$this->audit            = $audit;
 		$this->logger           = $logger;
+		$this->materials        = $materials;
 	}
 
 	/**
@@ -169,10 +181,16 @@ final class TutorMigrator {
 	/**
 	 * Migrates one Tutor course: content first, then a batch of students.
 	 *
-	 * @param int $tutor_course_id Tutor course id.
+	 * With `$target_course_id`, no new course is created: the Tutor course
+	 * becomes a new edition of that existing course. That is how the
+	 * "G1-2026", "G3-2025", "G4-2025" courses of Tutor collapse into one
+	 * course with three editions.
+	 *
+	 * @param int $tutor_course_id  Tutor course id.
+	 * @param int $target_course_id Existing course to add the edition to, 0 to create one.
 	 * @return array<string, int|string>|WP_Error Report of what happened.
 	 */
-	public function migrate_course( int $tutor_course_id ) {
+	public function migrate_course( int $tutor_course_id, int $target_course_id = 0 ) {
 		$tutor_course = $this->tutor->course( $tutor_course_id );
 
 		if ( null === $tutor_course ) {
@@ -191,11 +209,14 @@ final class TutorMigrator {
 			'skipped'         => 0,
 			'completions'     => 0,
 			'progress_rows'   => 0,
+			'materials'       => 0,
 			'remaining'       => 0,
 		);
 
 		if ( null === $entry || null === get_post( (int) $entry['course_id'] ) ) {
-			$entry = $this->create_course_and_edition( $tutor_course, $report );
+			$entry = $target_course_id > 0
+				? $this->create_edition_in( $tutor_course, $target_course_id, $report )
+				: $this->create_course_and_edition( $tutor_course, $report );
 
 			if ( $entry instanceof WP_Error ) {
 				return $entry;
@@ -206,6 +227,7 @@ final class TutorMigrator {
 		}
 
 		$entry = $this->migrate_curriculum( $tutor_course_id, $entry, $report );
+		$this->migrate_attachments( $tutor_course_id, 0, (int) $entry['course_id'], (int) $entry['edition_id'], $report );
 
 		$map[ $tutor_course_id ] = $entry;
 		update_option( self::MAP_OPTION, $map, false );
@@ -291,11 +313,12 @@ final class TutorMigrator {
 
 		$edition_id = $this->editions->create(
 			array(
-				'course_id'  => $course_id,
-				'name'       => __( 'Alumnos actuales', 'aula-virtual' ),
-				'status'     => EditionStatus::RUNNING,
-				'modality'   => EditionService::MODALITY_RECORDED,
-				'product_id' => $product_id,
+				'course_id'     => $course_id,
+				'name'          => __( 'Alumnos actuales', 'aula-virtual' ),
+				'status'        => EditionStatus::RUNNING,
+				'modality'      => EditionService::MODALITY_RECORDED,
+				'product_id'    => $product_id,
+				'price_display' => $this->tutor->price_display( $tutor_id ),
 			)
 		);
 
@@ -311,6 +334,116 @@ final class TutorMigrator {
 			'modules'    => array(),
 			'lessons'    => array(),
 		);
+	}
+
+	/**
+	 * Creates only an edition, inside an existing course.
+	 *
+	 * @param \WP_Post                  $tutor_course     Tutor course.
+	 * @param int                       $target_course_id Existing course id.
+	 * @param array<string, int|string> $report           Report, by reference.
+	 * @return array{course_id: int, edition_id: int, modules: array<int, int>, lessons: array<int, int>}|WP_Error
+	 */
+	private function create_edition_in( \WP_Post $tutor_course, int $target_course_id, array &$report ) {
+		$target = get_post( $target_course_id );
+
+		if ( ! $target instanceof \WP_Post || CoursePostType::POST_TYPE !== $target->post_type ) {
+			return new WP_Error( 'av_target_course_invalid', __( 'El curso destino no existe.', 'aula-virtual' ) );
+		}
+
+		$tutor_id   = (int) $tutor_course->ID;
+		$product_id = (int) get_post_meta( $tutor_id, '_tutor_course_product_id', true );
+
+		$edition_id = $this->editions->create(
+			array(
+				'course_id'     => $target_course_id,
+				'name'          => $tutor_course->post_title,
+				'status'        => 'publish' === $tutor_course->post_status ? EditionStatus::RUNNING : EditionStatus::DRAFT,
+				'modality'      => EditionService::MODALITY_RECORDED,
+				'product_id'    => $product_id,
+				'price_display' => $this->tutor->price_display( $tutor_id ),
+			)
+		);
+
+		if ( $edition_id instanceof WP_Error ) {
+			return $edition_id;
+		}
+
+		++$report['edition_created'];
+
+		return array(
+			'course_id'  => $target_course_id,
+			'edition_id' => (int) $edition_id,
+			'modules'    => array(),
+			'lessons'    => array(),
+		);
+	}
+
+	/**
+	 * Copies Tutor attachments (course or lesson) as materials.
+	 *
+	 * Skipped when the target already has materials, so a rerun does not
+	 * duplicate them.
+	 *
+	 * @param int                       $tutor_post_id Tutor course or lesson id.
+	 * @param int                       $lesson_id     Target lesson id, 0 for the edition.
+	 * @param int                       $course_id     Target course id.
+	 * @param int                       $edition_id    Target edition id.
+	 * @param array<string, int|string> $report        Report, by reference.
+	 * @return void
+	 */
+	private function migrate_attachments( int $tutor_post_id, int $lesson_id, int $course_id, int $edition_id, array &$report ): void {
+		$ids = $this->tutor->attachments( $tutor_post_id );
+
+		if ( array() === $ids ) {
+			return;
+		}
+
+		$existing = $lesson_id > 0 ? $this->materials->for_lesson( $lesson_id ) : $this->materials->for_edition( $edition_id );
+
+		if ( array() !== $existing ) {
+			return;
+		}
+
+		$now      = current_time( 'mysql', true );
+		$position = 0;
+
+		foreach ( $ids as $attachment_id ) {
+			$file = get_attached_file( $attachment_id );
+
+			if ( ! is_string( $file ) || '' === $file ) {
+				continue;
+			}
+
+			$type = strtolower( (string) ( wp_check_filetype( $file )['ext'] ?? '' ) );
+
+			if ( ! MaterialService::is_allowed_extension( $type ) ) {
+				continue;
+			}
+
+			++$position;
+
+			$id = $this->materials->insert(
+				array(
+					'course_id'     => $course_id,
+					'edition_id'    => $edition_id,
+					'lesson_id'     => $lesson_id,
+					'title'         => get_the_title( $attachment_id ),
+					'description'   => '',
+					'attachment_id' => $attachment_id,
+					'external_url'  => '',
+					'file_type'     => $type,
+					'downloadable'  => 1,
+					'position'      => $position,
+					'created_by'    => get_current_user_id(),
+					'created_at'    => $now,
+				)
+			);
+
+			if ( $id > 0 ) {
+				++$report['materials'];
+			}
+		}
 	}
 
 	/**
@@ -369,7 +502,7 @@ final class TutorMigrator {
 						'title'          => $lesson->post_title,
 						'description'    => sanitize_textarea_field( $lesson->post_excerpt ),
 						'content'        => wp_kses_post( $lesson->post_content ),
-						'lesson_type'    => '' === $video['url'] ? LessonType::TEXT : LessonType::VIDEO,
+						'lesson_type'    => '' === $video['url'] && '' === $video['provider'] ? LessonType::TEXT : LessonType::VIDEO,
 						'video_provider' => $video['provider'],
 						'video_url'      => $video['url'],
 						'duration'       => $video['minutes'],
@@ -385,6 +518,7 @@ final class TutorMigrator {
 				if ( $lesson_id > 0 ) {
 					$entry['lessons'][ $lesson_tutor_id ] = $lesson_id;
 					++$report['lessons'];
+					$this->migrate_attachments( $lesson_tutor_id, $lesson_id, (int) $entry['course_id'], (int) $entry['edition_id'], $report );
 				}
 			}
 		}

@@ -18,6 +18,7 @@ use SIQA\AulaVirtual\Curriculum\LessonType;
 use SIQA\AulaVirtual\LiveClasses\LiveClassRepository;
 use SIQA\AulaVirtual\LiveClasses\LiveClassService;
 use SIQA\AulaVirtual\Materials\MaterialService;
+use SIQA\AulaVirtual\Videos\VideoEmbed;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -72,8 +73,13 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 					<tr>
 						<th scope="row"><label for="av-video"><?php esc_html_e( 'Video', 'aula-virtual' ); ?></label></th>
 						<td>
-							<input type="url" id="av-video" name="video_url" class="large-text" value="<?php echo esc_attr( (string) $lesson['video_url'] ); ?>" placeholder="https://youtu.be/...">
-							<p class="description"><?php esc_html_e( 'YouTube, Vimeo, Bunny Stream o un MP4. Se incrusta automaticamente.', 'aula-virtual' ); ?></p>
+							<select name="video_provider" style="vertical-align:top">
+								<?php foreach ( VideoEmbed::providers() as $av_value => $av_label ) : ?>
+									<option value="<?php echo esc_attr( $av_value ); ?>" <?php selected( (string) $lesson['video_provider'], $av_value ); ?>><?php echo esc_html( $av_label ); ?></option>
+								<?php endforeach; ?>
+							</select>
+							<textarea id="av-video" name="video_url" class="large-text" rows="2" placeholder="https://youtu.be/...  |  https://iframe.mediadelivery.net/embed/123/guid  |  <iframe ...>"><?php echo esc_textarea( (string) $lesson['video_url'] ); ?></textarea>
+							<p class="description"><?php esc_html_e( 'YouTube, Vimeo, Bunny Stream (URL de embed, de reproduccion o el GUID del video), un MP4, un codigo incrustado o un shortcode. Con "Detectar automaticamente" basta pegar la URL.', 'aula-virtual' ); ?></p>
 							<label><?php esc_html_e( 'Duracion (min)', 'aula-virtual' ); ?> <input type="number" name="duration" min="0" class="small-text" value="<?php echo esc_attr( (string) (int) $lesson['duration'] ); ?>"></label>
 						</td>
 					</tr>

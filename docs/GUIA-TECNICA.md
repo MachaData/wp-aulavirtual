@@ -31,6 +31,7 @@ final porque consumen servicios de todos los demás.
 | `Enrollments` | EnrollmentStatus, matrícula, enlaces, solicitudes, formulario público | Editions |
 | `Progress` | ProgressCalculator, repositorio, servicio | Curriculum, Enrollments |
 | `LiveClasses` | repositorio, servicio (ventana, zonas horarias) | Curriculum |
+| `Videos` | VideoEmbed: registro de proveedores, embeds firmados de Bunny, saneado de iframes | — |
 | `Materials` | repositorio, servicio (lista blanca de extensiones) | Curriculum |
 | `Emails` | plantillas, variables, renderer, mailer, notificador | Enrollments, Curriculum |
 | `WooCommerce` | ProductLink, OrderHandler, Settings | Enrollments |
@@ -83,6 +84,9 @@ venir instalado, en `EmailDefaults::definitions()`.
 | `aula_virtual/campus_redirect_url` | filter | A dónde va un alumno que intenta entrar a wp-admin |
 | `aula_virtual/email_variables` | filter | Añadir variables a las plantillas |
 | `aula_virtual/material_extensions` | filter | Extensiones admitidas como material |
+| `aula_virtual/video_providers` | filter | Añadir proveedores de video al selector |
+| `aula_virtual/render_video` | filter | Renderizar un proveedor propio (devolver markup) |
+| `aula_virtual/embed_hosts` | filter | Hosts admitidos en códigos incrustados |
 | `aula_virtual/use_landing_template` | filter | Desactivar la plantilla de landing del plugin |
 | `aula_virtual/course_post_type_args` | filter | Ajustar el CPT |
 | `aula_virtual/rest_controllers` | filter | Añadir controladores REST |
@@ -124,6 +128,15 @@ composer lint                 # WordPress Coding Standards
 `tests/wp-stubs.php` define solo las funciones de WordPress que las pruebas tocan, con su
 comportamiento real (por ejemplo, `esc_url_raw` rechaza `javascript:`). Si una prueba necesita
 una función nueva, añadirla ahí imitando a WordPress, no simplificándola.
+
+## 8b. Videos
+
+`Videos\VideoEmbed::render( $provider, $source )` es el único punto que produce markup de
+video (campus, landing, grabaciones). Con proveedor vacío detecta por la URL. Bunny se
+resuelve a `iframe.mediadelivery.net/embed/{lib}/{guid}` y, si `av_bunny_token_key` está
+definida, añade `token=sha256(clave + guid + expires)` y `expires`, según la autenticación por
+token de Bunny Stream. Los iframes (pegados o devueltos por oEmbed) solo se conservan si su
+host está en la lista blanca; `wp_kses_post` los eliminaría, por eso no se usa ahí.
 
 ## 9. Limitaciones conocidas
 

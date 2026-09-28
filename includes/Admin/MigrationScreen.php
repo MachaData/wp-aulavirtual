@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Admin;
 
+use SIQA\AulaVirtual\Courses\CourseRepository;
 use SIQA\AulaVirtual\Migration\TutorMigrator;
 use SIQA\AulaVirtual\Migration\TutorReader;
 use SIQA\AulaVirtual\Permissions\Capabilities;
@@ -41,14 +42,23 @@ final class MigrationScreen {
 	private TutorMigrator $migrator;
 
 	/**
+	 * Course queries.
+	 *
+	 * @var CourseRepository
+	 */
+	private CourseRepository $courses;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param TutorReader   $tutor    Tutor reader.
-	 * @param TutorMigrator $migrator Migrator.
+	 * @param TutorReader      $tutor    Tutor reader.
+	 * @param TutorMigrator    $migrator Migrator.
+	 * @param CourseRepository $courses  Course queries.
 	 */
-	public function __construct( TutorReader $tutor, TutorMigrator $migrator ) {
+	public function __construct( TutorReader $tutor, TutorMigrator $migrator, CourseRepository $courses ) {
 		$this->tutor    = $tutor;
 		$this->migrator = $migrator;
+		$this->courses  = $courses;
 	}
 
 	/**
@@ -84,6 +94,7 @@ final class MigrationScreen {
 			'available' => TutorReader::is_available(),
 			'courses'   => TutorReader::is_available() ? $this->tutor->courses() : array(),
 			'map'       => $this->migrator->map(),
+			'targets'   => $this->courses->paginate( array( 'status' => array( 'publish', 'draft', 'private' ), 'per_page' => 100, 'orderby' => 'title', 'order' => 'ASC' ) )['items'],
 			'notice'    => $notice,
 			'report'    => $report,
 		);
@@ -109,7 +120,10 @@ final class MigrationScreen {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
 		$tutor_course_id = isset( $_POST['tutor_course_id'] ) ? absint( wp_unslash( $_POST['tutor_course_id'] ) ) : 0;
 
-		$result = $this->migrator->migrate_course( $tutor_course_id );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
+		$target_course_id = isset( $_POST['target_course_id'] ) ? absint( wp_unslash( $_POST['target_course_id'] ) ) : 0;
+
+		$result = $this->migrator->migrate_course( $tutor_course_id, $target_course_id );
 		$base   = add_query_arg( 'page', self::SLUG, admin_url( 'admin.php' ) );
 
 		if ( $result instanceof WP_Error ) {

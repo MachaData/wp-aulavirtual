@@ -91,7 +91,7 @@ final class LessonService {
 				'content'        => Sanitizer::html( $input['content'] ?? '' ),
 				'lesson_type'    => Sanitizer::enum( $input['lesson_type'] ?? '', LessonType::all(), LessonType::VIDEO ),
 				'video_provider' => Sanitizer::key( $input['video_provider'] ?? '' ),
-				'video_url'      => Sanitizer::url( $input['video_url'] ?? '' ),
+				'video_url'      => self::video_source( $input['video_provider'] ?? '', $input['video_url'] ?? '' ),
 				'duration'       => max( 0, Sanitizer::int( $input['duration'] ?? 0 ) ),
 				'is_preview'     => Sanitizer::bool( $input['is_preview'] ?? false ) ? 1 : 0,
 				'position'       => $this->lessons->next_position( $edition_id ),
@@ -145,7 +145,7 @@ final class LessonService {
 			'content'        => Sanitizer::html( $input['content'] ?? $lesson['content'] ),
 			'lesson_type'    => Sanitizer::enum( $input['lesson_type'] ?? $lesson['lesson_type'], LessonType::all(), LessonType::VIDEO ),
 			'video_provider' => Sanitizer::key( $input['video_provider'] ?? $lesson['video_provider'] ),
-			'video_url'      => Sanitizer::url( $input['video_url'] ?? $lesson['video_url'] ),
+			'video_url'      => self::video_source( $input['video_provider'] ?? $lesson['video_provider'], $input['video_url'] ?? $lesson['video_url'] ),
 			'duration'       => max( 0, Sanitizer::int( $input['duration'] ?? $lesson['duration'] ) ),
 			'featured_image' => max( 0, Sanitizer::int( $input['featured_image'] ?? $lesson['featured_image'] ) ),
 			'is_preview'     => Sanitizer::bool( $input['is_preview'] ?? $lesson['is_preview'] ) ? 1 : 0,
@@ -159,6 +159,32 @@ final class LessonService {
 		$this->lessons->update( $lesson_id, $data );
 
 		return true;
+	}
+
+	/**
+	 * Sanitises the video reference according to its provider.
+	 *
+	 * Embedded code and shortcodes are not URLs: they are kept as text and
+	 * sanitised at render time by VideoEmbed, which only lets through iframes
+	 * from allow-listed hosts.
+	 *
+	 * @param mixed $provider Provider key.
+	 * @param mixed $source   URL or code.
+	 * @return string
+	 */
+	public static function video_source( mixed $provider, mixed $source ): string {
+		$source   = is_scalar( $source ) ? trim( (string) $source ) : '';
+		$provider = Sanitizer::key( $provider );
+
+		if ( '' === $provider ) {
+			$provider = \SIQA\AulaVirtual\Videos\VideoEmbed::detect( $source );
+		}
+
+		if ( in_array( $provider, array( 'embed', 'shortcode' ), true ) ) {
+			return wp_kses( $source, array( 'iframe' => array( 'src' => true, 'width' => true, 'height' => true, 'allow' => true, 'allowfullscreen' => true, 'frameborder' => true, 'title' => true ) ) );
+		}
+
+		return Sanitizer::url( $source );
 	}
 
 	/**

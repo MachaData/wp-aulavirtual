@@ -99,7 +99,8 @@ final class AdminServiceProvider implements ServiceProvider {
 			MigrationScreen::class,
 			static fn( Container $c ): MigrationScreen => new MigrationScreen(
 				$c->get( TutorReader::class ),
-				$c->get( TutorMigrator::class )
+				$c->get( TutorMigrator::class ),
+				$c->get( CourseRepository::class )
 			)
 		);
 

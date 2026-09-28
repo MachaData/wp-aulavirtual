@@ -190,3 +190,66 @@ function esc_html__( $text, $domain = 'default' ) {
 function wp_get_attachment_url( $id ) {
 	return 'https://example.test/uploads/' . (int) $id . '.mp4';
 }
+
+define( 'HOUR_IN_SECONDS', 3600 );
+
+function esc_url( $url ) {
+	return esc_url_raw( $url );
+}
+
+function wp_parse_url( $url, $component = -1 ) {
+	return parse_url( (string) $url, $component );
+}
+
+function wp_oembed_get( $url ) {
+	// Sin red en las pruebas: solo YouTube y Vimeo "responden".
+	$host = (string) parse_url( (string) $url, PHP_URL_HOST );
+
+	// Como WordPress: YouTube responde con youtube.com/embed y Vimeo con player.vimeo.com.
+	if ( str_contains( $host, 'youtu' ) ) {
+		return '<iframe width="200" height="113" src="https://www.youtube.com/embed/abc?feature=oembed" frameborder="0" allowfullscreen></iframe>';
+	}
+
+	if ( str_contains( $host, 'vimeo' ) ) {
+		return '<iframe src="https://player.vimeo.com/video/1" frameborder="0"></iframe>';
+	}
+
+	return false;
+}
+
+function do_shortcode( $content ) {
+	return (string) $content;
+}
+
+function wp_kses( $content, $allowed ) {
+	return strip_tags( (string) $content, '<iframe>' );
+}
+
+function add_query_arg( ...$args ) {
+	if ( is_array( $args[0] ) ) {
+		$params = $args[0];
+		$url    = (string) ( $args[1] ?? '' );
+	} else {
+		$params = array( (string) $args[0] => $args[1] );
+		$url    = (string) ( $args[2] ?? '' );
+	}
+
+	$parts = parse_url( $url );
+	$query = array();
+
+	if ( ! empty( $parts['query'] ) ) {
+		parse_str( $parts['query'], $query );
+	}
+
+	foreach ( $params as $k => $v ) {
+		if ( false === $v ) {
+			unset( $query[ $k ] );
+		} else {
+			$query[ $k ] = $v;
+		}
+	}
+
+	$base = ( isset( $parts['scheme'] ) ? $parts['scheme'] . '://' : '' ) . ( $parts['host'] ?? '' ) . ( $parts['path'] ?? '' );
+
+	return $base . ( array() === $query ? '' : '?' . http_build_query( $query ) );
+}

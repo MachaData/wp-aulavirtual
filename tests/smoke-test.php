@@ -46,6 +46,7 @@ use SIQA\AulaVirtual\Emails\EmailsServiceProvider;
 use SIQA\AulaVirtual\Emails\TemplateRenderer;
 use SIQA\AulaVirtual\Emails\VariableResolver;
 use SIQA\AulaVirtual\Admin\AdminMenu;
+use SIQA\AulaVirtual\Videos\VideoEmbed;
 use SIQA\AulaVirtual\Admin\LessonScreen;
 use SIQA\AulaVirtual\LiveClasses\LiveClassService;
 use SIQA\AulaVirtual\LiveClasses\LiveClassesServiceProvider;
@@ -397,6 +398,39 @@ check( 'la conversion inversa devuelve la hora local', '2027-07-01 19:00' === Li
 check( 'las 19:00 de Madrid en julio son las 17:00 UTC (horario de verano)', '2027-07-01 17:00:00' === LiveClassService::to_utc( '2027-07-01 19:00', 'Europe/Madrid' ) );
 check( 'una fecha vacia no se convierte', null === LiveClassService::to_utc( '', 'America/Lima' ) );
 check( 'una zona horaria invalida no rompe', null === LiveClassService::to_utc( '2027-07-01 19:00', 'Marte/Olympus' ) );
+
+echo "\nVideos\n";
+check( 'detecta YouTube', 'youtube' === VideoEmbed::detect( 'https://youtu.be/dQw4w9WgXcQ' ) );
+check( 'detecta Vimeo', 'vimeo' === VideoEmbed::detect( 'https://vimeo.com/123456' ) );
+check( 'detecta Bunny por su dominio de embed', 'bunny' === VideoEmbed::detect( 'https://iframe.mediadelivery.net/embed/12345/abcdef12-1234-1234-1234-abcdef123456' ) );
+check( 'detecta Bunny por el CDN', 'bunny' === VideoEmbed::detect( 'https://vz-abc.b-cdn.net/guid/playlist.m3u8' ) );
+check( 'detecta un MP4 directo', 'html5' === VideoEmbed::detect( 'https://cdn.test/clase.mp4?x=1' ) );
+check( 'detecta codigo incrustado', 'embed' === VideoEmbed::detect( '<iframe src="https://player.vimeo.com/video/1"></iframe>' ) );
+check( 'detecta un shortcode', 'shortcode' === VideoEmbed::detect( '[presto_player id=3]' ) );
+check( 'una URL desconocida cae en oEmbed generico', 'url' === VideoEmbed::detect( 'https://loom.com/share/x' ) );
+
+check( 'Bunny: URL de embed -> biblioteca y video', array( '12345', 'abcdef12-1234-1234-1234-abcdef123456' ) === VideoEmbed::bunny_parse( 'https://iframe.mediadelivery.net/embed/12345/abcdef12-1234-1234-1234-abcdef123456?autoplay=true', '' ) );
+check( 'Bunny: URL de reproduccion -> biblioteca y video', array( '12345', 'abcdef12-1234-1234-1234-abcdef123456' ) === VideoEmbed::bunny_parse( 'https://video.bunnycdn.com/play/12345/abcdef12-1234-1234-1234-abcdef123456', '' ) );
+check( 'Bunny: solo el GUID usa la biblioteca configurada', array( '777', 'abcdef12-1234-1234-1234-abcdef123456' ) === VideoEmbed::bunny_parse( 'abcdef12-1234-1234-1234-abcdef123456', '777' ) );
+check( 'Bunny: solo el GUID sin biblioteca no resuelve', null === VideoEmbed::bunny_parse( 'abcdef12-1234-1234-1234-abcdef123456', '' ) );
+check( 'Bunny: el token es SHA-256 de clave + video + expiracion', hash( 'sha256', 'clave' . 'vid' . '1800000000' ) === VideoEmbed::bunny_token( 'clave', 'vid', 1800000000 ) );
+
+update_option( 'av_bunny_library_id', '777' );
+update_option( 'av_bunny_token_key', 'secreto' );
+$bunny_html = VideoEmbed::render( 'bunny', 'abcdef12-1234-1234-1234-abcdef123456' );
+check( 'Bunny: con clave configurada el iframe lleva token y expiracion', str_contains( $bunny_html, 'token=' ) && str_contains( $bunny_html, 'expires=' ) && str_contains( $bunny_html, 'iframe.mediadelivery.net/embed/777/' ) );
+delete_option( 'av_bunny_token_key' );
+check( 'Bunny: sin clave el iframe no lleva token', ! str_contains( VideoEmbed::render( 'bunny', 'abcdef12-1234-1234-1234-abcdef123456' ), 'token=' ) );
+delete_option( 'av_bunny_library_id' );
+
+check( 'un iframe de un host permitido se conserva', str_contains( VideoEmbed::render( 'embed', '<iframe src="https://player.vimeo.com/video/1" width="640"></iframe>' ), 'player.vimeo.com' ) );
+check( 'un iframe de un host desconocido se descarta entero', '' === VideoEmbed::render( 'embed', '<iframe src="https://malicioso.test/x"></iframe>' ) );
+check( 'un MP4 se sirve con la etiqueta video', str_starts_with( VideoEmbed::render( 'html5', 'https://cdn.test/clase.mp4' ), '<video' ) );
+check( 'YouTube pasa por oEmbed', str_contains( VideoEmbed::render( '', 'https://youtu.be/abc' ), '<iframe' ) );
+
+$bunny_tutor = TutorMapping::video( array( 'source' => 'bunnynet', 'source_bunnynet' => 'https://iframe.mediadelivery.net/embed/12345/abcdef12-1234-1234-1234-abcdef123456' ) );
+check( 'Tutor: la fuente bunnynet migra como Bunny', 'bunny' === $bunny_tutor['provider'] && str_contains( $bunny_tutor['url'], 'mediadelivery' ) );
+check( 'Tutor: un embed incrustado conserva el codigo', 'embed' === TutorMapping::video( array( 'source' => 'embedded', 'source_embedded' => '<iframe src="https://player.vimeo.com/video/1"></iframe>' ) )['provider'] );
 
 echo "\nMateriales\n";
 check( 'un PDF se admite', MaterialService::is_allowed_extension( 'pdf' ) );

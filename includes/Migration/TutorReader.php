@@ -266,6 +266,44 @@ final class TutorReader {
 	}
 
 	/**
+	 * Attachment ids Tutor stored on a course or lesson (`_tutor_attachments`).
+	 *
+	 * @param int $post_id Course or lesson id.
+	 * @return array<int, int>
+	 */
+	public function attachments( int $post_id ): array {
+		$value = get_post_meta( $post_id, '_tutor_attachments', true );
+
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		return array_values( array_filter( array_map( 'intval', $value ), static fn( int $id ): bool => $id > 0 ) );
+	}
+
+	/**
+	 * Price Tutor shows for a course, formatted with the store currency.
+	 *
+	 * Prefers the sale price when there is one.
+	 *
+	 * @param int $course_id Course id.
+	 * @return string
+	 */
+	public function price_display( int $course_id ): string {
+		$sale    = get_post_meta( $course_id, 'tutor_course_sale_price', true );
+		$regular = get_post_meta( $course_id, 'tutor_course_price', true );
+		$price   = is_numeric( $sale ) && (float) $sale > 0 ? (float) $sale : ( is_numeric( $regular ) ? (float) $regular : 0.0 );
+
+		if ( $price <= 0 ) {
+			return '';
+		}
+
+		$symbol = function_exists( 'get_woocommerce_currency_symbol' ) ? html_entity_decode( (string) get_woocommerce_currency_symbol() ) : '$';
+
+		return $symbol . ' ' . number_format_i18n( $price, 2 );
+	}
+
+	/**
 	 * Category names of a course.
 	 *
 	 * @param int $course_id Course id.

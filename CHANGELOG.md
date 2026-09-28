@@ -3,6 +3,30 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.8.0] - 2026-09-28
+
+Videos con Bunny Stream y migracion completa de las lecciones de Tutor.
+
+### Anadido
+
+- Registro de proveedores de video (`Videos\VideoEmbed`): YouTube, Vimeo, Bunny Stream, MP4,
+  URL externa, codigo incrustado y shortcode, con deteccion automatica por URL. Selector de
+  proveedor en el editor de sesion.
+- Bunny Stream: acepta URL de embed, de reproduccion o solo el GUID; si la biblioteca usa
+  autenticacion por token, cada reproduccion se firma con un token que caduca (opciones
+  `av_bunny_library_id`, `av_bunny_token_key`, `av_bunny_token_ttl`).
+- Codigos incrustados: solo se conserva el iframe si su host esta en la lista blanca.
+- Migracion desde Tutor: la fuente `bunnynet` migra como Bunny; los adjuntos de cada leccion y
+  del curso pasan a materiales; el precio de Tutor (oferta o normal) llega a la edicion.
+- Migracion: opcion "Edicion de: [curso existente]" para agrupar cohortes que en Tutor son
+  cursos separados (G1, G3, G4...) como ediciones de un solo curso.
+- Smoke test ampliado a 160 comprobaciones y 81 clases.
+
+### Corregido
+
+- El embed de YouTube y Vimeo llegaba vacio al alumno: `wp_kses_post` elimina los iframes que
+  devuelve oEmbed. Ahora se conservan si el host esta en la lista blanca.
+
 ## [0.7.0] - 2026-09-28
 
 Perfil del alumno, editor de sesion, clases en vivo, materiales y documentacion de entrega.

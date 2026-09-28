@@ -56,6 +56,33 @@ Al pulsar el título se abre el **editor de sesión**, con tres zonas:
 - **Materiales**: archivos de la biblioteca de medios (PDF, Office, ZIP, imágenes, audio,
   video) o enlaces externos. Se pueden marcar como "solo lectura" para ocultar la descarga.
 
+## 4b. Videos: YouTube, Vimeo y Bunny
+
+En el editor de sesión, el campo *Video* acepta cualquiera de estas fuentes; con "Detectar
+automáticamente" basta pegar la URL:
+
+| Fuente | Qué pegar |
+|---|---|
+| YouTube / Vimeo | La URL normal del video |
+| **Bunny Stream** | La URL de embed (`iframe.mediadelivery.net/embed/{biblioteca}/{video}`), la URL de reproducción, o solo el GUID del video si la biblioteca está configurada |
+| Archivo MP4 / WebM | La URL directa del archivo |
+| Código incrustado | El `<iframe>` que da la plataforma. Solo se aceptan hosts conocidos (YouTube, Vimeo, Bunny, Drive, Loom, Wistia) |
+| Shortcode | Por ejemplo, el de un reproductor externo |
+
+**Videos privados en Bunny.** Bunny puede exigir un token en cada reproducción ("Token
+Authentication" en la configuración de la biblioteca de Stream). Para que el campus genere
+ese token en cada carga, definir dos opciones:
+
+| Opción | Valor |
+|---|---|
+| `av_bunny_library_id` | El ID numérico de la biblioteca de Stream |
+| `av_bunny_token_key` | La *Token Authentication Key* de esa biblioteca (en Bunny: Stream → biblioteca → Security) |
+| `av_bunny_token_ttl` | Segundos de validez del token. Por defecto 21600 (6 horas) |
+
+Con la clave configurada, el reproductor del campus firma cada URL con un token que caduca;
+copiar el enlace del video fuera del campus deja de servir pasadas esas horas. Sin la clave,
+los videos se incrustan sin firmar (sirve para bibliotecas públicas).
+
 ## 5. Cómo llegan los alumnos
 
 ### Compra directa (sin aprobación)
@@ -131,6 +158,14 @@ los alumnos con su fecha, su progreso y si terminaron. No envía correos, no toc
 puede repetir sin duplicar. Los alumnos se procesan de 300 en 300: si quedan pendientes, el
 botón pasa a *Reprocesar alumnos*.
 
+Los videos de Bunny, YouTube, Vimeo, URL externa e incrustados se conservan; los adjuntos de
+cada lección y del curso pasan a ser materiales.
+
+**Cohortes que hoy son cursos separados.** Si en Tutor tienes "Numerología Básica G1-2026",
+"G3-2025" y "G4-2025" como tres cursos, migra el primero *como curso nuevo* y los otros dos
+eligiendo *Edición de: Numerología Básica...* en el desplegable. Quedará un solo curso con una
+landing y tres ediciones, cada una con sus alumnos y su temario.
+
 Hacerlo primero en un sitio de pruebas y comparar los conteos con los de Tutor.
 
 ## 10. Permisos
@@ -154,6 +189,9 @@ Hacerlo primero en un sitio de pruebas y comparar los conteos con los de Tutor.
 | `av_brand_color` | `#rrggbb` | `#1d4ed8` |
 | `av_admin_notification_email` | correo | el del sitio |
 | `av_log_level` | `debug`, `info`, `warning`, `error`, `off` | `info` |
+| `av_bunny_library_id` | ID de biblioteca de Bunny Stream | vacío |
+| `av_bunny_token_key` | clave de token de la biblioteca | vacío (sin firma) |
+| `av_bunny_token_ttl` | segundos | `21600` |
 
 Se cambian con `wp option update` o con un plugin de opciones hasta que exista la pantalla
 de configuración.

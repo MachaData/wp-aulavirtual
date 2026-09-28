@@ -16,6 +16,7 @@ use SIQA\AulaVirtual\Editions\EditionService;
 use SIQA\AulaVirtual\Editions\EditionStatus;
 use SIQA\AulaVirtual\Enrollments\EnrollmentLinkRepository;
 use SIQA\AulaVirtual\Enrollments\RegistrationService;
+use SIQA\AulaVirtual\Videos\VideoEmbed;
 use SIQA\AulaVirtual\WooCommerce\ProductLink;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -281,19 +282,7 @@ final class LandingRenderer {
 	 * @return string
 	 */
 	public function video_html( string $url ): string {
-		$url = esc_url_raw( $url );
-
-		if ( '' === $url ) {
-			return '';
-		}
-
-		if ( preg_match( '/\.(mp4|webm|ogv)(\?.*)?$/i', $url ) ) {
-			return '<video controls playsinline preload="metadata" src="' . esc_url( $url ) . '"></video>';
-		}
-
-		$embed = wp_oembed_get( $url );
-
-		return false === $embed ? '' : wp_kses_post( $embed );
+		return VideoEmbed::render( '', $url );
 	}
 
 	/**
