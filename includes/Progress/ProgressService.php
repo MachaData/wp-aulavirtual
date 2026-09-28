@@ -13,6 +13,7 @@ use SIQA\AulaVirtual\Core\Events\EventBus;
 use SIQA\AulaVirtual\Core\Events\Events;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Curriculum\LessonType;
+use SIQA\AulaVirtual\Curriculum\ReleaseSchedule;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
 use SIQA\AulaVirtual\Enrollments\EnrollmentStatus;
@@ -117,7 +118,16 @@ final class ProgressService {
 			);
 		}
 
-		$now      = current_time( 'mysql', true );
+		$now = current_time( 'mysql', true );
+
+		if ( ! ReleaseSchedule::is_available( $lesson, $this->enrollments->find_for_student( $user_id, $edition_id ), $now ) ) {
+			return new WP_Error(
+				'av_lesson_locked',
+				__( 'Esta sesion todavia no esta disponible.', 'aula-virtual' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		$existing = $this->progress->find_for_lesson( $user_id, $lesson_id );
 
 		$row = array(

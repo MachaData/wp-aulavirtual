@@ -221,7 +221,7 @@ Decisiones concretas que conviene revisar en la aprobación:
 
 ### 4.3 Versionado del esquema
 
-`Database\Schema::VERSION` (hoy `1.0.0`) se guarda en la opción `av_db_version`.
+`Database\Schema::VERSION` (hoy `1.2.0`) se guarda en la opción `av_db_version`.
 `Database\Migrator`:
 
 - ejecuta `dbDelta()` sobre todas las definiciones sólo cuando la versión instalada es menor;
@@ -360,7 +360,7 @@ El manejador de pedidos es idempotente: busca el usuario por email, crea la matr
 
 Al activar, `Database\Installer::activate()`:
 
-1. Ejecuta el migrador (crea las 15 tablas y guarda `av_db_version`).
+1. Ejecuta el migrador (crea las 16 tablas y guarda `av_db_version`).
 2. Crea los tres roles y otorga las capacidades al `administrator`.
 3. Añade las opciones por defecto **sin sobrescribir** valores existentes.
 4. Crea la página del Campus si no existe (`[av_campus]`), reutilizando una página existente

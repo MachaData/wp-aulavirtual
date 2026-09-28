@@ -45,6 +45,7 @@ final class Events {
 	public const LIVE_CLASS_RECORDED  = 'live_class_recorded';
 	public const ANNOUNCEMENT_CREATED = 'announcement_created';
 	public const MATERIAL_ADDED       = 'material_added';
+	public const COMMENT_POSTED       = 'comment_posted';
 
 	public const CERTIFICATE_ISSUED = 'certificate_issued';
 

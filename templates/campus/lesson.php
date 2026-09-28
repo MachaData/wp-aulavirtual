@@ -9,6 +9,10 @@
  * @var array<int, array<string, mixed>> $materials
  * @var bool                             $completed
  * @var string                           $back_url
+ * @var bool                             $comments_enabled
+ * @var array<int, array<string, mixed>> $comments
+ * @var bool                             $can_moderate
+ * @var int                              $current_user_id
  */
 
 use SIQA\AulaVirtual\Campus\CampusController;
@@ -95,6 +99,70 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</li>
 				<?php endforeach; ?>
 			</ul>
+		</section>
+	<?php endif; ?>
+
+	<?php if ( ! empty( $comments_enabled ) ) : ?>
+		<section class="av-comments" id="av-comments">
+			<h3><?php esc_html_e( 'Preguntas y comentarios', 'aula-virtual' ); ?></h3>
+
+			<?php if ( empty( $comments ) ) : ?>
+				<p class="av-comments__empty"><?php esc_html_e( 'Todavia no hay comentarios. Escribe el primero.', 'aula-virtual' ); ?></p>
+			<?php else : ?>
+				<ul class="av-comments__list">
+					<?php foreach ( $comments as $av_comment ) : ?>
+						<?php $av_render = static function ( array $c ) use ( $can_moderate, $current_user_id, $lesson ): void { ?>
+							<li class="av-comment<?php echo (int) $c['is_staff'] ? ' av-comment--staff' : ''; ?>" id="av-comment-<?php echo esc_attr( (string) (int) $c['id'] ); ?>">
+								<p class="av-comment__meta">
+									<strong><?php echo esc_html( (string) $c['author'] ); ?></strong>
+									<?php if ( (int) $c['is_staff'] ) : ?><span class="av-comment__badge"><?php esc_html_e( 'Instructor', 'aula-virtual' ); ?></span><?php endif; ?>
+									<small><?php echo esc_html( mysql2date( (string) get_option( 'date_format' ) . ' H:i', (string) $c['created_at'] ) ); ?></small>
+								</p>
+								<div class="av-comment__body"><?php echo wp_kses_post( wpautop( esc_html( (string) $c['content'] ) ) ); ?></div>
+								<?php if ( $can_moderate || (int) $c['user_id'] === $current_user_id ) : ?>
+									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="av-comment__delete" onsubmit="return confirm('<?php echo esc_js( __( 'Eliminar este comentario?', 'aula-virtual' ) ); ?>');">
+										<input type="hidden" name="action" value="<?php echo esc_attr( CampusController::ACTION_DELETE_COMMENT ); ?>">
+										<input type="hidden" name="comment_id" value="<?php echo esc_attr( (string) (int) $c['id'] ); ?>">
+										<input type="hidden" name="lesson_id" value="<?php echo esc_attr( (string) (int) $lesson['id'] ); ?>">
+										<?php wp_nonce_field( CampusController::ACTION_DELETE_COMMENT ); ?>
+										<button type="submit" class="av-link-button"><?php esc_html_e( 'Eliminar', 'aula-virtual' ); ?></button>
+									</form>
+								<?php endif; ?>
+								<?php if ( (int) $c['parent_id'] === 0 ) : ?>
+									<details class="av-comment__reply">
+										<summary><?php esc_html_e( 'Responder', 'aula-virtual' ); ?></summary>
+										<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+											<input type="hidden" name="action" value="<?php echo esc_attr( CampusController::ACTION_COMMENT ); ?>">
+											<input type="hidden" name="lesson_id" value="<?php echo esc_attr( (string) (int) $lesson['id'] ); ?>">
+											<input type="hidden" name="parent_id" value="<?php echo esc_attr( (string) (int) $c['id'] ); ?>">
+											<?php wp_nonce_field( CampusController::ACTION_COMMENT ); ?>
+											<textarea name="content" rows="3" required maxlength="2000"></textarea>
+											<button type="submit"><?php esc_html_e( 'Enviar respuesta', 'aula-virtual' ); ?></button>
+										</form>
+									</details>
+								<?php endif; ?>
+							</li>
+						<?php }; ?>
+						<?php $av_render( $av_comment ); ?>
+						<?php if ( ! empty( $av_comment['replies'] ) ) : ?>
+							<ul class="av-comments__replies">
+								<?php foreach ( $av_comment['replies'] as $av_reply ) : ?>
+									<?php $av_render( $av_reply ); ?>
+								<?php endforeach; ?>
+							</ul>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="av-comments__form">
+				<input type="hidden" name="action" value="<?php echo esc_attr( CampusController::ACTION_COMMENT ); ?>">
+				<input type="hidden" name="lesson_id" value="<?php echo esc_attr( (string) (int) $lesson['id'] ); ?>">
+				<?php wp_nonce_field( CampusController::ACTION_COMMENT ); ?>
+				<label for="av-comment-content"><?php esc_html_e( 'Escribe tu pregunta o comentario', 'aula-virtual' ); ?></label>
+				<textarea name="content" id="av-comment-content" rows="4" required maxlength="2000"></textarea>
+				<button type="submit"><?php esc_html_e( 'Publicar', 'aula-virtual' ); ?></button>
+			</form>
 		</section>
 	<?php endif; ?>
 

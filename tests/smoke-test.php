@@ -48,6 +48,10 @@ use SIQA\AulaVirtual\Emails\VariableResolver;
 use SIQA\AulaVirtual\Admin\AdminMenu;
 use SIQA\AulaVirtual\Admin\SettingsScreen;
 use SIQA\AulaVirtual\Admin\ImportScreen;
+use SIQA\AulaVirtual\Comments\CommentService;
+use SIQA\AulaVirtual\Comments\CommentsServiceProvider;
+use SIQA\AulaVirtual\Curriculum\ReleaseSchedule;
+use SIQA\AulaVirtual\Materials\DownloadController;
 use SIQA\AulaVirtual\Courses\CourseDuplicator;
 use SIQA\AulaVirtual\Editions\EditionDuplicator;
 use SIQA\AulaVirtual\Imports\ImportParser;
@@ -185,7 +189,7 @@ check( 'detecta dependencias circulares', $circular );
 echo "\nSchema\n";
 $schema      = new Schema();
 $definitions = $schema->definitions();
-check( 'declara las 15 tablas del MVP', 15 === count( $definitions ) );
+check( 'declara las 16 tablas del MVP', 16 === count( $definitions ) );
 check( 'usa el prefijo de WordPress', 'wp_av_enrollments' === $schema->table( 'enrollments' ) );
 check( 'expone los nombres logicos', count( $schema->table_names() ) === count( $definitions ) );
 
@@ -332,6 +336,7 @@ foreach (
 		new LiveClassesServiceProvider(),
 		new MaterialsServiceProvider(),
 		new AnnouncementsServiceProvider(),
+		new CommentsServiceProvider(),
 		new EmailsServiceProvider(),
 		new WooCommerceServiceProvider(),
 		new MigrationServiceProvider(),
@@ -434,6 +439,46 @@ $mapped = ImportService::map_rows( array( array( ' ANA@Example.test ', 'Ana', 'C
 check( 'el correo se normaliza en minusculas y sin espacios', 'ana@example.test' === $mapped[0]['email'] );
 check( 'la linea se conserva para informar errores', 2 === $mapped[0]['line'] );
 check( 'las filas vacias se descartan', 1 === count( $mapped ) );
+
+$comments_error = '';
+try {
+	$comment_service = $plugin_container->get( CommentService::class );
+	$download        = $plugin_container->get( DownloadController::class );
+} catch ( Throwable $e ) {
+	$comments_error  = $e->getMessage();
+	$comment_service = null;
+	$download        = null;
+}
+check( 'el servicio de comentarios resuelve sus dependencias', $comment_service instanceof CommentService && '' === $comments_error );
+check( 'el endpoint de descarga resuelve materiales y matriculas', $download instanceof DownloadController );
+
+echo "\nLiberacion programada\n";
+$enrol = array( 'enrolled_at' => '2026-03-01 10:00:00' );
+check( 'inmediata: siempre disponible', null === ReleaseSchedule::available_at( array( 'release_type' => 'immediate' ), $enrol ) );
+check( 'por fecha: se abre en esa fecha', '2026-04-01 00:00:00' === ReleaseSchedule::available_at( array( 'release_type' => 'date', 'release_date' => '2026-04-01 00:00:00' ), null ) );
+check( 'por fecha vacia: disponible', null === ReleaseSchedule::available_at( array( 'release_type' => 'date', 'release_date' => '' ), null ) );
+check( 'por dias: se suma a la fecha de matricula', '2026-03-08 10:00:00' === ReleaseSchedule::available_at( array( 'release_type' => 'offset', 'release_offset' => 7 ), $enrol ) );
+check( 'por dias sin matricula: disponible', null === ReleaseSchedule::available_at( array( 'release_type' => 'offset', 'release_offset' => 7 ), null ) );
+check( 'antes de la fecha esta bloqueada', ! ReleaseSchedule::is_available( array( 'release_type' => 'date', 'release_date' => '2026-04-01 00:00:00' ), null, '2026-03-31 23:59:59' ) );
+check( 'en la fecha exacta se abre', ReleaseSchedule::is_available( array( 'release_type' => 'date', 'release_date' => '2026-04-01 00:00:00' ), null, '2026-04-01 00:00:00' ) );
+
+echo "\nURLs limpias del campus\n";
+$rules = CampusController::rewrite_rules( 'aula', 12 );
+check( 'tres reglas para la pagina del campus', 3 === count( $rules ) );
+check( 'la regla de curso apunta a la pagina con el codigo', 'index.php?page_id=12&av_edicion=$matches[1]' === ( $rules['^aula/curso/([a-z0-9_-]+)/?$'] ?? '' ) );
+check( 'una pagina anidada se escapa en la regla', isset( CampusController::rewrite_rules( 'campus/aula', 12 )['^campus/aula/sesion/([0-9]+)/?$'] ) );
+check( 'sin pagina no hay reglas', array() === CampusController::rewrite_rules( '', 0 ) );
+check( 'la URL de edicion usa el codigo si se conoce', 'curso/numerologia-julio-2027/' === CampusController::pretty_path( array( 'av_edicion' => 5 ), array( 5 => 'numerologia-julio-2027' ) ) );
+check( 'la URL de edicion usa el id si no hay codigo', 'curso/5/' === CampusController::pretty_path( array( 'av_edicion' => 5 ) ) );
+check( 'la URL de sesion y perfil', 'sesion/9/' === CampusController::pretty_path( array( 'av_leccion' => 9 ) ) && 'perfil/' === CampusController::pretty_path( array( 'av_perfil' => 1 ) ) );
+check( 'argumentos combinados no tienen forma limpia', null === CampusController::pretty_path( array( 'av_leccion' => 9, 'x' => 1 ) ) );
+check( 'las query vars del campus se anaden', in_array( 'av_edicion', CampusController::query_vars( array( 'p' ) ), true ) );
+
+echo "\nComentarios\n";
+check( 'el texto se recorta y se limpia', 'Hola  mundo' === CommentService::sanitize_content( "  Hola  mundo <script>x</script>  " ) || 'Hola  mundo x' === CommentService::sanitize_content( "  Hola  mundo <script>x</script>  " ) );
+check( 'no pasa de 2000 caracteres', 2000 === mb_strlen( CommentService::sanitize_content( str_repeat( 'a', 2500 ) ) ) );
+check( 'los saltos de linea repetidos se compactan', "a\n\nb" === CommentService::sanitize_content( "a\n\n\n\n\nb" ) );
+check( 'la URL de descarga pasa por admin-post', str_contains( DownloadController::url( 7 ), 'action=av_download' ) && str_contains( DownloadController::url( 7 ), 'material=7' ) );
 
 echo "\nClases en vivo\n";
 check( 'antes de la ventana el boton no aparece', LiveClassService::WINDOW_BEFORE === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:44:59' ) );

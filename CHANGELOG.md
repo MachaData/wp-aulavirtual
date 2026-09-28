@@ -3,6 +3,25 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.11.0] - 2026-09-28
+
+Liberacion programada aplicada, materiales protegidos, URLs limpias y comentarios.
+
+### Anadido
+
+- Content drip en el campus: las sesiones "a partir de una fecha" o "X dias despues de la
+  matricula" se muestran bloqueadas con su fecha, no se abren ni se completan antes.
+- Materiales protegidos: carpeta `uploads/aula-virtual/private/` con `.htaccess`, traslado
+  automatico al anadir un material (opcion `av_protect_materials`, activa) y boton para mover
+  los existentes. Endpoint `admin-post.php?action=av_download&material={id}` que comprueba la
+  matricula antes de servir el archivo; el campus enlaza siempre por ahi.
+- URLs limpias del campus: `/aula/curso/{codigo}/`, `/aula/sesion/{id}/`, `/aula/perfil/`,
+  registradas desde la pagina del campus; las de consulta siguen valiendo.
+- Comentarios en las sesiones (tabla `av_lesson_comments`, esquema 1.2.0): hilo con un nivel
+  de respuestas, etiqueta de instructor, borrado por autor o instructor, moderacion desde el
+  editor de la sesion, opcion `av_lesson_comments`, evento `comment_posted`.
+- Smoke test: 221 comprobaciones, 98 clases.
+
 ## [0.10.0] - 2026-09-28
 
 Duplicar, reordenar, importar alumnos por Excel/CSV y repetir el curso.

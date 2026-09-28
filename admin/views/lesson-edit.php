@@ -206,6 +206,36 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 				<?php submit_button( __( 'Anadir material', 'aula-virtual' ), 'secondary', 'submit', false ); ?>
 				<p class="description"><?php printf( /* translators: %s: extensions. */ esc_html__( 'Formatos: %s.', 'aula-virtual' ), esc_html( implode( ', ', MaterialService::allowed_extensions() ) ) ); ?></p>
 			</form>
+			<?php if ( isset( $comments ) && is_array( $comments ) ) : ?>
+				<h2 style="margin-top:32px"><?php esc_html_e( 'Comentarios de los alumnos', 'aula-virtual' ); ?></h2>
+				<?php if ( empty( $comments ) ) : ?>
+					<p class="description"><?php esc_html_e( 'Sin comentarios todavia. Puedes responder desde la misma sesion en el campus.', 'aula-virtual' ); ?></p>
+				<?php else : ?>
+					<table class="widefat striped">
+						<tbody>
+						<?php foreach ( $comments as $av_root ) : ?>
+							<?php foreach ( array_merge( array( $av_root ), $av_root['replies'] ) as $av_c ) : ?>
+								<tr>
+									<td style="<?php echo (int) $av_c['parent_id'] > 0 ? 'padding-left:32px' : ''; ?>">
+										<strong><?php echo esc_html( (string) $av_c['author'] ); ?></strong>
+										<?php echo (int) $av_c['is_staff'] ? '<span class="dashicons dashicons-welcome-learn-more" title="' . esc_attr__( 'Instructor', 'aula-virtual' ) . '"></span>' : ''; ?>
+										<small><?php echo esc_html( mysql2date( (string) get_option( 'date_format' ) . ' H:i', (string) $av_c['created_at'] ) ); ?></small>
+										<p><?php echo esc_html( (string) $av_c['content'] ); ?></p>
+									</td>
+									<td style="width:60px;text-align:right">
+										<form method="post" action="<?php echo esc_url( $av_admin_post ); ?>">
+											<?php $av_hidden( LessonScreen::ACTION_DELETE_COMMENT ); ?>
+											<input type="hidden" name="comment_id" value="<?php echo esc_attr( (string) (int) $av_c['id'] ); ?>">
+											<button type="submit" class="button-link-delete" aria-label="<?php esc_attr_e( 'Eliminar', 'aula-virtual' ); ?>">&times;</button>
+										</form>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php endif; ?>
+			<?php endif; ?>
 			<script>
 			( function () {
 				var button = document.getElementById( 'av-material-choose' );

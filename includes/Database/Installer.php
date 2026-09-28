@@ -106,6 +106,8 @@ final class Installer {
 			'av_send_welcome_email'      => true,
 			'av_progress_mode'           => 'flexible',
 			'av_allow_retake'            => true,
+			'av_lesson_comments'         => true,
+			'av_protect_materials'       => true,
 			'av_wc_enroll_status'        => 'processing',
 			'av_wc_refund_action'        => 'suspend',
 		);

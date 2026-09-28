@@ -1,0 +1,32 @@
+<?php
+/**
+ * Campus: a session that is not released yet.
+ *
+ * @package SIQA\AulaVirtual
+ *
+ * @var array<string, mixed> $lesson
+ * @var string               $available_at
+ * @var string               $timezone
+ * @var string               $back_url
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+?>
+<div class="av-campus av-campus--locked">
+	<p><a href="<?php echo esc_url( $back_url ); ?>">&larr; <?php esc_html_e( 'Volver al temario', 'aula-virtual' ); ?></a></p>
+
+	<h2><?php echo esc_html( (string) $lesson['title'] ); ?></h2>
+
+	<p class="av-locked__message">
+		<?php
+		printf(
+			/* translators: 1: date and time, 2: timezone. */
+			esc_html__( 'Esta sesion se abre el %1$s (%2$s). Te avisaremos aqui mismo cuando este disponible.', 'aula-virtual' ),
+			'<strong>' . esc_html( $available_at ) . '</strong>',
+			esc_html( $timezone )
+		);
+		?>
+	</p>
+</div>

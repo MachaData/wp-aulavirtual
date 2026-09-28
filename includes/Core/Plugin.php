@@ -13,6 +13,7 @@ use SIQA\AulaVirtual\Core\Events\EventBus;
 use SIQA\AulaVirtual\Admin\AdminServiceProvider;
 use SIQA\AulaVirtual\Announcements\AnnouncementsServiceProvider;
 use SIQA\AulaVirtual\Campus\CampusServiceProvider;
+use SIQA\AulaVirtual\Comments\CommentsServiceProvider;
 use SIQA\AulaVirtual\Courses\CoursesServiceProvider;
 use SIQA\AulaVirtual\Curriculum\CurriculumServiceProvider;
 use SIQA\AulaVirtual\Database\DatabaseServiceProvider;
@@ -168,6 +169,7 @@ final class Plugin {
 			new LiveClassesServiceProvider(),
 			new MaterialsServiceProvider(),
 			new AnnouncementsServiceProvider(),
+			new CommentsServiceProvider(),
 			new EmailsServiceProvider(),
 			new WooCommerceServiceProvider(),
 			new MigrationServiceProvider(),

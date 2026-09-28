@@ -73,13 +73,30 @@ Las flechas ↑ ↓ de la columna *Mover* cambian el orden; el alumno las ve en 
 Al pulsar el título se abre el **editor de sesión**, con tres zonas:
 
 - **Contenido**: título, tipo, estado, descripción, video (YouTube, Vimeo, Bunny, MP4),
-  duración, contenido enriquecido y liberación programada.
+  duración, contenido enriquecido y liberación programada. La liberación admite tres modos:
+  *de inmediato*, *a partir de una fecha* o *X días después de la matrícula* de cada alumno.
+  Una sesión no liberada aparece en el temario con "Disponible el …", no se puede abrir ni
+  marcar como completada, y no cuenta como pendiente hasta que se abre.
 - **Clase en vivo**: plataforma (Zoom, Meet, Teams, otra), inicio y fin **en la hora de la
   edición**, enlace, ID y código, cuántos minutos antes aparece el botón y cuántos después
   desaparece, mensaje para el alumno y URL de la grabación cuando termine. El enlace de la
   reunión solo se muestra al alumno dentro de esa ventana.
 - **Materiales**: archivos de la biblioteca de medios (PDF, Office, ZIP, imágenes, audio,
-  video) o enlaces externos. Se pueden marcar como "solo lectura" para ocultar la descarga.
+  video) o enlaces externos. Se pueden marcar como "solo lectura" para abrirlos en el
+  navegador en vez de descargarlos.
+
+### Materiales protegidos
+
+Con *Configuración → Materiales → Proteger los archivos* activado (por defecto), el archivo de
+cada material nuevo se mueve a `uploads/aula-virtual/private/`. Esa carpeta lleva un
+`.htaccess` que niega el acceso directo, así que la URL de la biblioteca de medios deja de
+funcionar y el único camino es el enlace del campus, que comprueba la matrícula antes de
+entregar el archivo. Para los materiales que ya existían (por ejemplo los migrados desde
+Tutor), el botón **Mover ahora a la carpeta protegida** los traslada todos de una vez.
+
+Dos avisos: el archivo movido ya no sirve para otros usos (una imagen protegida no se verá en
+la landing), y en servidores Nginx el `.htaccess` no aplica; hay que añadir la regla que
+indica la guía técnica.
 
 ## 4b. Videos: YouTube, Vimeo y Bunny
 
@@ -177,6 +194,22 @@ completar todas, la matrícula pasa a *Completada* y recibe el correo de curso f
 
 En *Mis datos* el alumno cambia nombre, teléfono, documento y contraseña (pidiendo la actual).
 El correo es de solo lectura: solo lo cambia un administrador desde *Usuarios*.
+
+### Direcciones del campus
+
+Con enlaces permanentes activos, el campus usa direcciones limpias: `/aula/` (mis cursos),
+`/aula/curso/{código-de-la-edición}/` (temario), `/aula/sesion/{id}/` (sesión) y
+`/aula/perfil/` (mis datos). Si se renombra la página del campus, guardar de nuevo
+*Ajustes → Enlaces permanentes* para regenerar las reglas.
+
+### Preguntas y comentarios en las sesiones
+
+Debajo de cada sesión hay un hilo de comentarios (activable en *Configuración → Matrículas →
+Comentarios en las sesiones*). Los alumnos preguntan y responden; el instructor del curso
+responde desde la misma sesión en el campus y su comentario sale con la etiqueta *Instructor*.
+Cada alumno puede eliminar sus propios comentarios; el instructor puede eliminar cualquiera,
+tanto desde el campus como desde el editor de la sesión, donde ve el hilo completo. Hay un
+respiro de 15 segundos entre comentarios del mismo alumno.
 
 ### Repetir el curso
 

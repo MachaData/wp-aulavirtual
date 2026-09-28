@@ -29,6 +29,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class MaterialService {
 
+	public const OPTION_PROTECT  = 'av_protect_materials';
+	public const PRIVATE_SUBDIR  = 'aula-virtual/private';
+
 	/**
 	 * Extensions accepted as material.
 	 *
@@ -184,6 +187,12 @@ final class MaterialService {
 			return new WP_Error( 'av_material_not_saved', __( 'No se pudo guardar el material.', 'aula-virtual' ) );
 		}
 
+		if ( $attachment_id > 0 && get_option( self::OPTION_PROTECT, true ) ) {
+			// Si el traslado falla, el material queda igualmente registrado; solo
+			// pierde la proteccion del servidor web (el endpoint sigue comprobando).
+			self::protect_attachment( $attachment_id );
+		}
+
 		$this->events->dispatch(
 			Events::MATERIAL_ADDED,
 			array(
@@ -205,6 +214,146 @@ final class MaterialService {
 	 */
 	public function delete( int $material_id ): bool {
 		return $this->materials->delete( $material_id );
+	}
+
+	/**
+	 * Moves an attachment's file into the protected folder.
+	 *
+	 * The folder is `uploads/aula-virtual/private/` with an `.htaccess` that
+	 * denies direct requests (Apache/LiteSpeed). On Nginx, add the location
+	 * rule from the technical guide. WordPress keeps the attachment: only the
+	 * path and the GUID change. Idempotent.
+	 *
+	 * @param int $attachment_id Attachment id.
+	 * @return true|WP_Error
+	 */
+	public static function protect_attachment( int $attachment_id ) {
+		$current = get_attached_file( $attachment_id, true );
+
+		if ( ! is_string( $current ) || '' === $current || ! file_exists( $current ) ) {
+			return new WP_Error( 'av_attachment_not_found', __( 'El archivo no existe en la biblioteca de medios.', 'aula-virtual' ), array( 'status' => 404 ) );
+		}
+
+		$dir = self::private_dir();
+
+		if ( $dir instanceof WP_Error ) {
+			return $dir;
+		}
+
+		if ( str_starts_with( wp_normalize_path( $current ), wp_normalize_path( $dir ) ) ) {
+			return true;
+		}
+
+		$target = trailingslashit( $dir ) . wp_unique_filename( $dir, basename( $current ) );
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- moving inside uploads.
+		if ( ! rename( $current, $target ) ) {
+			return new WP_Error( 'av_protect_failed', __( 'No se pudo mover el archivo a la carpeta protegida.', 'aula-virtual' ) );
+		}
+
+		// Miniaturas generadas para imagenes: se eliminan, ya no son alcanzables.
+		$meta = wp_get_attachment_metadata( $attachment_id );
+
+		if ( is_array( $meta ) && ! empty( $meta['sizes'] ) ) {
+			foreach ( (array) $meta['sizes'] as $size ) {
+				$thumb = dirname( $current ) . '/' . ( $size['file'] ?? '' );
+
+				if ( '' !== ( $size['file'] ?? '' ) && file_exists( $thumb ) ) {
+					wp_delete_file( $thumb );
+				}
+			}
+
+			$meta['sizes'] = array();
+		}
+
+		$uploads  = wp_get_upload_dir();
+		$relative = ltrim( str_replace( wp_normalize_path( (string) $uploads['basedir'] ), '', wp_normalize_path( $target ) ), '/' );
+
+		update_attached_file( $attachment_id, $target );
+
+		if ( is_array( $meta ) ) {
+			$meta['file'] = $relative;
+			wp_update_attachment_metadata( $attachment_id, $meta );
+		}
+
+		wp_update_post(
+			array(
+				'ID'   => $attachment_id,
+				'guid' => trailingslashit( (string) $uploads['baseurl'] ) . $relative,
+			)
+		);
+
+		update_post_meta( $attachment_id, '_av_protected', 1 );
+
+		return true;
+	}
+
+	/**
+	 * Moves every material file into the protected folder.
+	 *
+	 * @return array{moved: int, skipped: int, failed: int}
+	 */
+	public function protect_all(): array {
+		$report = array( 'moved' => 0, 'skipped' => 0, 'failed' => 0 );
+
+		foreach ( $this->materials->all( array( 'limit' => 5000 ) ) as $material ) {
+			$attachment_id = (int) $material['attachment_id'];
+
+			if ( $attachment_id <= 0 ) {
+				continue;
+			}
+
+			if ( get_post_meta( $attachment_id, '_av_protected', true ) ) {
+				++$report['skipped'];
+				continue;
+			}
+
+			$result = self::protect_attachment( $attachment_id );
+
+			if ( $result instanceof WP_Error ) {
+				++$report['failed'];
+			} else {
+				++$report['moved'];
+			}
+		}
+
+		return $report;
+	}
+
+	/**
+	 * Returns the protected folder, creating it with its guard files.
+	 *
+	 * @return string|WP_Error Absolute path without trailing slash.
+	 */
+	public static function private_dir() {
+		$uploads = wp_get_upload_dir();
+
+		if ( ! empty( $uploads['error'] ) ) {
+			return new WP_Error( 'av_uploads_unavailable', (string) $uploads['error'] );
+		}
+
+		$dir = trailingslashit( (string) $uploads['basedir'] ) . self::PRIVATE_SUBDIR;
+
+		if ( ! wp_mkdir_p( $dir ) ) {
+			return new WP_Error( 'av_private_dir', __( 'No se pudo crear la carpeta protegida de materiales.', 'aula-virtual' ) );
+		}
+
+		$htaccess = $dir . '/.htaccess';
+
+		if ( ! file_exists( $htaccess ) ) {
+			$rules = "# Aula Virtual: los materiales se sirven solo a alumnos matriculados.\n"
+				. "<IfModule mod_authz_core.c>\n\tRequire all denied\n</IfModule>\n"
+				. "<IfModule !mod_authz_core.c>\n\tOrder deny,allow\n\tDeny from all\n</IfModule>\n";
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- guard file inside uploads.
+			file_put_contents( $htaccess, $rules );
+		}
+
+		if ( ! file_exists( $dir . '/index.html' ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- guard file inside uploads.
+			file_put_contents( $dir . '/index.html', '' );
+		}
+
+		return $dir;
 	}
 
 	/**

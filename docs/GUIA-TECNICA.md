@@ -22,18 +22,19 @@ final porque consumen servicios de todos los demás.
 | Carpeta | Qué hay | Depende de |
 |---|---|---|
 | `Core` | Plugin, Container, ServiceProvider, Logger, AuditLog, Events (bus + catálogo) | — |
-| `Database` | Schema (15 tablas), Migrator (versionado), Repository (base), Installer | Core |
+| `Database` | Schema (16 tablas), Migrator (versionado), Repository (base), Installer | Core |
 | `Permissions` | Capabilities, Roles, AccessControl, bloqueo de wp-admin | Core |
 | `Security` | Sanitizer | — |
 | `Courses` | CPT `av_course`, meta, taxonomías, repositorio, CourseDuplicator (post + meta + landing + una edición) | Permissions, Editions |
 | `Editions` | EditionStatus, repositorio, servicio, EditionDuplicator (copia temario, materiales y clases en vivo desplazando fechas) | Courses, Curriculum, Materials, LiveClasses |
-| `Curriculum` | LessonType, Module/Lesson repositorios, LessonService | Editions |
+| `Curriculum` | LessonType, Module/Lesson repositorios, LessonService, ReleaseSchedule (content drip) | Editions |
 | `Enrollments` | EnrollmentStatus, matrícula, enlaces, solicitudes, formulario público | Editions |
 | `Progress` | ProgressCalculator, repositorio, servicio | Curriculum, Enrollments |
 | `LiveClasses` | repositorio, servicio (ventana, zonas horarias) | Curriculum |
 | `Videos` | VideoEmbed: registro de proveedores, embeds firmados de Bunny, saneado de iframes | — |
 | `Announcements` | repositorio y servicio; el envio por correo dispara un evento por alumno | Enrollments |
-| `Materials` | repositorio, servicio (lista blanca de extensiones) | Curriculum |
+| `Comments` | CommentRepository, CommentService (un nivel de respuestas, moderacion por el instructor, evento `comment_posted`) | Curriculum, Enrollments |
+| `Materials` | repositorio, servicio (lista blanca, carpeta protegida), DownloadController (`admin-post.php?action=av_download`) | Curriculum, Enrollments |
 | `Emails` | plantillas, variables, renderer, mailer, notificador | Enrollments, Curriculum |
 | `WooCommerce` | ProductLink, OrderHandler, Settings | Enrollments |
 | `Migration` | TutorReader, TutorMapping, TutorMigrator | Editions, Curriculum, Enrollments, Progress |
@@ -152,13 +153,22 @@ usa ahí.
 
 ## 9. Limitaciones conocidas
 
-- Los archivos de materiales viven en la biblioteca de medios: quien tenga la URL directa
-  puede abrirlos. La opción "solo lectura" oculta el enlace, no protege el archivo. Un
-  endpoint de descarga con verificación de matrícula queda para una fase posterior.
-- La liberación programada de sesiones (content drip) se guarda pero todavía no se aplica en
-  el campus.
-- Las URLs del campus usan argumentos de consulta (`?av_edicion=`, `?av_leccion=`,
-  `?av_perfil=`); las URLs limpias llegan con las reglas de reescritura de la fase Campus.
+- La carpeta protegida de materiales se defiende con `.htaccess` (Apache, LiteSpeed). En
+  Nginx hay que anadir al server block:
+
+  ```nginx
+  location ~* /wp-content/uploads/aula-virtual/private/ { deny all; return 403; }
+  ```
+
+  Los materiales anadidos con la opcion desactivada se quedan en la biblioteca publica; el
+  enlace del campus sigue comprobando la matricula, pero la URL directa es publica.
+- La descarga protegida pasa el archivo por PHP (`readfile`), sin `X-Sendfile`/`X-Accel`.
+  Para archivos de cientos de MB conviene anadir esos headers segun el servidor.
+- Las URLs limpias del campus (`/aula/curso/{codigo}/`, `/aula/sesion/{id}/`,
+  `/aula/perfil/`) se registran en `init` a partir de la pagina guardada en `av_pages`;
+  las de consulta (`?av_edicion=`) siguen funcionando. Sin enlaces permanentes se usan
+  siempre las de consulta.
+- Los comentarios no envian correo (el evento `comment_posted` existe para engancharlo).
 - El envío por correo de un anuncio recorre a los alumnos en la misma petición (bien para
   cientos; con miles conviene pasarlo a Action Scheduler).
 - REST expone solo `/aula-virtual/v1/courses`; el resto de recursos llegan con la integración

@@ -255,3 +255,7 @@ function add_query_arg( ...$args ) {
 	return $base . ( array() === $query ? '' : '?' . http_build_query( $query ) );
 }
 
+
+function admin_url( $path = '' ) {
+	return 'https://example.test/wp-admin/' . ltrim( (string) $path, '/' );
+}

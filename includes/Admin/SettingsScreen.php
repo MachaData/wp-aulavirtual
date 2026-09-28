@@ -9,7 +9,9 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Admin;
 
+use SIQA\AulaVirtual\Comments\CommentService;
 use SIQA\AulaVirtual\Core\AuditLog;
+use SIQA\AulaVirtual\Materials\MaterialService;
 use SIQA\AulaVirtual\Courses\CoursePostType;
 use SIQA\AulaVirtual\Permissions\Capabilities;
 use SIQA\AulaVirtual\Security\Sanitizer;
@@ -30,7 +32,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class SettingsScreen {
 
 	public const SLUG        = 'aula-virtual-configuracion';
-	public const ACTION_SAVE = 'av_save_settings';
+	public const ACTION_SAVE    = 'av_save_settings';
+	public const ACTION_PROTECT = 'av_protect_materials_now';
 
 	/**
 	 * Audit trail.
@@ -44,8 +47,22 @@ final class SettingsScreen {
 	 *
 	 * @param AuditLog $audit Audit trail.
 	 */
-	public function __construct( AuditLog $audit ) {
-		$this->audit = $audit;
+	/**
+	 * Material rules.
+	 *
+	 * @var MaterialService
+	 */
+	private MaterialService $materials;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param AuditLog        $audit     Audit trail.
+	 * @param MaterialService $materials Material rules.
+	 */
+	public function __construct( AuditLog $audit, MaterialService $materials ) {
+		$this->audit     = $audit;
+		$this->materials = $materials;
 	}
 
 	/**
@@ -109,11 +126,36 @@ final class SettingsScreen {
 						'default' => true,
 						'help'    => __( 'El alumno puede reiniciar su progreso en una edicion y volver a hacerla desde la primera sesion.', 'aula-virtual' ),
 					),
+					CommentService::OPTION_ENABLED => array(
+						'label'   => __( 'Comentarios en las sesiones', 'aula-virtual' ),
+						'type'    => 'bool',
+						'default' => true,
+						'help'    => __( 'Los alumnos pueden preguntar debajo de cada sesion; el instructor responde y modera desde el editor de la sesion.', 'aula-virtual' ),
+					),
 					'av_campus_focus_mode'       => array(
 						'label'   => __( 'Modo enfoque en las sesiones', 'aula-virtual' ),
 						'type'    => 'bool',
 						'default' => false,
 						'help'    => __( 'Muestra cada sesion sin la cabecera ni el pie del tema, a pantalla limpia.', 'aula-virtual' ),
+					),
+				),
+			),
+			'materials'   => array(
+				'label'  => __( 'Materiales', 'aula-virtual' ),
+				'fields' => array(
+					MaterialService::OPTION_PROTECT => array(
+						'label'   => __( 'Proteger los archivos de materiales', 'aula-virtual' ),
+						'type'    => 'bool',
+						'default' => true,
+						'help'    => __( 'Al anadir un material, su archivo se mueve a uploads/aula-virtual/private/, donde el servidor web niega el acceso directo; solo se descarga por el enlace del campus tras comprobar la matricula. En Nginx hace falta la regla de la guia tecnica.', 'aula-virtual' ),
+					),
+					'av_protect_existing'           => array(
+						'label'   => __( 'Materiales ya existentes', 'aula-virtual' ),
+						'type'    => 'action',
+						'default' => '',
+						'action'  => self::ACTION_PROTECT,
+						'button'  => __( 'Mover ahora a la carpeta protegida', 'aula-virtual' ),
+						'help'    => __( 'Mueve los archivos de todos los materiales registrados (por ejemplo, los migrados desde Tutor). Los enlaces del campus siguen funcionando.', 'aula-virtual' ),
 					),
 				),
 			),
@@ -194,6 +236,44 @@ final class SettingsScreen {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Moves every material file into the protected folder.
+	 *
+	 * @return void
+	 */
+	public function handle_protect(): void {
+		if ( ! current_user_can( Capabilities::MANAGE_LMS ) ) {
+			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+		}
+
+		check_admin_referer( self::ACTION_PROTECT );
+
+		$report = $this->materials->protect_all();
+
+		$this->audit->record( AuditLog::SETTINGS_UPDATED, 'materials', 0, array( 'protect_all' => $report ) );
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'       => self::SLUG,
+					'tab'        => 'materials',
+					'av_notice'  => 0 === $report['failed'] ? 'success' : 'error',
+					'av_message' => rawurlencode(
+						sprintf(
+							/* translators: 1: moved, 2: already protected, 3: failed. */
+							__( '%1$d archivos movidos, %2$d ya protegidos, %3$d con error.', 'aula-virtual' ),
+							$report['moved'],
+							$report['skipped'],
+							$report['failed']
+						)
+					),
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
 	}
 
 	/**
@@ -310,7 +390,7 @@ final class SettingsScreen {
 				continue;
 			}
 
-			if ( null === $raw ) {
+			if ( null === $raw || 'action' === $field['type'] ) {
 				continue;
 			}
 

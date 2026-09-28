@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Admin;
 
+use SIQA\AulaVirtual\Comments\CommentService;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Curriculum\LessonService;
 use SIQA\AulaVirtual\Editions\EditionRepository;
@@ -38,6 +39,7 @@ final class LessonScreen {
 	public const ACTION_REMOVE_LIVE     = 'av_remove_live_class';
 	public const ACTION_ADD_MATERIAL    = 'av_add_material';
 	public const ACTION_DELETE_MATERIAL = 'av_delete_material';
+	public const ACTION_DELETE_COMMENT  = 'av_admin_delete_comment';
 
 	/**
 	 * Lesson persistence.
@@ -96,6 +98,13 @@ final class LessonScreen {
 	private AccessControl $access;
 
 	/**
+	 * Lesson comments.
+	 *
+	 * @var CommentService
+	 */
+	private CommentService $comments;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param LessonRepository    $lessons          Lesson persistence.
@@ -115,7 +124,8 @@ final class LessonScreen {
 		LiveClassService $live_service,
 		MaterialRepository $materials,
 		MaterialService $material_service,
-		AccessControl $access
+		AccessControl $access,
+		CommentService $comments
 	) {
 		$this->lessons          = $lessons;
 		$this->lesson_service   = $lesson_service;
@@ -181,6 +191,7 @@ final class LessonScreen {
 			'edition'   => $edition,
 			'live'      => $this->live_classes->for_lesson( $lesson_id ),
 			'materials' => $this->materials->for_lesson( $lesson_id ),
+			'comments'  => CommentService::enabled() ? $this->comments->thread( $lesson_id ) : array(),
 			'timezone'  => (string) ( $edition['timezone'] ?? wp_timezone_string() ),
 			'notice'    => $notice,
 		);
@@ -288,6 +299,20 @@ final class LessonScreen {
 
 		$this->material_service->delete( $material_id );
 		$this->finish( $lesson_id, true, __( 'Material eliminado.', 'aula-virtual' ) );
+	}
+
+	/**
+	 * Hides a student comment from the editor.
+	 *
+	 * @return void
+	 */
+	public function handle_delete_comment(): void {
+		$lesson_id = $this->guard( self::ACTION_DELETE_COMMENT );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
+		$comment_id = isset( $_POST['comment_id'] ) ? absint( wp_unslash( $_POST['comment_id'] ) ) : 0;
+
+		$this->finish( $lesson_id, $this->comments->remove( $comment_id, get_current_user_id() ), __( 'Comentario eliminado.', 'aula-virtual' ) );
 	}
 
 	/**

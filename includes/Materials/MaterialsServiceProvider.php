@@ -15,6 +15,7 @@ use SIQA\AulaVirtual\Core\ServiceProvider;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Database\Schema;
 use SIQA\AulaVirtual\Editions\EditionRepository;
+use SIQA\AulaVirtual\Enrollments\EnrollmentService;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -46,6 +47,14 @@ final class MaterialsServiceProvider implements ServiceProvider {
 				$c->get( EventBus::class )
 			)
 		);
+
+		$container->singleton(
+			DownloadController::class,
+			static fn( Container $c ): DownloadController => new DownloadController(
+				$c->get( MaterialRepository::class ),
+				$c->get( EnrollmentService::class )
+			)
+		);
 	}
 
 	/**
@@ -55,5 +64,18 @@ final class MaterialsServiceProvider implements ServiceProvider {
 	 * @return void
 	 */
 	public function boot( Container $container ): void {
+		add_action(
+			'admin_post_' . DownloadController::ACTION,
+			static function () use ( $container ): void {
+				$container->get( DownloadController::class )->handle();
+			}
+		);
+
+		add_action(
+			'admin_post_nopriv_' . DownloadController::ACTION,
+			static function () use ( $container ): void {
+				$container->get( DownloadController::class )->handle_anonymous();
+			}
+		);
 	}
 }

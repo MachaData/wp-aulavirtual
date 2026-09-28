@@ -39,8 +39,8 @@ retirarlo para conservar las URLs antiguas.
 ## 1. Activación
 
 - [ ] Activar el plugin sin errores fatales ni avisos en `debug.log`.
-- [ ] Existen las 15 tablas `wp_av_*` (`SHOW TABLES LIKE 'wp_av_%'`).
-- [ ] Opción `av_db_version` = `1.1.0`.
+- [ ] Existen las 16 tablas `wp_av_*` (`SHOW TABLES LIKE 'wp_av_%'`).
+- [ ] Opción `av_db_version` = `1.2.0`.
 - [ ] Roles `av_admin`, `av_instructor`, `av_student` en *Usuarios → Roles* (o con un plugin
       de roles).
 - [ ] Página *Campus* creada como `/campus/aula/` con `[av_campus]`.
@@ -154,7 +154,25 @@ retirarlo para conservar las URLs antiguas.
       matrícula pasa a *Activa* y las sesiones aparecen sin completar. Desactivar la opción en
       Configuración: el botón desaparece.
 
-## 8b. Anuncios y modo enfoque
+## 8b. Sesiones programadas, materiales protegidos, URLs y comentarios
+
+- [ ] Poner una sesión "a partir de una fecha" futura: en el temario del alumno aparece
+      "Disponible el …" sin enlace; entrar por la URL directa muestra la pantalla de bloqueo;
+      el POST de completar devuelve "todavía no está disponible".
+- [ ] Poner otra "3 días después de la matrícula" con un alumno matriculado hoy: bloqueada;
+      con uno matriculado hace una semana: abierta.
+- [ ] Con *Proteger los archivos* activo, añadir un PDF como material: el archivo aparece en
+      `uploads/aula-virtual/private/`; su URL directa devuelve 403; el enlace del campus lo
+      descarga con el alumno y da 403 sin sesión (redirige al login).
+- [ ] *Mover ahora a la carpeta protegida*: los materiales migrados de Tutor se mueven y
+      siguen descargándose desde el campus.
+- [ ] Con enlaces permanentes activos, el temario abre en `/campus/aula/curso/{código}/` y
+      la sesión en `/campus/aula/sesion/{id}/`; la antigua `?av_edicion=` sigue funcionando.
+- [ ] Publicar un comentario como alumno; responder como administrador (sale la etiqueta
+      *Instructor*); eliminar el comentario propio; el editor de la sesión lista el hilo y
+      permite eliminar. Desactivar la opción: desaparece el bloque.
+
+## 8c. Anuncios y modo enfoque
 
 - [ ] *Anuncios*: publicar uno para la edición de prueba con envío por correo. Aparece en el
       panel del alumno y en el temario; llega el correo con título y contenido.

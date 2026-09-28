@@ -141,6 +141,15 @@ final class Migrator {
 
 				flush_rewrite_rules();
 			},
+			// 1.2.0 anade la tabla de comentarios (dbDelta) y las URLs limpias del
+			// campus (/aula/curso/{codigo}/, /aula/sesion/{id}/, /aula/perfil/).
+			'1.2.0' => static function (): void {
+				if ( class_exists( \SIQA\AulaVirtual\Campus\CampusController::class ) ) {
+					\SIQA\AulaVirtual\Campus\CampusController::register_rewrite();
+				}
+
+				flush_rewrite_rules();
+			},
 		);
 	}
 

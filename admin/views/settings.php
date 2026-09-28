@@ -75,6 +75,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<?php case 'email': ?>
 								<input type="email" id="<?php echo esc_attr( $av_option ); ?>" name="<?php echo esc_attr( $av_option ); ?>" class="regular-text" value="<?php echo esc_attr( (string) $av_value ); ?>">
 								<?php break; ?>
+							<?php case 'action': ?>
+								<a class="button" href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'action', $av_field['action'], admin_url( 'admin-post.php' ) ), $av_field['action'] ) ); ?>"><?php echo esc_html( $av_field['button'] ); ?></a>
+								<?php break; ?>
 							<?php default: ?>
 								<input type="text" id="<?php echo esc_attr( $av_option ); ?>" name="<?php echo esc_attr( $av_option ); ?>" class="regular-text" value="<?php echo esc_attr( (string) $av_value ); ?>">
 						<?php endswitch; ?>

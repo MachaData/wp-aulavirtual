@@ -54,15 +54,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php else : ?>
 		<ol class="av-lesson-list">
 			<?php foreach ( $items as $av_item ) : ?>
-				<li class="av-lesson-list__item<?php echo $av_item['completed'] ? ' is-completed' : ''; ?>">
-					<a href="<?php echo esc_url( (string) $av_item['url'] ); ?>">
-						<?php echo esc_html( (string) $av_item['lesson']['title'] ); ?>
-					</a>
+				<li class="av-lesson-list__item<?php echo $av_item['completed'] ? ' is-completed' : ''; ?><?php echo empty( $av_item['available'] ) ? ' is-locked' : ''; ?>">
+					<?php if ( ! empty( $av_item['available'] ) ) : ?>
+						<a href="<?php echo esc_url( (string) $av_item['url'] ); ?>">
+							<?php echo esc_html( (string) $av_item['lesson']['title'] ); ?>
+						</a>
+					<?php else : ?>
+						<span class="av-lesson-list__title"><?php echo esc_html( (string) $av_item['lesson']['title'] ); ?></span>
+					<?php endif; ?>
 					<span class="av-lesson-list__type">
 						<?php echo esc_html( LessonType::label( (string) $av_item['lesson']['lesson_type'] ) ); ?>
 					</span>
 					<?php if ( $av_item['completed'] ) : ?>
 						<span class="av-lesson-list__done"><?php esc_html_e( 'Completada', 'aula-virtual' ); ?></span>
+					<?php elseif ( empty( $av_item['available'] ) ) : ?>
+						<span class="av-lesson-list__locked">
+							<?php
+							printf(
+								/* translators: %s: date. */
+								esc_html__( 'Disponible el %s', 'aula-virtual' ),
+								esc_html( (string) $av_item['available_at'] )
+							);
+							?>
+						</span>
 					<?php endif; ?>
 				</li>
 			<?php endforeach; ?>

@@ -31,7 +31,7 @@ final class Schema {
 	/**
 	 * Schema version stored in the options table.
 	 */
-	public const VERSION = '1.1.0';
+	public const VERSION = '1.2.0';
 
 	/**
 	 * Option key holding the installed schema version.
@@ -57,6 +57,7 @@ final class Schema {
 		'certificates',
 		'email_templates',
 		'import_jobs',
+		'lesson_comments',
 		'logs',
 		'audit_log',
 	);
@@ -393,6 +394,23 @@ final class Schema {
 			PRIMARY KEY  (id),
 			KEY status (status),
 			KEY edition_id (edition_id)
+		) {$collate};";
+
+		$definitions['lesson_comments'] = "CREATE TABLE {$this->table( 'lesson_comments' )} (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			course_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			edition_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			lesson_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			user_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			parent_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			is_staff tinyint(1) NOT NULL DEFAULT 0,
+			content text NULL,
+			status varchar(20) NOT NULL DEFAULT 'approved',
+			created_at datetime DEFAULT NULL,
+			PRIMARY KEY  (id),
+			KEY lesson_status (lesson_id,status),
+			KEY edition_id (edition_id),
+			KEY user_id (user_id)
 		) {$collate};";
 
 		$definitions['logs'] = "CREATE TABLE {$this->table( 'logs' )} (

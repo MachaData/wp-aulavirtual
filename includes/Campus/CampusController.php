@@ -10,6 +10,10 @@ declare( strict_types = 1 );
 namespace SIQA\AulaVirtual\Campus;
 
 use SIQA\AulaVirtual\Announcements\AnnouncementRepository;
+use SIQA\AulaVirtual\Comments\CommentService;
+use SIQA\AulaVirtual\Curriculum\ReleaseSchedule;
+use SIQA\AulaVirtual\Materials\DownloadController;
+use SIQA\AulaVirtual\Permissions\Capabilities;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
@@ -38,6 +42,8 @@ final class CampusController {
 	public const ACTION_COMPLETE = 'av_complete_lesson';
 	public const ACTION_PROFILE  = 'av_update_profile';
 	public const ACTION_RETAKE   = 'av_retake_edition';
+	public const ACTION_COMMENT  = 'av_post_comment';
+	public const ACTION_DELETE_COMMENT = 'av_delete_comment';
 	public const QUERY_EDITION   = 'av_edicion';
 	public const QUERY_LESSON    = 'av_leccion';
 	public const QUERY_PROFILE   = 'av_perfil';
@@ -106,6 +112,20 @@ final class CampusController {
 	private AnnouncementRepository $announcements;
 
 	/**
+	 * Lesson comments.
+	 *
+	 * @var CommentService
+	 */
+	private CommentService $comments;
+
+	/**
+	 * Edition codes already loaded in this request, for pretty URLs.
+	 *
+	 * @var array<int, string>
+	 */
+	private array $codes = array();
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EnrollmentRepository $enrollments        Enrollment persistence.
@@ -117,6 +137,7 @@ final class CampusController {
 	 * @param LiveClassRepository  $live_classes       Live class persistence.
 	 * @param MaterialRepository   $materials          Material persistence.
 	 * @param AnnouncementRepository $announcements    Announcement persistence.
+	 * @param CommentService       $comments           Lesson comments.
 	 */
 	public function __construct(
 		EnrollmentRepository $enrollments,
@@ -127,7 +148,8 @@ final class CampusController {
 		ProgressService $progress_service,
 		LiveClassRepository $live_classes,
 		MaterialRepository $materials,
-		AnnouncementRepository $announcements
+		AnnouncementRepository $announcements,
+		CommentService $comments
 	) {
 		$this->enrollments        = $enrollments;
 		$this->enrollment_service = $enrollment_service;
@@ -138,6 +160,7 @@ final class CampusController {
 		$this->live_classes       = $live_classes;
 		$this->materials          = $materials;
 		$this->announcements      = $announcements;
+		$this->comments           = $comments;
 	}
 
 	/**
@@ -152,13 +175,10 @@ final class CampusController {
 
 		$user_id = get_current_user_id();
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation.
-		$lesson_id = isset( $_GET[ self::QUERY_LESSON ] ) ? absint( wp_unslash( $_GET[ self::QUERY_LESSON ] ) ) : 0;
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation.
-		$edition_id = isset( $_GET[ self::QUERY_EDITION ] ) ? absint( wp_unslash( $_GET[ self::QUERY_EDITION ] ) ) : 0;
+		$lesson_id  = absint( $this->query( self::QUERY_LESSON ) );
+		$edition_id = $this->resolve_edition_id( $this->query( self::QUERY_EDITION ) );
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation.
-		if ( isset( $_GET[ self::QUERY_PROFILE ] ) ) {
+		if ( '' !== $this->query( self::QUERY_PROFILE ) ) {
 			return $this->render_profile( $user_id );
 		}
 
@@ -189,6 +209,8 @@ final class CampusController {
 			if ( null === $edition ) {
 				continue;
 			}
+
+			$this->remember_code( $edition );
 
 			$cards[] = array(
 				'edition'    => $edition,
@@ -231,21 +253,30 @@ final class CampusController {
 			return $this->denied();
 		}
 
-		$edition   = $this->editions->find( $edition_id );
-		$lessons   = $this->lessons->for_edition( $edition_id );
-		$completed = $this->progress->completed_lesson_ids( $user_id, $edition_id );
+		$edition    = $this->editions->find( $edition_id );
+		$lessons    = $this->lessons->for_edition( $edition_id );
+		$completed  = $this->progress->completed_lesson_ids( $user_id, $edition_id );
+		$enrollment = $this->enrollments->find_for_student( $user_id, $edition_id );
+		$now        = current_time( 'mysql', true );
+		$timezone   = (string) ( $edition['timezone'] ?? '' );
+		$timezone   = '' === $timezone ? wp_timezone_string() : $timezone;
+
+		$this->remember_code( $edition );
 
 		$items = array();
 
 		foreach ( $lessons as $lesson ) {
+			$available_at = ReleaseSchedule::available_at( $lesson, $enrollment );
+			$available    = null === $available_at || strcmp( $available_at, $now ) <= 0;
+
 			$items[] = array(
-				'lesson'    => $lesson,
-				'completed' => in_array( (int) $lesson['id'], $completed, true ),
-				'url'       => $this->campus_url( array( self::QUERY_LESSON => (int) $lesson['id'] ) ),
+				'lesson'       => $lesson,
+				'completed'    => in_array( (int) $lesson['id'], $completed, true ),
+				'url'          => $available ? $this->campus_url( array( self::QUERY_LESSON => (int) $lesson['id'] ) ) : '',
+				'available'    => $available,
+				'available_at' => $available ? '' : LiveClassService::to_local( (string) $available_at, $timezone, (string) get_option( 'date_format' ) ),
 			);
 		}
-
-		$enrollment = $this->enrollments->find_for_student( $user_id, $edition_id );
 
 		return $this->template(
 			'edition',
@@ -275,14 +306,32 @@ final class CampusController {
 			return $this->denied();
 		}
 
-		$this->progress_service->start( $user_id, $lesson_id );
-
-		$progress = $this->progress->find_for_lesson( $user_id, $lesson_id );
 		$edition  = $this->editions->find( (int) $lesson['edition_id'] );
-		$live     = $this->live_classes->for_lesson( $lesson_id );
 		$now      = current_time( 'mysql', true );
 		$timezone = (string) ( $edition['timezone'] ?? '' );
 		$timezone = '' === $timezone ? wp_timezone_string() : $timezone;
+
+		$this->remember_code( $edition );
+
+		$enrollment   = $this->enrollments->find_for_student( $user_id, (int) $lesson['edition_id'] );
+		$available_at = ReleaseSchedule::available_at( $lesson, $enrollment );
+
+		if ( null !== $available_at && strcmp( $available_at, $now ) > 0 ) {
+			return $this->template(
+				'locked',
+				array(
+					'lesson'       => $lesson,
+					'available_at' => LiveClassService::to_local( $available_at, $timezone, (string) get_option( 'date_format' ) . ' H:i' ),
+					'timezone'     => $timezone,
+					'back_url'     => $this->campus_url( array( self::QUERY_EDITION => (int) $lesson['edition_id'] ) ),
+				)
+			);
+		}
+
+		$this->progress_service->start( $user_id, $lesson_id );
+
+		$progress = $this->progress->find_for_lesson( $user_id, $lesson_id );
+		$live     = $this->live_classes->for_lesson( $lesson_id );
 
 		$live_view = null;
 
@@ -323,7 +372,8 @@ final class CampusController {
 			$materials[] = array(
 				'title'        => (string) $material['title'],
 				'description'  => (string) $material['description'],
-				'url'          => $url,
+				// Siempre por el endpoint protegido; la URL directa solo la ve el servidor.
+				'url'          => DownloadController::url( (int) $material['id'] ),
 				'type'         => (string) $material['file_type'],
 				'downloadable' => (bool) $material['downloadable'],
 			);
@@ -337,8 +387,68 @@ final class CampusController {
 				'materials' => $materials,
 				'completed' => null !== $progress && ProgressRepository::STATUS_COMPLETED === $progress['status'],
 				'back_url'  => $this->campus_url( array( self::QUERY_EDITION => (int) $lesson['edition_id'] ) ),
+				'comments_enabled' => CommentService::enabled(),
+				'comments'  => CommentService::enabled() ? $this->comments->thread( $lesson_id ) : array(),
+				'can_moderate' => current_user_can( Capabilities::MANAGE_CURRICULUM ),
+				'current_user_id' => $user_id,
 			)
 		);
+	}
+
+	/**
+	 * Posts a comment on a lesson.
+	 *
+	 * @return void
+	 */
+	public function handle_comment(): void {
+		if ( ! is_user_logged_in() ) {
+			wp_die( esc_html__( 'Necesitas iniciar sesion.', 'aula-virtual' ), '', array( 'response' => 401 ) );
+		}
+
+		check_admin_referer( self::ACTION_COMMENT );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified right above.
+		$lesson_id = isset( $_POST['lesson_id'] ) ? absint( wp_unslash( $_POST['lesson_id'] ) ) : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified right above.
+		$parent_id = isset( $_POST['parent_id'] ) ? absint( wp_unslash( $_POST['parent_id'] ) ) : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- sanitised by the service.
+		$content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
+
+		$result = $this->comments->post( get_current_user_id(), $lesson_id, $content, $parent_id );
+
+		if ( $result instanceof WP_Error ) {
+			wp_die( esc_html( $result->get_error_message() ), '', array( 'response' => (int) ( $result->get_error_data()['status'] ?? 400 ) ) );
+		}
+
+		wp_safe_redirect( $this->campus_url( array( self::QUERY_LESSON => $lesson_id ) ) . '#av-comment-' . (int) $result );
+		exit;
+	}
+
+	/**
+	 * Hides a comment (author or course staff).
+	 *
+	 * @return void
+	 */
+	public function handle_delete_comment(): void {
+		if ( ! is_user_logged_in() ) {
+			wp_die( esc_html__( 'Necesitas iniciar sesion.', 'aula-virtual' ), '', array( 'response' => 401 ) );
+		}
+
+		check_admin_referer( self::ACTION_DELETE_COMMENT );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified right above.
+		$comment_id = isset( $_POST['comment_id'] ) ? absint( wp_unslash( $_POST['comment_id'] ) ) : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified right above.
+		$lesson_id = isset( $_POST['lesson_id'] ) ? absint( wp_unslash( $_POST['lesson_id'] ) ) : 0;
+
+		$result = $this->comments->remove( $comment_id, get_current_user_id() );
+
+		if ( $result instanceof WP_Error ) {
+			wp_die( esc_html( $result->get_error_message() ), '', array( 'response' => 403 ) );
+		}
+
+		wp_safe_redirect( $this->campus_url( array( self::QUERY_LESSON => $lesson_id ) ) . '#av-comments' );
+		exit;
 	}
 
 	/**
@@ -539,8 +649,7 @@ final class CampusController {
 			return $template;
 		}
 
-		$pages   = get_option( 'av_pages', array() );
-		$page_id = is_array( $pages ) && isset( $pages['campus'] ) ? (int) $pages['campus'] : 0;
+		$page_id = self::page_id();
 
 		if ( $page_id <= 0 || ! is_page( $page_id ) ) {
 			return $template;
@@ -556,11 +665,158 @@ final class CampusController {
 	 * @return string
 	 */
 	public function campus_url( array $args = array() ): string {
-		$pages   = get_option( 'av_pages', array() );
-		$page_id = is_array( $pages ) && isset( $pages['campus'] ) ? (int) $pages['campus'] : 0;
+		$page_id = self::page_id();
 		$base    = $page_id > 0 ? (string) get_permalink( $page_id ) : home_url( '/' );
 
-		return array() === $args ? $base : add_query_arg( $args, $base );
+		if ( array() === $args ) {
+			return $base;
+		}
+
+		if ( $page_id > 0 && '' !== (string) get_option( 'permalink_structure', '' ) ) {
+			$pretty = self::pretty_path( $args, $this->codes );
+
+			if ( null !== $pretty ) {
+				return trailingslashit( $base ) . $pretty;
+			}
+		}
+
+		return add_query_arg( $args, $base );
+	}
+
+	/**
+	 * Builds the clean path for the campus arguments, or null when the
+	 * arguments have no clean form.
+	 *
+	 * @param array<string, int|string> $args  Query arguments.
+	 * @param array<int, string>        $codes Known edition codes by id.
+	 * @return string|null
+	 */
+	public static function pretty_path( array $args, array $codes = array() ): ?string {
+		if ( isset( $args[ self::QUERY_LESSON ] ) && 1 === count( $args ) ) {
+			return 'sesion/' . (int) $args[ self::QUERY_LESSON ] . '/';
+		}
+
+		if ( isset( $args[ self::QUERY_EDITION ] ) && 1 === count( $args ) ) {
+			$id = (int) $args[ self::QUERY_EDITION ];
+
+			return 'curso/' . ( $codes[ $id ] ?? (string) $id ) . '/';
+		}
+
+		if ( isset( $args[ self::QUERY_PROFILE ] ) && 1 === count( $args ) ) {
+			return 'perfil/';
+		}
+
+		return null;
+	}
+
+	/**
+	 * Rewrite rules for a campus page: {uri}/curso/{code|id}/, {uri}/sesion/{id}/, {uri}/perfil/.
+	 *
+	 * @param string $page_uri Page path relative to the site root, without slashes.
+	 * @param int    $page_id  Campus page id.
+	 * @return array<string, string> Regex => query.
+	 */
+	public static function rewrite_rules( string $page_uri, int $page_id ): array {
+		$uri = preg_quote( trim( $page_uri, '/' ), '#' );
+
+		if ( '' === $uri || $page_id <= 0 ) {
+			return array();
+		}
+
+		return array(
+			'^' . $uri . '/curso/([a-z0-9_-]+)/?$' => 'index.php?page_id=' . $page_id . '&' . self::QUERY_EDITION . '=$matches[1]',
+			'^' . $uri . '/sesion/([0-9]+)/?$'     => 'index.php?page_id=' . $page_id . '&' . self::QUERY_LESSON . '=$matches[1]',
+			'^' . $uri . '/perfil/?$'              => 'index.php?page_id=' . $page_id . '&' . self::QUERY_PROFILE . '=1',
+		);
+	}
+
+	/**
+	 * Registers the query vars and rewrite rules of the campus page.
+	 *
+	 * @return void
+	 */
+	public static function register_rewrite(): void {
+		$page_id = self::page_id();
+
+		if ( $page_id <= 0 ) {
+			return;
+		}
+
+		$uri = get_page_uri( $page_id );
+
+		foreach ( self::rewrite_rules( is_string( $uri ) ? $uri : '', $page_id ) as $regex => $query ) {
+			add_rewrite_rule( $regex, $query, 'top' );
+		}
+	}
+
+	/**
+	 * Adds the campus query vars so WordPress keeps them.
+	 *
+	 * @param array<int, string> $vars Public query vars.
+	 * @return array<int, string>
+	 */
+	public static function query_vars( array $vars ): array {
+		return array_merge( $vars, array( self::QUERY_EDITION, self::QUERY_LESSON, self::QUERY_PROFILE ) );
+	}
+
+	/**
+	 * Id of the campus page.
+	 *
+	 * @return int
+	 */
+	public static function page_id(): int {
+		$pages = get_option( 'av_pages', array() );
+
+		return is_array( $pages ) && isset( $pages['campus'] ) ? (int) $pages['campus'] : 0;
+	}
+
+	/**
+	 * Reads a campus argument from the rewrite (query var) or the query string.
+	 *
+	 * @param string $name Argument name.
+	 * @return string
+	 */
+	private function query( string $name ): string {
+		$value = get_query_var( $name, '' );
+
+		if ( '' === $value || null === $value ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation.
+			$value = isset( $_GET[ $name ] ) ? wp_unslash( $_GET[ $name ] ) : '';
+		}
+
+		return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : '';
+	}
+
+	/**
+	 * Turns the edition argument (id or code) into an id.
+	 *
+	 * @param string $value Raw argument.
+	 * @return int
+	 */
+	private function resolve_edition_id( string $value ): int {
+		if ( '' === $value ) {
+			return 0;
+		}
+
+		if ( ctype_digit( $value ) ) {
+			return (int) $value;
+		}
+
+		$edition = $this->editions->find_by_code( sanitize_title( $value ) );
+
+		return null === $edition ? 0 : (int) $edition['id'];
+	}
+
+	/**
+	 * Keeps the code of a loaded edition for pretty URLs.
+	 *
+	 * @param array<string, mixed>|null $edition Edition row.
+	 * @return void
+	 */
+	private function remember_code( ?array $edition ): void {
+		if ( null !== $edition && '' !== (string) ( $edition['code'] ?? '' ) ) {
+			$this->codes[ (int) $edition['id'] ] = (string) $edition['code'];
+		}
 	}
 
 	/**

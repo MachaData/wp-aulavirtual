@@ -11,6 +11,7 @@ namespace SIQA\AulaVirtual\Admin;
 
 use SIQA\AulaVirtual\Announcements\AnnouncementRepository;
 use SIQA\AulaVirtual\Announcements\AnnouncementService;
+use SIQA\AulaVirtual\Comments\CommentService;
 use SIQA\AulaVirtual\Core\AuditLog;
 use SIQA\AulaVirtual\Core\Container;
 use SIQA\AulaVirtual\Core\ServiceProvider;
@@ -111,7 +112,8 @@ final class AdminServiceProvider implements ServiceProvider {
 				$c->get( LiveClassService::class ),
 				$c->get( MaterialRepository::class ),
 				$c->get( MaterialService::class ),
-				$c->get( AccessControl::class )
+				$c->get( AccessControl::class ),
+				$c->get( CommentService::class )
 			)
 		);
 
@@ -126,7 +128,7 @@ final class AdminServiceProvider implements ServiceProvider {
 
 		$container->singleton(
 			SettingsScreen::class,
-			static fn( Container $c ): SettingsScreen => new SettingsScreen( $c->get( AuditLog::class ) )
+			static fn( Container $c ): SettingsScreen => new SettingsScreen( $c->get( AuditLog::class ), $c->get( MaterialService::class ) )
 		);
 
 		$container->singleton(
@@ -208,6 +210,8 @@ final class AdminServiceProvider implements ServiceProvider {
 			LessonScreen::ACTION_ADD_MATERIAL   => array( LessonScreen::class, 'handle_add_material' ),
 			LessonScreen::ACTION_DELETE_MATERIAL => array( LessonScreen::class, 'handle_delete_material' ),
 			SettingsScreen::ACTION_SAVE         => array( SettingsScreen::class, 'handle_save' ),
+			SettingsScreen::ACTION_PROTECT      => array( SettingsScreen::class, 'handle_protect' ),
+			LessonScreen::ACTION_DELETE_COMMENT => array( LessonScreen::class, 'handle_delete_comment' ),
 			AnnouncementsScreen::ACTION_CREATE  => array( AnnouncementsScreen::class, 'handle_create' ),
 			AnnouncementsScreen::ACTION_DELETE  => array( AnnouncementsScreen::class, 'handle_delete' ),
 		);
