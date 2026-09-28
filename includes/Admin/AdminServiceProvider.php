@@ -14,9 +14,12 @@ use SIQA\AulaVirtual\Announcements\AnnouncementService;
 use SIQA\AulaVirtual\Core\AuditLog;
 use SIQA\AulaVirtual\Core\Container;
 use SIQA\AulaVirtual\Core\ServiceProvider;
+use SIQA\AulaVirtual\Courses\CourseDuplicator;
+use SIQA\AulaVirtual\Courses\CoursePostType;
 use SIQA\AulaVirtual\Courses\CourseRepository;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Curriculum\LessonService;
+use SIQA\AulaVirtual\Editions\EditionDuplicator;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Editions\EditionService;
 use SIQA\AulaVirtual\Emails\EmailNotifier;
@@ -26,6 +29,8 @@ use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
 use SIQA\AulaVirtual\Enrollments\RegistrationRequestRepository;
 use SIQA\AulaVirtual\Enrollments\RegistrationService;
+use SIQA\AulaVirtual\Imports\ImportJobRepository;
+use SIQA\AulaVirtual\Imports\ImportService;
 use SIQA\AulaVirtual\LiveClasses\LiveClassRepository;
 use SIQA\AulaVirtual\LiveClasses\LiveClassService;
 use SIQA\AulaVirtual\Materials\MaterialRepository;
@@ -62,7 +67,19 @@ final class AdminServiceProvider implements ServiceProvider {
 				$c->get( CourseRepository::class ),
 				$c->get( AccessControl::class ),
 				$c->get( EnrollmentLinkRepository::class ),
-				$c->get( RegistrationService::class )
+				$c->get( RegistrationService::class ),
+				$c->get( EditionDuplicator::class ),
+				$c->get( CourseDuplicator::class )
+			)
+		);
+
+		$container->singleton(
+			ImportScreen::class,
+			static fn( Container $c ): ImportScreen => new ImportScreen(
+				$c->get( EditionRepository::class ),
+				$c->get( ImportService::class ),
+				$c->get( ImportJobRepository::class ),
+				$c->get( AccessControl::class )
 			)
 		);
 
@@ -130,7 +147,8 @@ final class AdminServiceProvider implements ServiceProvider {
 				$c->get( EmailsScreen::class ),
 				$c->get( MigrationScreen::class ),
 				$c->get( AnnouncementsScreen::class ),
-				$c->get( SettingsScreen::class )
+				$c->get( SettingsScreen::class ),
+				$c->get( ImportScreen::class )
 			)
 		);
 	}
@@ -170,6 +188,13 @@ final class AdminServiceProvider implements ServiceProvider {
 			EditionsScreen::ACTION_ADD_LESSON   => array( EditionsScreen::class, 'handle_add_lesson' ),
 			EditionsScreen::ACTION_ENROLL       => array( EditionsScreen::class, 'handle_enroll' ),
 			EditionsScreen::ACTION_CREATE_LINK  => array( EditionsScreen::class, 'handle_create_link' ),
+			EditionsScreen::ACTION_DUPLICATE    => array( EditionsScreen::class, 'handle_duplicate' ),
+			EditionsScreen::ACTION_MOVE_LESSON  => array( EditionsScreen::class, 'handle_move_lesson' ),
+			EditionsScreen::ACTION_DUPLICATE_COURSE => array( EditionsScreen::class, 'handle_duplicate_course' ),
+			ImportScreen::ACTION_UPLOAD         => array( ImportScreen::class, 'handle_upload' ),
+			ImportScreen::ACTION_MAP            => array( ImportScreen::class, 'handle_map' ),
+			ImportScreen::ACTION_CONFIRM        => array( ImportScreen::class, 'handle_confirm' ),
+			ImportScreen::ACTION_RUN            => array( ImportScreen::class, 'handle_run' ),
 			RequestsScreen::ACTION_APPROVE      => array( RequestsScreen::class, 'handle_approve' ),
 			RequestsScreen::ACTION_REJECT       => array( RequestsScreen::class, 'handle_reject' ),
 			RequestsScreen::ACTION_MARK_PAID    => array( RequestsScreen::class, 'handle_mark_paid' ),
@@ -195,5 +220,25 @@ final class AdminServiceProvider implements ServiceProvider {
 				}
 			);
 		}
+
+		// Accion "Duplicar" en la lista de cursos.
+		add_filter(
+			'post_row_actions',
+			static function ( array $actions, \WP_Post $post ): array {
+				if ( CoursePostType::POST_TYPE !== $post->post_type || ! current_user_can( 'edit_post', $post->ID ) ) {
+					return $actions;
+				}
+
+				$actions['av_duplicate'] = sprintf(
+					'<a href="%s">%s</a>',
+					esc_url( EditionsScreen::duplicate_course_url( (int) $post->ID ) ),
+					esc_html__( 'Duplicar', 'aula-virtual' )
+				);
+
+				return $actions;
+			},
+			10,
+			2
+		);
 	}
 }

@@ -11,6 +11,7 @@ declare( strict_types = 1 );
 
 define( 'ABSPATH', __DIR__ . '/' );
 define( 'MINUTE_IN_SECONDS', 60 );
+define( 'DAY_IN_SECONDS', 86400 );
 define( 'AV_VERSION', '0.1.0' );
 
 $GLOBALS['av_test_options'] = array();

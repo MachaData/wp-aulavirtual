@@ -47,6 +47,12 @@ use SIQA\AulaVirtual\Emails\TemplateRenderer;
 use SIQA\AulaVirtual\Emails\VariableResolver;
 use SIQA\AulaVirtual\Admin\AdminMenu;
 use SIQA\AulaVirtual\Admin\SettingsScreen;
+use SIQA\AulaVirtual\Admin\ImportScreen;
+use SIQA\AulaVirtual\Courses\CourseDuplicator;
+use SIQA\AulaVirtual\Editions\EditionDuplicator;
+use SIQA\AulaVirtual\Imports\ImportParser;
+use SIQA\AulaVirtual\Imports\ImportService;
+use SIQA\AulaVirtual\Imports\ImportsServiceProvider;
 use SIQA\AulaVirtual\Announcements\AnnouncementService;
 use SIQA\AulaVirtual\Announcements\AnnouncementsServiceProvider;
 use SIQA\AulaVirtual\Videos\VideoEmbed;
@@ -330,6 +336,7 @@ foreach (
 		new WooCommerceServiceProvider(),
 		new MigrationServiceProvider(),
 		new LandingServiceProvider(),
+		new ImportsServiceProvider(),
 		new AdminServiceProvider(),
 		new CampusServiceProvider(),
 	) as $provider
@@ -390,6 +397,43 @@ try {
 	$lesson_screen = null;
 }
 check( 'el editor de sesion resuelve clase en vivo y materiales', $lesson_screen instanceof LessonScreen && '' === $lesson_error );
+
+$dup_error = '';
+try {
+	$edition_dup = $plugin_container->get( EditionDuplicator::class );
+	$course_dup  = $plugin_container->get( CourseDuplicator::class );
+	$import_scr  = $plugin_container->get( ImportScreen::class );
+} catch ( Throwable $e ) {
+	$dup_error   = $e->getMessage();
+	$edition_dup = null;
+	$course_dup  = null;
+	$import_scr  = null;
+}
+check( 'el duplicador de ediciones resuelve modulos, materiales y clases en vivo', $edition_dup instanceof EditionDuplicator && '' === $dup_error );
+check( 'el duplicador de cursos resuelve sobre el de ediciones', $course_dup instanceof CourseDuplicator );
+check( 'la pantalla de importacion resuelve servicio y trabajos', $import_scr instanceof ImportScreen );
+
+echo "\nDuplicar ediciones\n";
+check( 'sin fecha nueva no hay desplazamiento', 0 === EditionDuplicator::day_shift( '2026-03-01 19:00:00', null ) );
+check( 'el desplazamiento se mide en dias enteros', 30 === EditionDuplicator::day_shift( '2026-03-01 19:00:00', '2026-03-31 19:00:00' ) );
+check( 'un origen sin fecha no desplaza nada', 0 === EditionDuplicator::day_shift( null, '2026-03-31 19:00:00' ) );
+check( 'las fechas se desplazan conservando la hora', '2026-04-05 20:30:00' === EditionDuplicator::shift_date( '2026-03-06 20:30:00', 30 ) );
+check( 'una fecha vacia sigue vacia', null === EditionDuplicator::shift_date( '', 30 ) );
+
+echo "\nImportacion de alumnos\n";
+$csv = ImportParser::parse_csv( "\xEF\xBB\xBFCorreo;Nombre;Apellido\nana@example.test;Ana;Cori\n\"luis@example.test\";Luis;\"Cruz, A\"\n" );
+check( 'el CSV con BOM y punto y coma se lee', array( 'Correo', 'Nombre', 'Apellido' ) === $csv[0] && 3 === count( $csv ) );
+check( 'las comillas se respetan', 'Cruz, A' === $csv[2][2] );
+$csv_comma = ImportParser::parse_csv( "email,first name\nx@example.test,X\n" );
+check( 'la coma tambien se detecta como separador', array( 'email', 'first name' ) === $csv_comma[0] );
+$guess = ImportParser::guess_mapping( array( 'Correo electrónico', 'Nombres', 'Apellidos', 'Celular', 'DNI' ) );
+check( 'las cabeceras en espanol se reconocen', 0 === $guess['email'] && 1 === $guess['first_name'] && 2 === $guess['last_name'] && 3 === $guess['phone'] && 4 === $guess['document'] );
+$guess_en = ImportParser::guess_mapping( array( 'First Name', 'E-mail', 'Last name' ) );
+check( 'las cabeceras en ingles se reconocen', 1 === $guess_en['email'] && 0 === $guess_en['first_name'] && 2 === $guess_en['last_name'] );
+$mapped = ImportService::map_rows( array( array( ' ANA@Example.test ', 'Ana', 'Cori' ), array( '', '', '' ) ), array( 'email' => 0, 'first_name' => 1, 'last_name' => 2 ) );
+check( 'el correo se normaliza en minusculas y sin espacios', 'ana@example.test' === $mapped[0]['email'] );
+check( 'la linea se conserva para informar errores', 2 === $mapped[0]['line'] );
+check( 'las filas vacias se descartan', 1 === count( $mapped ) );
 
 echo "\nClases en vivo\n";
 check( 'antes de la ventana el boton no aparece', LiveClassService::WINDOW_BEFORE === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:44:59' ) );

@@ -37,6 +37,7 @@ final class CampusController {
 
 	public const ACTION_COMPLETE = 'av_complete_lesson';
 	public const ACTION_PROFILE  = 'av_update_profile';
+	public const ACTION_RETAKE   = 'av_retake_edition';
 	public const QUERY_EDITION   = 'av_edicion';
 	public const QUERY_LESSON    = 'av_leccion';
 	public const QUERY_PROFILE   = 'av_perfil';
@@ -255,6 +256,7 @@ final class CampusController {
 				'percentage' => null === $enrollment ? 0.0 : (float) $enrollment['progress_percentage'],
 				'announcements' => $this->announcements->for_student( (int) $edition['course_id'], $edition_id, 10 ),
 				'back_url'   => $this->campus_url(),
+				'can_retake' => (bool) get_option( 'av_allow_retake', true ) && ! empty( $completed ),
 			)
 		);
 	}
@@ -492,6 +494,31 @@ final class CampusController {
 			: $this->campus_url( array( self::QUERY_EDITION => (int) $lesson['edition_id'] ) );
 
 		wp_safe_redirect( $redirect );
+		exit;
+	}
+
+	/**
+	 * Restarts an edition for the current student.
+	 *
+	 * @return void
+	 */
+	public function handle_retake(): void {
+		if ( ! is_user_logged_in() ) {
+			wp_die( esc_html__( 'Necesitas iniciar sesion.', 'aula-virtual' ), '', array( 'response' => 401 ) );
+		}
+
+		check_admin_referer( self::ACTION_RETAKE );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified right above.
+		$edition_id = isset( $_POST['edition_id'] ) ? absint( wp_unslash( $_POST['edition_id'] ) ) : 0;
+
+		$result = $this->progress_service->reset( get_current_user_id(), $edition_id );
+
+		if ( $result instanceof WP_Error ) {
+			wp_die( esc_html( $result->get_error_message() ), '', array( 'response' => 403 ) );
+		}
+
+		wp_safe_redirect( $this->campus_url( array( self::QUERY_EDITION => $edition_id ) ) );
 		exit;
 	}
 

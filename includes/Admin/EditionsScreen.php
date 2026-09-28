@@ -9,9 +9,11 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Admin;
 
+use SIQA\AulaVirtual\Courses\CourseDuplicator;
 use SIQA\AulaVirtual\Courses\CourseRepository;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Curriculum\LessonService;
+use SIQA\AulaVirtual\Editions\EditionDuplicator;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Editions\EditionService;
 use SIQA\AulaVirtual\Enrollments\EnrollmentLinkRepository;
@@ -39,6 +41,9 @@ final class EditionsScreen {
 	public const ACTION_ADD_LESSON   = 'av_add_lesson';
 	public const ACTION_ENROLL       = 'av_enroll_student';
 	public const ACTION_CREATE_LINK  = 'av_create_registration_link';
+	public const ACTION_DUPLICATE    = 'av_duplicate_edition';
+	public const ACTION_MOVE_LESSON  = 'av_move_lesson';
+	public const ACTION_DUPLICATE_COURSE = 'av_duplicate_course';
 
 	/**
 	 * Edition persistence.
@@ -111,6 +116,20 @@ final class EditionsScreen {
 	private RegistrationService $registration;
 
 	/**
+	 * Edition copies.
+	 *
+	 * @var EditionDuplicator
+	 */
+	private EditionDuplicator $duplicator;
+
+	/**
+	 * Course copies.
+	 *
+	 * @var CourseDuplicator
+	 */
+	private CourseDuplicator $course_duplicator;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EditionRepository    $editions           Edition persistence.
@@ -123,6 +142,8 @@ final class EditionsScreen {
 	 * @param AccessControl        $access             Permission checks.
 	 * @param EnrollmentLinkRepository $links          Registration link persistence.
 	 * @param RegistrationService  $registration       Registration rules.
+	 * @param EditionDuplicator    $duplicator         Edition copies.
+	 * @param CourseDuplicator     $course_duplicator  Course copies.
 	 */
 	public function __construct(
 		EditionRepository $editions,
@@ -134,7 +155,9 @@ final class EditionsScreen {
 		CourseRepository $courses,
 		AccessControl $access,
 		EnrollmentLinkRepository $links,
-		RegistrationService $registration
+		RegistrationService $registration,
+		EditionDuplicator $duplicator,
+		CourseDuplicator $course_duplicator
 	) {
 		$this->editions           = $editions;
 		$this->edition_service    = $edition_service;
@@ -146,6 +169,8 @@ final class EditionsScreen {
 		$this->access             = $access;
 		$this->links              = $links;
 		$this->registration       = $registration;
+		$this->duplicator         = $duplicator;
+		$this->course_duplicator  = $course_duplicator;
 	}
 
 	/**
@@ -380,6 +405,125 @@ final class EditionsScreen {
 		}
 
 		$this->redirect_with_notice( $url, 'success', __( 'Enlace de inscripcion creado.', 'aula-virtual' ) );
+	}
+
+	/**
+	 * Duplicates an edition with its curriculum.
+	 *
+	 * @return void
+	 */
+	public function handle_duplicate(): void {
+		$this->guard( self::ACTION_DUPLICATE, Capabilities::MANAGE_EDITIONS );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
+		$input      = wp_unslash( $_POST );
+		$edition_id = isset( $input['edition_id'] ) ? absint( $input['edition_id'] ) : 0;
+
+		$this->assert_edition_ownership( $edition_id );
+
+		$result = $this->duplicator->duplicate(
+			$edition_id,
+			array(
+				'name'           => $input['name'] ?? '',
+				'start_date'     => $input['start_date'] ?? '',
+				'copy_live'      => ! empty( $input['copy_live'] ),
+				'copy_materials' => ! empty( $input['copy_materials'] ),
+			)
+		);
+
+		if ( $result instanceof WP_Error ) {
+			$this->redirect_with_notice( AdminMenu::editions_url( array( 'edition' => $edition_id ) ), 'error', $result->get_error_message() );
+		}
+
+		$this->redirect_with_notice(
+			AdminMenu::editions_url( array( 'edition' => (int) $result['edition_id'] ) ),
+			'success',
+			sprintf(
+				/* translators: 1: lessons copied, 2: materials copied, 3: live classes copied. */
+				__( 'Edicion duplicada en borrador: %1$d sesiones, %2$d materiales y %3$d clases en vivo copiadas. Revisa fechas y estado antes de abrirla.', 'aula-virtual' ),
+				(int) $result['lessons'],
+				(int) $result['materials'],
+				(int) $result['live_classes']
+			)
+		);
+	}
+
+	/**
+	 * Moves a lesson one position up or down.
+	 *
+	 * @return void
+	 */
+	public function handle_move_lesson(): void {
+		$this->guard( self::ACTION_MOVE_LESSON, Capabilities::MANAGE_CURRICULUM );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
+		$input      = wp_unslash( $_POST );
+		$edition_id = isset( $input['edition_id'] ) ? absint( $input['edition_id'] ) : 0;
+		$lesson_id  = isset( $input['lesson_id'] ) ? absint( $input['lesson_id'] ) : 0;
+		$direction  = 'up' === ( $input['direction'] ?? '' ) ? -1 : 1;
+
+		$this->assert_edition_ownership( $edition_id );
+
+		$ids   = array_map( 'intval', wp_list_pluck( $this->lessons->for_edition( $edition_id, false ), 'id' ) );
+		$index = array_search( $lesson_id, $ids, true );
+		$url   = AdminMenu::editions_url( array( 'edition' => $edition_id ) );
+
+		if ( false === $index || ! isset( $ids[ $index + $direction ] ) ) {
+			$this->redirect_with_notice( $url, 'error', __( 'No se puede mover esa sesion.', 'aula-virtual' ) );
+		}
+
+		$swap                     = $ids[ $index + $direction ];
+		$ids[ $index + $direction ] = $lesson_id;
+		$ids[ $index ]            = $swap;
+
+		$this->lesson_service->reorder( $edition_id, $ids );
+		$this->redirect_with_notice( $url, 'success', __( 'Orden actualizado.', 'aula-virtual' ) );
+	}
+
+	/**
+	 * Duplicates a course from the course list (GET link with nonce).
+	 *
+	 * @return void
+	 */
+	public function handle_duplicate_course(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- verified right below.
+		$course_id = isset( $_GET['course_id'] ) ? absint( wp_unslash( $_GET['course_id'] ) ) : 0;
+
+		check_admin_referer( self::ACTION_DUPLICATE_COURSE . '_' . $course_id );
+
+		if ( ! current_user_can( 'edit_post', $course_id ) ) {
+			wp_die( esc_html__( 'No tienes permisos sobre ese curso.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+		}
+
+		// Se copia el temario de la edicion mas reciente, si existe.
+		$latest = $this->editions->for_course( $course_id );
+		$result = $this->course_duplicator->duplicate(
+			$course_id,
+			array( 'copy_edition_id' => empty( $latest ) ? 0 : (int) end( $latest )['id'] )
+		);
+
+		if ( $result instanceof WP_Error ) {
+			$this->redirect_with_notice( admin_url( 'edit.php?post_type=av_course' ), 'error', $result->get_error_message() );
+		}
+
+		wp_safe_redirect( get_edit_post_link( (int) $result['course_id'], 'raw' ) ?: admin_url( 'edit.php?post_type=av_course' ) );
+		exit;
+	}
+
+	/**
+	 * Returns the nonce-protected URL that duplicates a course.
+	 *
+	 * @param int $course_id Course id.
+	 * @return string
+	 */
+	public static function duplicate_course_url( int $course_id ): string {
+		return wp_nonce_url(
+			add_query_arg(
+				array( 'action' => self::ACTION_DUPLICATE_COURSE, 'course_id' => $course_id ),
+				admin_url( 'admin-post.php' )
+			),
+			self::ACTION_DUPLICATE_COURSE . '_' . $course_id
+		);
 	}
 
 	/**

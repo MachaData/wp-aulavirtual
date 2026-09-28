@@ -45,7 +45,8 @@ retirarlo para conservar las URLs antiguas.
       de roles).
 - [ ] Página *Campus* creada como `/campus/aula/` con `[av_campus]`.
 - [ ] *Aula Virtual → Emails* muestra 6 plantillas.
-- [ ] Menú *Aula Virtual* con: Ediciones, Solicitudes, Emails, Migrar desde Tutor, Cursos.
+- [ ] Menú *Aula Virtual* con: Ediciones, Solicitudes, Importar alumnos, Anuncios, Emails,
+      Migrar desde Tutor, Cursos, Configuración.
 - [ ] Desactivar y reactivar: no se duplican páginas ni plantillas.
 
 ## 2. Curso y edición
@@ -130,6 +131,28 @@ retirarlo para conservar las URLs antiguas.
 - [ ] Volver a pulsar *Reprocesar alumnos*: 0 matriculados nuevos, todo omitido.
 - [ ] Confirmar que **no llegó ningún correo** a los alumnos migrados.
 - [ ] Repetir con los otros dos cursos.
+
+## 8a. Duplicar, reordenar, importar y repetir
+
+- [ ] En el detalle de la edición, mover una sesión con ↑ y ↓: el orden cambia también en el
+      temario del alumno.
+- [ ] *Duplicar edición* con nueva fecha de inicio 30 días después: aparece la copia en
+      *Borrador* con las 3 sesiones, la clase en vivo 30 días más tarde y sin grabación, los
+      materiales y ningún alumno.
+- [ ] En *Cursos*, *Duplicar* sobre el curso de prueba: se abre el editor del nuevo curso en
+      borrador, con imagen, landing y una edición "Copia de …" con el temario.
+- [ ] *Importar alumnos*: subir un CSV con 5 filas (una con correo inválido, una repetida y
+      una ya matriculada). La revisión cuenta 2 válidas, 1 inválida, 1 repetida y 1 ya
+      matriculada; no llegó ningún correo todavía.
+- [ ] Confirmar **sin** marcar bienvenida: 2 matriculados con origen *excel*, usuarios nuevos
+      con rol alumno y ningún correo.
+- [ ] Repetir con otro CSV marcando bienvenida: llega el correo con el enlace para crear la
+      contraseña (nunca una contraseña en claro).
+- [ ] Subir un `.xlsx`: si `composer install` no se ejecutó, el mensaje indica que solo se
+      admite CSV.
+- [ ] Con un alumno al 100 %, pulsar *Volver a hacer el curso*: confirma, vuelve a 0 %, la
+      matrícula pasa a *Activa* y las sesiones aparecen sin completar. Desactivar la opción en
+      Configuración: el botón desaparece.
 
 ## 8b. Anuncios y modo enfoque
 

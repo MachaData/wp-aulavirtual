@@ -25,8 +25,8 @@ final porque consumen servicios de todos los demás.
 | `Database` | Schema (15 tablas), Migrator (versionado), Repository (base), Installer | Core |
 | `Permissions` | Capabilities, Roles, AccessControl, bloqueo de wp-admin | Core |
 | `Security` | Sanitizer | — |
-| `Courses` | CPT `av_course`, meta, taxonomías, repositorio | Permissions |
-| `Editions` | EditionStatus, repositorio, servicio | Courses |
+| `Courses` | CPT `av_course`, meta, taxonomías, repositorio, CourseDuplicator (post + meta + landing + una edición) | Permissions, Editions |
+| `Editions` | EditionStatus, repositorio, servicio, EditionDuplicator (copia temario, materiales y clases en vivo desplazando fechas) | Courses, Curriculum, Materials, LiveClasses |
 | `Curriculum` | LessonType, Module/Lesson repositorios, LessonService | Editions |
 | `Enrollments` | EnrollmentStatus, matrícula, enlaces, solicitudes, formulario público | Editions |
 | `Progress` | ProgressCalculator, repositorio, servicio | Curriculum, Enrollments |
@@ -38,8 +38,9 @@ final porque consumen servicios de todos los demás.
 | `WooCommerce` | ProductLink, OrderHandler, Settings | Enrollments |
 | `Migration` | TutorReader, TutorMapping, TutorMigrator | Editions, Curriculum, Enrollments, Progress |
 | `Landing` | LandingData, renderer, plantilla, meta box | Editions, Curriculum, Enrollments |
+| `Imports` | ImportParser (CSV/XLSX, detección de separador y cabeceras), ImportService (validar sin escribir, trabajos por lotes de 200, alta de usuarios sin enviar contraseña), ImportJobRepository | Enrollments |
 | `Campus` | CampusController (dashboard, temario, sesión, perfil) | casi todo |
-| `Admin` | AdminMenu y pantallas (ediciones, sesión, solicitudes, emails, anuncios, migración, configuración) | casi todo |
+| `Admin` | AdminMenu y pantallas (ediciones, sesión, solicitudes, importar alumnos, emails, anuncios, migración, configuración) | casi todo |
 | `REST` | AbstractController, CoursesController | Courses |
 
 Reglas de dependencia: los servicios de negocio **no** conocen a Admin, Campus ni Emails. La
@@ -162,4 +163,9 @@ usa ahí.
   cientos; con miles conviene pasarlo a Action Scheduler).
 - REST expone solo `/aula-virtual/v1/courses`; el resto de recursos llegan con la integración
   externa.
-- Sin importación por Excel ni anuncios todavía (siguiente bloque).
+- La importación guarda las filas pendientes en un transient (24 h) mientras dura el trabajo;
+  con cache de objetos externo (Redis) el límite de tamaño lo pone ese backend. Para archivos
+  `.xlsx` hace falta `phpoffice/phpspreadsheet` (composer); sin él, solo CSV.
+- EditionDuplicator se registra en el proveedor de Editions pero se resuelve en `boot`, cuando
+  Curriculum, Materials y LiveClasses ya han registrado sus repositorios. Si se cambia el orden
+  de proveedores en `Plugin::providers()`, mantener Editions antes que Admin.

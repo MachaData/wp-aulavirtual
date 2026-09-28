@@ -70,6 +70,13 @@ final class AdminMenu {
 	private SettingsScreen $settings;
 
 	/**
+	 * Import screen.
+	 *
+	 * @var ImportScreen
+	 */
+	private ImportScreen $import;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EditionsScreen $editions Editions screen.
@@ -78,6 +85,7 @@ final class AdminMenu {
 	 * @param MigrationScreen     $migration     Migration screen.
 	 * @param AnnouncementsScreen $announcements Announcements screen.
 	 * @param SettingsScreen      $settings      Settings screen.
+	 * @param ImportScreen        $import        Import screen.
 	 */
 	public function __construct(
 		EditionsScreen $editions,
@@ -85,7 +93,8 @@ final class AdminMenu {
 		EmailsScreen $emails,
 		MigrationScreen $migration,
 		AnnouncementsScreen $announcements,
-		SettingsScreen $settings
+		SettingsScreen $settings,
+		ImportScreen $import
 	) {
 		$this->editions      = $editions;
 		$this->requests      = $requests;
@@ -93,6 +102,7 @@ final class AdminMenu {
 		$this->migration     = $migration;
 		$this->announcements = $announcements;
 		$this->settings      = $settings;
+		$this->import        = $import;
 	}
 
 	/**
@@ -127,6 +137,15 @@ final class AdminMenu {
 			Capabilities::APPROVE_REQUESTS,
 			RequestsScreen::SLUG,
 			array( $this->requests, 'render' )
+		);
+
+		add_submenu_page(
+			self::EDITIONS_SLUG,
+			__( 'Importar alumnos', 'aula-virtual' ),
+			__( 'Importar alumnos', 'aula-virtual' ),
+			Capabilities::IMPORT_STUDENTS,
+			ImportScreen::SLUG,
+			array( $this->import, 'render' )
 		);
 
 		add_submenu_page(

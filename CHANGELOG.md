@@ -3,6 +3,28 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.10.0] - 2026-09-28
+
+Duplicar, reordenar, importar alumnos por Excel/CSV y repetir el curso.
+
+### Anadido
+
+- Duplicar edicion desde el detalle: nueva edicion en borrador con sesiones, materiales y
+  clases en vivo (sin grabacion, programadas); con nueva fecha de inicio, las fechas de acceso
+  y de las clases en vivo se desplazan los mismos dias. No copia alumnos, enlaces, anuncios ni
+  producto.
+- Duplicar curso desde la lista de cursos: post en borrador con contenido, imagen, categorias,
+  meta y landing, mas una edicion con el temario de la edicion mas reciente.
+- Reordenar sesiones con flechas en el detalle de la edicion.
+- Importar alumnos (menu propio, capacidad `av_import_students`): CSV o XLSX, deteccion de
+  separador y BOM, mapeo de columnas adivinado por cabecera (es/en) y corregible, revision sin
+  escribir nada, ejecucion por lotes de 200 con historial en `av_import_jobs`. Los usuarios
+  nuevos se crean con contrasena aleatoria que nunca se envia; la bienvenida con enlace para
+  crear contrasena es opcional.
+- Repetir el curso: el alumno reinicia su progreso en una edicion (opcion `av_allow_retake`,
+  activa por defecto). Conserva el certificado y no envia correos.
+- Smoke test ampliado a 199 comprobaciones y 93 clases.
+
 ## [0.9.0] - 2026-09-28
 
 Pantalla de configuracion, anuncios con correo a la edicion y modo enfoque.

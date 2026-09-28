@@ -200,7 +200,45 @@ final class ProgressService {
 	}
 
 	/**
-	 * Recalculates the cached percentage of an enrollment.
+	 * Restarts an edition for a student: deletes the progress rows and puts
+	 * the enrollment back to active with 0 %. The certificate, if any, is
+	 * kept. No event is dispatched.
+	 *
+	 * @param int $user_id    Student id.
+	 * @param int $edition_id Edition id.
+	 * @return int|WP_Error Progress rows deleted.
+	 */
+	public function reset( int $user_id, int $edition_id ) {
+		if ( ! get_option( 'av_allow_retake', true ) ) {
+			return new WP_Error( 'av_retake_disabled', __( 'Repetir el curso no esta habilitado.', 'aula-virtual' ), array( 'status' => 403 ) );
+		}
+
+		$enrollment = $this->enrollments->find_for_student( $user_id, $edition_id );
+
+		if ( null === $enrollment || ! in_array( $enrollment['status'], array( EnrollmentStatus::ACTIVE, EnrollmentStatus::COMPLETED ), true ) ) {
+			return new WP_Error( 'av_retake_forbidden', __( 'No tienes una matricula activa en esta edicion.', 'aula-virtual' ), array( 'status' => 403 ) );
+		}
+
+		$deleted = $this->progress->delete_for_edition( $user_id, $edition_id );
+		$now     = current_time( 'mysql', true );
+
+		$this->enrollments->update(
+			(int) $enrollment['id'],
+			array(
+				'status'              => EnrollmentStatus::ACTIVE,
+				'progress_percentage' => 0,
+				'completed_at'        => null,
+				'last_activity'       => $now,
+				'updated_at'          => $now,
+			)
+		);
+
+		return $deleted;
+	}
+
+	/**
+	 * Recalculates the percentage of an enrollment and marks it completed
+	 * when every published lesson is done.
 	 *
 	 * @param int  $user_id    Student id.
 	 * @param int  $edition_id Edition id.

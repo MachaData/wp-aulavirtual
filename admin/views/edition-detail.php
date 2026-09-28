@@ -15,6 +15,7 @@
 
 use SIQA\AulaVirtual\Admin\AdminMenu;
 use SIQA\AulaVirtual\Admin\EditionsScreen;
+use SIQA\AulaVirtual\Admin\ImportScreen;
 use SIQA\AulaVirtual\Admin\LessonScreen;
 use SIQA\AulaVirtual\Curriculum\LessonType;
 use SIQA\AulaVirtual\Editions\EditionStatus;
@@ -112,18 +113,30 @@ $av_edition_id = (int) $edition['id'];
 				<th scope="col"><?php esc_html_e( 'Titulo', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:140px"><?php esc_html_e( 'Tipo', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:120px"><?php esc_html_e( 'Estado', 'aula-virtual' ); ?></th>
+				<th scope="col" style="width:90px"><?php esc_html_e( 'Mover', 'aula-virtual' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 		<?php if ( empty( $lessons ) ) : ?>
-			<tr><td colspan="4"><?php esc_html_e( 'Esta edicion todavia no tiene sesiones.', 'aula-virtual' ); ?></td></tr>
+			<tr><td colspan="5"><?php esc_html_e( 'Esta edicion todavia no tiene sesiones.', 'aula-virtual' ); ?></td></tr>
 		<?php else : ?>
-			<?php foreach ( $lessons as $av_lesson ) : ?>
+			<?php $av_total = count( $lessons ); ?>
+			<?php foreach ( array_values( $lessons ) as $av_i => $av_lesson ) : ?>
 				<tr>
 					<td><?php echo esc_html( (string) (int) $av_lesson['position'] ); ?></td>
 					<td><strong><a href="<?php echo esc_url( LessonScreen::url( (int) $av_lesson['id'] ) ); ?>"><?php echo esc_html( (string) $av_lesson['title'] ); ?></a></strong></td>
 					<td><?php echo esc_html( LessonType::label( (string) $av_lesson['lesson_type'] ) ); ?></td>
 					<td><?php echo esc_html( LessonType::STATUS_PUBLISH === $av_lesson['status'] ? __( 'Publicada', 'aula-virtual' ) : __( 'Borrador', 'aula-virtual' ) ); ?></td>
+					<td>
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline">
+							<input type="hidden" name="action" value="<?php echo esc_attr( EditionsScreen::ACTION_MOVE_LESSON ); ?>">
+							<input type="hidden" name="edition_id" value="<?php echo esc_attr( (string) $av_edition_id ); ?>">
+							<input type="hidden" name="lesson_id" value="<?php echo esc_attr( (string) (int) $av_lesson['id'] ); ?>">
+							<?php wp_nonce_field( EditionsScreen::ACTION_MOVE_LESSON ); ?>
+							<button type="submit" name="direction" value="up" class="button button-small" <?php disabled( 0 === $av_i ); ?> aria-label="<?php esc_attr_e( 'Subir', 'aula-virtual' ); ?>">&uarr;</button>
+							<button type="submit" name="direction" value="down" class="button button-small" <?php disabled( $av_i === $av_total - 1 ); ?> aria-label="<?php esc_attr_e( 'Bajar', 'aula-virtual' ); ?>">&darr;</button>
+						</form>
+					</td>
 				</tr>
 			<?php endforeach; ?>
 		<?php endif; ?>
@@ -178,6 +191,15 @@ $av_edition_id = (int) $edition['id'];
 	</table>
 
 	<?php if ( current_user_can( 'list_users' ) ) : ?>
+		<p class="description" style="margin-top:8px">
+			<?php
+			printf(
+				/* translators: %s: link to the import screen. */
+				esc_html__( 'Para matricular a muchos alumnos a la vez, usa %s.', 'aula-virtual' ),
+				'<a href="' . esc_url( add_query_arg( 'page', ImportScreen::SLUG, admin_url( 'admin.php' ) ) ) . '">' . esc_html__( 'Importar alumnos', 'aula-virtual' ) . '</a>'
+			);
+			?>
+		</p>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:12px">
 			<input type="hidden" name="action" value="<?php echo esc_attr( EditionsScreen::ACTION_ENROLL ); ?>">
 			<input type="hidden" name="edition_id" value="<?php echo esc_attr( (string) $av_edition_id ); ?>">
@@ -198,4 +220,33 @@ $av_edition_id = (int) $edition['id'];
 			<?php submit_button( __( 'Matricular alumno', 'aula-virtual' ), 'secondary', 'submit', false ); ?>
 		</form>
 	<?php endif; ?>
+
+	<h2><?php esc_html_e( 'Duplicar edicion', 'aula-virtual' ); ?></h2>
+	<p class="description"><?php esc_html_e( 'Crea una nueva edicion en borrador con las mismas sesiones. Si indicas la nueva fecha de inicio, las fechas de acceso y de las clases en vivo se desplazan los mismos dias. No se copian alumnos ni el producto de WooCommerce.', 'aula-virtual' ); ?></p>
+	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="max-width:760px">
+		<input type="hidden" name="action" value="<?php echo esc_attr( EditionsScreen::ACTION_DUPLICATE ); ?>">
+		<input type="hidden" name="edition_id" value="<?php echo esc_attr( (string) $av_edition_id ); ?>">
+		<?php wp_nonce_field( EditionsScreen::ACTION_DUPLICATE ); ?>
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row"><label for="av-dup-name"><?php esc_html_e( 'Nombre de la nueva edicion', 'aula-virtual' ); ?></label></th>
+				<td><input type="text" name="name" id="av-dup-name" class="regular-text" placeholder="<?php echo esc_attr( sprintf( /* translators: %s: edition name. */ __( 'Copia de %s', 'aula-virtual' ), (string) $edition['name'] ) ); ?>"></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="av-dup-start"><?php esc_html_e( 'Nueva fecha de inicio', 'aula-virtual' ); ?></label></th>
+				<td>
+					<input type="datetime-local" name="start_date" id="av-dup-start">
+					<p class="description"><?php esc_html_e( 'Opcional. Si la dejas vacia, la copia queda sin fechas.', 'aula-virtual' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Copiar tambien', 'aula-virtual' ); ?></th>
+				<td>
+					<label><input type="checkbox" name="copy_live" value="1" checked> <?php esc_html_e( 'Clases en vivo (sin grabaciones, en estado programada)', 'aula-virtual' ); ?></label><br>
+					<label><input type="checkbox" name="copy_materials" value="1" checked> <?php esc_html_e( 'Materiales descargables', 'aula-virtual' ); ?></label>
+				</td>
+			</tr>
+		</table>
+		<?php submit_button( __( 'Duplicar edicion', 'aula-virtual' ), 'secondary' ); ?>
+	</form>
 </div>

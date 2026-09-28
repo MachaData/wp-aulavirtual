@@ -21,6 +21,7 @@ use SIQA\AulaVirtual\Database\Schema;
 use SIQA\AulaVirtual\Editions\EditionsServiceProvider;
 use SIQA\AulaVirtual\Emails\EmailsServiceProvider;
 use SIQA\AulaVirtual\Enrollments\EnrollmentsServiceProvider;
+use SIQA\AulaVirtual\Imports\ImportsServiceProvider;
 use SIQA\AulaVirtual\Landing\LandingServiceProvider;
 use SIQA\AulaVirtual\LiveClasses\LiveClassesServiceProvider;
 use SIQA\AulaVirtual\Materials\MaterialsServiceProvider;
@@ -171,6 +172,7 @@ final class Plugin {
 			new WooCommerceServiceProvider(),
 			new MigrationServiceProvider(),
 			new LandingServiceProvider(),
+			new ImportsServiceProvider(),
 			new AdminServiceProvider(),
 			new CampusServiceProvider(),
 			new RestServiceProvider(),

@@ -39,12 +39,37 @@ landing* la abre en el sitio.
 | Precio y producto | Precio informativo y el ID del producto de WooCommerce. **Con producto la edición es de pago; sin producto es gratuita** |
 | Cupo | 0 = sin límite |
 
-Al guardar se abre el detalle de la edición con cuatro bloques: enlace de inscripción,
-sesiones, alumnos y matrícula manual.
+Al guardar se abre el detalle de la edición con cinco bloques: enlace de inscripción,
+sesiones, alumnos, matrícula manual y duplicar edición.
+
+### Duplicar una edición
+
+Al final del detalle, **Duplicar edición** crea una nueva edición en borrador del mismo curso
+con las mismas sesiones (título, tipo, video, descripción, contenido, duración). Opciones:
+
+- **Nombre**: si se deja vacío, "Copia de …".
+- **Nueva fecha de inicio**: si se indica, las fechas de acceso y las de cada clase en vivo se
+  desplazan los mismos días que hay entre el inicio original y el nuevo. Si se deja vacía, la
+  copia queda sin fechas.
+- **Clases en vivo**: se copian con la misma plataforma, enlace y duración, en estado
+  *programada* y sin grabación.
+- **Materiales**: se copian los enlaces a los mismos archivos de la biblioteca (no se duplican
+  los archivos).
+
+No se copian alumnos, enlaces de inscripción, anuncios ni el producto de WooCommerce. La copia
+nace en *Borrador*: revisar fechas, estado y producto antes de abrirla.
+
+### Duplicar un curso
+
+En *Cursos*, al pasar el ratón sobre un curso aparece **Duplicar**. Crea un curso en borrador
+con el mismo contenido, imagen, categorías, landing (con el título nuevo) y una edición
+"Copia de …" con el temario de la edición más reciente. Sirve para lanzar una variante del
+curso (por ejemplo, "Numerología básica" → "Numerología básica online") sin empezar de cero.
 
 ## 4. Sesiones
 
 En el detalle de la edición, el formulario rápido crea una sesión con título, tipo y video.
+Las flechas ↑ ↓ de la columna *Mover* cambian el orden; el alumno las ve en ese orden.
 Al pulsar el título se abre el **editor de sesión**, con tres zonas:
 
 - **Contenido**: título, tipo, estado, descripción, video (YouTube, Vimeo, Bunny, MP4),
@@ -121,6 +146,29 @@ token en la biblioteca de Stream.
 En el detalle de la edición, elegir un usuario existente y **Matricular alumno**. Recibe la
 bienvenida.
 
+### Importar desde Excel o CSV
+
+*Aula Virtual → Importar alumnos*, en cuatro pasos:
+
+1. **Archivo**: elegir la edición destino y subir un `.csv` o `.xlsx` con una fila de
+   cabecera (máximo 5000 filas). Sirven las exportaciones de Google Forms, Tutor o una hoja
+   hecha a mano. El separador (coma, punto y coma, tabulador) se detecta solo.
+2. **Columnas**: el plugin adivina qué columna es el correo, nombre, apellido, teléfono y
+   documento por el nombre de la cabecera (en español o inglés); se puede corregir. Solo el
+   correo es obligatorio.
+3. **Revisión**: cuántas filas son válidas, cuántos usuarios se crearán, cuántos ya existen,
+   cuántos ya estaban matriculados (se omiten) y las filas inválidas con su motivo. Hasta aquí
+   no se ha escrito nada ni enviado ningún correo.
+4. **Importar**: se procesan 200 alumnos por pulsación de *Continuar*, para que ningún servidor
+   corte la petición. Cada alumno nuevo se crea con rol de alumno y una contraseña aleatoria
+   que nunca se envía; si se marcó **Enviar el correo de bienvenida**, recibe la plantilla de
+   bienvenida con el enlace para crear su contraseña. Si no se marca, no sale ningún correo
+   (útil para cargas históricas).
+
+Las matrículas quedan con origen *excel* y estado *activa*. El resultado (creados,
+matriculados, omitidos, fallidos y el detalle de los errores) se conserva en el historial de
+importaciones.
+
 ## 6. Alumnos y progreso
 
 En el detalle de la edición se ve cada alumno con origen, estado y porcentaje. El alumno entra
@@ -129,6 +177,14 @@ completar todas, la matrícula pasa a *Completada* y recibe el correo de curso f
 
 En *Mis datos* el alumno cambia nombre, teléfono, documento y contraseña (pidiendo la actual).
 El correo es de solo lectura: solo lo cambia un administrador desde *Usuarios*.
+
+### Repetir el curso
+
+Si en *Configuración → Matrículas* está activo **Permitir repetir el curso** (lo está por
+defecto, como en Tutor), el alumno ve al final del temario el botón *Volver a hacer el curso*
+(o *Reiniciar mi progreso* si no lo terminó). Tras confirmar, se borra su progreso en esa
+edición, la matrícula vuelve a *Activa* con 0 % y empieza desde la primera sesión. El
+certificado que ya tuviera se conserva y no se envía ningún correo.
 
 ## 7. Emails
 

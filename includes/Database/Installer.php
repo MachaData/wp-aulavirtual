@@ -105,6 +105,7 @@ final class Installer {
 			'av_enrollment_auto_approve' => false,
 			'av_send_welcome_email'      => true,
 			'av_progress_mode'           => 'flexible',
+			'av_allow_retake'            => true,
 			'av_wc_enroll_status'        => 'processing',
 			'av_wc_refund_action'        => 'suspend',
 		);

@@ -130,4 +130,31 @@ final class ProgressRepository extends Repository {
 
 		return array_map( 'intval', wp_list_pluck( $rows, 'lesson_id' ) );
 	}
+
+	/**
+	 * Deletes every progress row of a student inside an edition.
+	 *
+	 * @param int $user_id    Student id.
+	 * @param int $edition_id Edition id.
+	 * @return int Rows deleted.
+	 */
+	public function delete_for_edition( int $user_id, int $edition_id ): int {
+		global $wpdb;
+
+		if ( $user_id <= 0 || $edition_id <= 0 ) {
+			return 0;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- custom table write.
+		$deleted = $wpdb->delete(
+			$this->table(),
+			array(
+				'user_id'    => $user_id,
+				'edition_id' => $edition_id,
+			),
+			array( '%d', '%d' )
+		);
+
+		return false === $deleted ? 0 : (int) $deleted;
+	}
 }

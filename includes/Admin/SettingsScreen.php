@@ -103,6 +103,12 @@ final class SettingsScreen {
 						'type'    => 'bool',
 						'default' => true,
 					),
+					'av_allow_retake'            => array(
+						'label'   => __( 'Permitir repetir el curso', 'aula-virtual' ),
+						'type'    => 'bool',
+						'default' => true,
+						'help'    => __( 'El alumno puede reiniciar su progreso en una edicion y volver a hacerla desde la primera sesion.', 'aula-virtual' ),
+					),
 					'av_campus_focus_mode'       => array(
 						'label'   => __( 'Modo enfoque en las sesiones', 'aula-virtual' ),
 						'type'    => 'bool',

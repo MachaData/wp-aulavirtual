@@ -79,6 +79,13 @@ final class CampusServiceProvider implements ServiceProvider {
 		);
 
 		add_action(
+			'admin_post_' . CampusController::ACTION_RETAKE,
+			static function () use ( $container ): void {
+				$container->get( CampusController::class )->handle_retake();
+			}
+		);
+
+		add_action(
 			'admin_post_' . CampusController::ACTION_PROFILE,
 			static function () use ( $container ): void {
 				$container->get( CampusController::class )->handle_profile();

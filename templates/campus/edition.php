@@ -10,8 +10,10 @@
  * @var float                            $percentage
  * @var array<int, array<string, mixed>> $announcements
  * @var string                           $back_url
+ * @var bool                             $can_retake
  */
 
+use SIQA\AulaVirtual\Campus\CampusController;
 use SIQA\AulaVirtual\Curriculum\LessonType;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -65,5 +67,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</li>
 			<?php endforeach; ?>
 		</ol>
+	<?php endif; ?>
+
+	<?php if ( ! empty( $can_retake ) ) : ?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="av-retake"
+			onsubmit="return confirm('<?php echo esc_js( __( 'Se borrara tu progreso en esta edicion y empezaras desde la primera sesion. Tu certificado, si lo tienes, se conserva.', 'aula-virtual' ) ); ?>');">
+			<input type="hidden" name="action" value="<?php echo esc_attr( CampusController::ACTION_RETAKE ); ?>">
+			<input type="hidden" name="edition_id" value="<?php echo esc_attr( (string) (int) $edition['id'] ); ?>">
+			<?php wp_nonce_field( CampusController::ACTION_RETAKE ); ?>
+			<button type="submit"><?php echo esc_html( $percentage >= 100 ? __( 'Volver a hacer el curso', 'aula-virtual' ) : __( 'Reiniciar mi progreso', 'aula-virtual' ) ); ?></button>
+		</form>
 	<?php endif; ?>
 </div>
