@@ -220,6 +220,9 @@ final class EditionService {
 			'access_start' => $access_start,
 			'access_end'   => $access_end,
 			'timezone'     => Sanitizer::text( $input['timezone'] ?? wp_timezone_string() ),
+			'schedule_days' => Sanitizer::text( $input['schedule_days'] ?? '' ),
+			'schedule_time' => Sanitizer::text( $input['schedule_time'] ?? '' ),
+			'price_display' => Sanitizer::text( $input['price_display'] ?? '' ),
 			'capacity'     => max( 0, Sanitizer::int( $input['capacity'] ?? 0 ) ),
 			'product_id'   => Sanitizer::int( $input['product_id'] ?? 0 ),
 		);

@@ -16,8 +16,13 @@ use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Curriculum\LessonService;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Editions\EditionService;
+use SIQA\AulaVirtual\Emails\EmailNotifier;
+use SIQA\AulaVirtual\Emails\EmailTemplateRepository;
+use SIQA\AulaVirtual\Enrollments\EnrollmentLinkRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
+use SIQA\AulaVirtual\Enrollments\RegistrationRequestRepository;
+use SIQA\AulaVirtual\Enrollments\RegistrationService;
 use SIQA\AulaVirtual\Permissions\AccessControl;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -46,13 +51,37 @@ final class AdminServiceProvider implements ServiceProvider {
 				$c->get( EnrollmentRepository::class ),
 				$c->get( EnrollmentService::class ),
 				$c->get( CourseRepository::class ),
+				$c->get( AccessControl::class ),
+				$c->get( EnrollmentLinkRepository::class ),
+				$c->get( RegistrationService::class )
+			)
+		);
+
+		$container->singleton(
+			RequestsScreen::class,
+			static fn( Container $c ): RequestsScreen => new RequestsScreen(
+				$c->get( RegistrationRequestRepository::class ),
+				$c->get( RegistrationService::class ),
+				$c->get( EditionRepository::class ),
 				$c->get( AccessControl::class )
 			)
 		);
 
 		$container->singleton(
+			EmailsScreen::class,
+			static fn( Container $c ): EmailsScreen => new EmailsScreen(
+				$c->get( EmailTemplateRepository::class ),
+				$c->get( EmailNotifier::class )
+			)
+		);
+
+		$container->singleton(
 			AdminMenu::class,
-			static fn( Container $c ): AdminMenu => new AdminMenu( $c->get( EditionsScreen::class ) )
+			static fn( Container $c ): AdminMenu => new AdminMenu(
+				$c->get( EditionsScreen::class ),
+				$c->get( RequestsScreen::class ),
+				$c->get( EmailsScreen::class )
+			)
 		);
 	}
 
@@ -75,16 +104,22 @@ final class AdminServiceProvider implements ServiceProvider {
 		);
 
 		$handlers = array(
-			EditionsScreen::ACTION_SAVE_EDITION => 'handle_save_edition',
-			EditionsScreen::ACTION_ADD_LESSON   => 'handle_add_lesson',
-			EditionsScreen::ACTION_ENROLL       => 'handle_enroll',
+			EditionsScreen::ACTION_SAVE_EDITION => array( EditionsScreen::class, 'handle_save_edition' ),
+			EditionsScreen::ACTION_ADD_LESSON   => array( EditionsScreen::class, 'handle_add_lesson' ),
+			EditionsScreen::ACTION_ENROLL       => array( EditionsScreen::class, 'handle_enroll' ),
+			EditionsScreen::ACTION_CREATE_LINK  => array( EditionsScreen::class, 'handle_create_link' ),
+			RequestsScreen::ACTION_APPROVE      => array( RequestsScreen::class, 'handle_approve' ),
+			RequestsScreen::ACTION_REJECT       => array( RequestsScreen::class, 'handle_reject' ),
+			RequestsScreen::ACTION_MARK_PAID    => array( RequestsScreen::class, 'handle_mark_paid' ),
+			EmailsScreen::ACTION_SAVE           => array( EmailsScreen::class, 'handle_save' ),
+			EmailsScreen::ACTION_TEST           => array( EmailsScreen::class, 'handle_test' ),
 		);
 
-		foreach ( $handlers as $action => $method ) {
+		foreach ( $handlers as $action => $target ) {
 			add_action(
 				'admin_post_' . $action,
-				static function () use ( $container, $method ): void {
-					$container->get( EditionsScreen::class )->$method();
+				static function () use ( $container, $target ): void {
+					$container->get( $target[0] )->{$target[1]}();
 				}
 			);
 		}

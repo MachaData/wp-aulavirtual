@@ -31,7 +31,7 @@ final class Schema {
 	/**
 	 * Schema version stored in the options table.
 	 */
-	public const VERSION = '1.0.0';
+	public const VERSION = '1.1.0';
 
 	/**
 	 * Option key holding the installed schema version.
@@ -132,6 +132,9 @@ final class Schema {
 			access_start datetime DEFAULT NULL,
 			access_end datetime DEFAULT NULL,
 			timezone varchar(64) NOT NULL DEFAULT '',
+			schedule_days varchar(191) NOT NULL DEFAULT '',
+			schedule_time varchar(191) NOT NULL DEFAULT '',
+			price_display varchar(64) NOT NULL DEFAULT '',
 			capacity int(11) unsigned NOT NULL DEFAULT 0,
 			enrollment_methods longtext NULL,
 			settings longtext NULL,

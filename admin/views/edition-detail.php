@@ -9,6 +9,7 @@
  * @var array<int, array<string, mixed>>          $lessons
  * @var array<int, array<string, mixed>>          $students
  * @var array<int, string>                        $names
+ * @var array<int, array<string, mixed>>          $links
  * @var array{type: string, message: string}|null $notice
  */
 
@@ -17,6 +18,7 @@ use SIQA\AulaVirtual\Admin\EditionsScreen;
 use SIQA\AulaVirtual\Curriculum\LessonType;
 use SIQA\AulaVirtual\Editions\EditionStatus;
 use SIQA\AulaVirtual\Enrollments\EnrollmentStatus;
+use SIQA\AulaVirtual\Enrollments\RegistrationService;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -63,6 +65,42 @@ $av_edition_id = (int) $edition['id'];
 			</tr>
 		</tbody>
 	</table>
+
+	<h2><?php esc_html_e( 'Enlace de inscripcion', 'aula-virtual' ); ?></h2>
+	<p class="description"><?php esc_html_e( 'Comparte este enlace en la landing, por WhatsApp o por correo. Quien lo abra podra inscribirse; la solicitud queda pendiente hasta que la apruebes.', 'aula-virtual' ); ?></p>
+
+	<?php if ( ! empty( $links ) ) : ?>
+		<table class="widefat striped" style="max-width:760px">
+			<tbody>
+			<?php foreach ( $links as $av_link ) : ?>
+				<tr>
+					<td style="width:180px"><?php echo esc_html( (string) $av_link['label'] ); ?></td>
+					<td>
+						<input type="text" readonly class="large-text" onclick="this.select()"
+							value="<?php echo esc_attr( RegistrationService::link_url( (string) $av_link['token'] ) ); ?>">
+					</td>
+					<td style="width:120px">
+						<?php
+						printf(
+							/* translators: %s: number of submissions. */
+							esc_html__( '%s usos', 'aula-virtual' ),
+							esc_html( (string) (int) $av_link['uses'] )
+						);
+						?>
+					</td>
+				</tr>
+			<?php endforeach; ?>
+			</tbody>
+		</table>
+	<?php endif; ?>
+
+	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin:12px 0 24px">
+		<input type="hidden" name="action" value="<?php echo esc_attr( EditionsScreen::ACTION_CREATE_LINK ); ?>">
+		<input type="hidden" name="edition_id" value="<?php echo esc_attr( (string) $av_edition_id ); ?>">
+		<?php wp_nonce_field( EditionsScreen::ACTION_CREATE_LINK ); ?>
+		<input type="text" name="label" class="regular-text" placeholder="<?php esc_attr_e( 'Etiqueta, por ejemplo: landing, WhatsApp', 'aula-virtual' ); ?>">
+		<?php submit_button( empty( $links ) ? __( 'Generar enlace', 'aula-virtual' ) : __( 'Generar otro enlace', 'aula-virtual' ), 'secondary', 'submit', false ); ?>
+	</form>
 
 	<h2><?php esc_html_e( 'Sesiones', 'aula-virtual' ); ?></h2>
 

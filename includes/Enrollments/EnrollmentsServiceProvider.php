@@ -46,6 +46,43 @@ final class EnrollmentsServiceProvider implements ServiceProvider {
 				$c->get( AuditLog::class )
 			)
 		);
+
+		$this->register_registration( $container );
+	}
+
+	/**
+	 * Binds the registration flow services.
+	 *
+	 * @param Container $container Plugin container.
+	 * @return void
+	 */
+	private function register_registration( Container $container ): void {
+		$container->singleton(
+			EnrollmentLinkRepository::class,
+			static fn( Container $c ): EnrollmentLinkRepository => new EnrollmentLinkRepository( $c->get( Schema::class ) )
+		);
+
+		$container->singleton(
+			RegistrationRequestRepository::class,
+			static fn( Container $c ): RegistrationRequestRepository => new RegistrationRequestRepository( $c->get( Schema::class ) )
+		);
+
+		$container->singleton(
+			RegistrationService::class,
+			static fn( Container $c ): RegistrationService => new RegistrationService(
+				$c->get( EnrollmentLinkRepository::class ),
+				$c->get( RegistrationRequestRepository::class ),
+				$c->get( EditionRepository::class ),
+				$c->get( EnrollmentService::class ),
+				$c->get( EventBus::class ),
+				$c->get( AuditLog::class )
+			)
+		);
+
+		$container->singleton(
+			RegistrationController::class,
+			static fn( Container $c ): RegistrationController => new RegistrationController( $c->get( RegistrationService::class ) )
+		);
 	}
 
 	/**
@@ -70,5 +107,23 @@ final class EnrollmentsServiceProvider implements ServiceProvider {
 			10,
 			3
 		);
+
+		add_action( 'init', array( RegistrationController::class, 'register_rewrite' ) );
+
+		add_action(
+			'template_redirect',
+			static function () use ( $container ): void {
+				$container->get( RegistrationController::class )->maybe_render();
+			}
+		);
+
+		foreach ( array( 'admin_post_', 'admin_post_nopriv_' ) as $prefix ) {
+			add_action(
+				$prefix . RegistrationController::ACTION_SUBMIT,
+				static function () use ( $container ): void {
+					$container->get( RegistrationController::class )->handle_submit();
+				}
+			);
+		}
 	}
 }

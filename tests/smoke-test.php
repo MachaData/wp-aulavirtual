@@ -41,6 +41,11 @@ use SIQA\AulaVirtual\Curriculum\CurriculumServiceProvider;
 use SIQA\AulaVirtual\Curriculum\LessonType;
 use SIQA\AulaVirtual\Editions\EditionStatus;
 use SIQA\AulaVirtual\Editions\EditionsServiceProvider;
+use SIQA\AulaVirtual\Emails\EmailDefaults;
+use SIQA\AulaVirtual\Emails\EmailsServiceProvider;
+use SIQA\AulaVirtual\Emails\TemplateRenderer;
+use SIQA\AulaVirtual\Emails\VariableResolver;
+use SIQA\AulaVirtual\Admin\AdminMenu;
 use SIQA\AulaVirtual\Enrollments\EnrollmentStatus;
 use SIQA\AulaVirtual\Enrollments\EnrollmentsServiceProvider;
 use SIQA\AulaVirtual\Permissions\PermissionsServiceProvider;
@@ -300,6 +305,7 @@ foreach (
 		new CurriculumServiceProvider(),
 		new EnrollmentsServiceProvider(),
 		new ProgressServiceProvider(),
+		new EmailsServiceProvider(),
 		new AdminServiceProvider(),
 		new CampusServiceProvider(),
 	) as $provider
@@ -311,15 +317,41 @@ $wiring_error = '';
 try {
 	$campus = $plugin_container->get( CampusController::class );
 	$screen = $plugin_container->get( EditionsScreen::class );
+	$menu   = $plugin_container->get( AdminMenu::class );
 } catch ( Throwable $e ) {
 	$wiring_error = $e->getMessage();
 	$campus       = null;
 	$screen       = null;
+	$menu         = null;
 }
 
-check( 'el grafo de dependencias del campus se resuelve entero', $campus instanceof CampusController, );
+check( 'el grafo de dependencias del campus se resuelve entero', $campus instanceof CampusController );
 check( 'el grafo de dependencias del admin se resuelve entero', $screen instanceof EditionsScreen );
+check( 'el menu resuelve solicitudes y emails con sus servicios', $menu instanceof AdminMenu );
 check( 'ningun servicio quedo sin registrar', '' === $wiring_error );
+
+echo "\nEmails\n";
+$vars = array( 'first_name' => 'Ana', 'course_name' => 'Numerologia' );
+check( 'reemplaza variables conocidas', 'Hola Ana, bienvenida a Numerologia' === TemplateRenderer::render( 'Hola {{first_name}}, bienvenida a {{course_name}}', $vars ) );
+check( 'tolera espacios y mayusculas dentro de las llaves', 'Ana' === TemplateRenderer::render( '{{ First_Name }}', $vars ) );
+check( 'deja visible una variable desconocida en vez de borrarla', '{{typo}}' === TemplateRenderer::render( '{{typo}}', $vars ) );
+check( 'lista los marcadores de una plantilla', array( 'first_name', 'course_name' ) === TemplateRenderer::placeholders( '{{first_name}} y {{course_name}} y {{first_name}}' ) );
+
+$catalogue = array_keys( VariableResolver::catalogue() );
+$unknown   = array();
+foreach ( EmailDefaults::definitions() as $definition ) {
+	foreach ( TemplateRenderer::placeholders( $definition['subject'] . ' ' . $definition['body'] ) as $placeholder ) {
+		if ( ! in_array( $placeholder, $catalogue, true ) ) {
+			$unknown[] = $placeholder;
+		}
+	}
+}
+check( 'todas las plantillas por defecto usan solo variables del catalogo', array() === $unknown );
+
+$pairs = array_map( static fn( array $d ): string => $d['event'] . '/' . $d['recipient'], EmailDefaults::definitions() );
+check( 'no hay dos plantillas por defecto para el mismo evento y destinatario', count( $pairs ) === count( array_unique( $pairs ) ) );
+check( 'cada plantilla por defecto pertenece a un evento notificable', array() === array_diff( array_column( EmailDefaults::definitions(), 'event' ), array_keys( EmailDefaults::events() ) ) );
+check( 'la bienvenida lleva el enlace para crear la contrasena', str_contains( EmailDefaults::definitions()[4]['body'], '{{set_password_url}}' ) );
 
 echo "\n{$av_checks} comprobaciones, {$av_failures} fallos\n";
 

@@ -106,6 +106,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</td>
 			</tr>
 			<tr>
+				<th scope="row"><label for="av-schedule-days"><?php esc_html_e( 'Dias y horario', 'aula-virtual' ); ?></label></th>
+				<td>
+					<input type="text" name="schedule_days" id="av-schedule-days" class="regular-text"
+						placeholder="<?php esc_attr_e( 'Martes y jueves', 'aula-virtual' ); ?>">
+					<input type="text" name="schedule_time" class="regular-text"
+						placeholder="<?php esc_attr_e( '19:00 - 21:00', 'aula-virtual' ); ?>">
+					<p class="description"><?php esc_html_e( 'Texto libre. Aparece en la landing y en el correo de bienvenida.', 'aula-virtual' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="av-price"><?php esc_html_e( 'Precio y producto', 'aula-virtual' ); ?></label></th>
+				<td>
+					<input type="text" name="price_display" id="av-price" class="small-text" style="width:120px"
+						placeholder="<?php esc_attr_e( 'S/ 250', 'aula-virtual' ); ?>">
+					<input type="number" name="product_id" min="0" class="small-text" style="width:120px"
+						placeholder="<?php esc_attr_e( 'ID producto Woo', 'aula-virtual' ); ?>">
+					<p class="description"><?php esc_html_e( 'El precio es solo informativo. Si indicas un producto de WooCommerce, la edicion es de pago: la aprobacion envia el enlace de pago y la matricula se crea al confirmarse. Sin producto, la edicion es gratuita y la aprobacion matricula de inmediato.', 'aula-virtual' ); ?></p>
+				</td>
+			</tr>
+			<tr>
 				<th scope="row"><label for="av-capacity"><?php esc_html_e( 'Cupo', 'aula-virtual' ); ?></label></th>
 				<td>
 					<input type="number" name="capacity" id="av-capacity" min="0" value="0" class="small-text">

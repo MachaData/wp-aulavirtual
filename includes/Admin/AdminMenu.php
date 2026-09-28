@@ -34,12 +34,30 @@ final class AdminMenu {
 	private EditionsScreen $editions;
 
 	/**
+	 * Requests screen.
+	 *
+	 * @var RequestsScreen
+	 */
+	private RequestsScreen $requests;
+
+	/**
+	 * Emails screen.
+	 *
+	 * @var EmailsScreen
+	 */
+	private EmailsScreen $emails;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EditionsScreen $editions Editions screen.
+	 * @param RequestsScreen $requests Requests screen.
+	 * @param EmailsScreen   $emails   Emails screen.
 	 */
-	public function __construct( EditionsScreen $editions ) {
+	public function __construct( EditionsScreen $editions, RequestsScreen $requests, EmailsScreen $emails ) {
 		$this->editions = $editions;
+		$this->requests = $requests;
+		$this->emails   = $emails;
 	}
 
 	/**
@@ -65,6 +83,24 @@ final class AdminMenu {
 			Capabilities::MANAGE_EDITIONS,
 			self::EDITIONS_SLUG,
 			array( $this->editions, 'render' )
+		);
+
+		add_submenu_page(
+			self::EDITIONS_SLUG,
+			__( 'Solicitudes', 'aula-virtual' ),
+			__( 'Solicitudes', 'aula-virtual' ),
+			Capabilities::APPROVE_REQUESTS,
+			RequestsScreen::SLUG,
+			array( $this->requests, 'render' )
+		);
+
+		add_submenu_page(
+			self::EDITIONS_SLUG,
+			__( 'Emails', 'aula-virtual' ),
+			__( 'Emails', 'aula-virtual' ),
+			Capabilities::MANAGE_LMS,
+			EmailsScreen::SLUG,
+			array( $this->emails, 'render' )
 		);
 
 		add_submenu_page(

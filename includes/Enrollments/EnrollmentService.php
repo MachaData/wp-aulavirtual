@@ -141,7 +141,9 @@ final class EnrollmentService {
 		}
 
 		$now    = current_time( 'mysql', true );
-		$status = $this->initial_status( $source );
+		$status = isset( $args['status'] ) && in_array( $args['status'], EnrollmentStatus::all(), true )
+			? (string) $args['status']
+			: $this->initial_status( $source );
 
 		$enrollment_id = $this->enrollments->insert(
 			array(
@@ -190,12 +192,15 @@ final class EnrollmentService {
 		);
 
 		$payload = array(
-			'enrollment_id' => $enrollment_id,
-			'user_id'       => $user_id,
-			'course_id'     => (int) $edition['course_id'],
-			'edition_id'    => $edition_id,
-			'source'        => $source,
-			'status'        => $status,
+			'enrollment_id'      => $enrollment_id,
+			'user_id'            => $user_id,
+			'course_id'          => (int) $edition['course_id'],
+			'edition_id'         => $edition_id,
+			'source'             => $source,
+			'status'             => $status,
+			// La bienvenida ofrece crear o restablecer la contrasena: el alumno
+			// nunca recibe una contrasena por correo, solo este enlace de un uso.
+			'with_password_link' => true,
 		);
 
 		$this->events->dispatch( Events::ENROLLMENT_CREATED, $payload );
@@ -273,6 +278,17 @@ final class EnrollmentService {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Returns the enrollment of a student in an edition, if any.
+	 *
+	 * @param int $user_id    Student id.
+	 * @param int $edition_id Edition id.
+	 * @return array<string, mixed>|null
+	 */
+	public function find_enrollment( int $user_id, int $edition_id ): ?array {
+		return $this->enrollments->find_for_student( $user_id, $edition_id );
 	}
 
 	/**

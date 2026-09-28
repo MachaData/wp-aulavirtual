@@ -131,7 +131,17 @@ final class Migrator {
 	 * @return array<string, callable>
 	 */
 	private function data_migrations(): array {
-		return array();
+		return array(
+			// 1.1.0 anade la URL publica /inscripcion/{token}/: las reglas de
+			// reescritura deben regenerarse tambien en sitios ya instalados.
+			'1.1.0' => static function (): void {
+				if ( class_exists( \SIQA\AulaVirtual\Enrollments\RegistrationController::class ) ) {
+					\SIQA\AulaVirtual\Enrollments\RegistrationController::register_rewrite();
+				}
+
+				flush_rewrite_rules();
+			},
+		);
 	}
 
 	/**

@@ -3,6 +3,30 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.3.0] - 2026-09-28
+
+Inscripcion con aprobacion y correos 100% editables: el tramo
+Landing -> Inscripcion -> Aprobacion -> Email de bienvenida -> Acceso.
+
+### Anadido
+
+- Enlaces de inscripcion por edicion (`/inscripcion/{token}/`) con etiqueta, limite de usos y
+  vencimiento. Se generan desde el detalle de la edicion.
+- Formulario publico de inscripcion dentro del tema del sitio, con nonce, honeypot y
+  deduplicacion por correo. La solicitud queda pendiente.
+- Pantalla Solicitudes: aprobar, rechazar con motivo y marcar pagado a mano. Aprobar una edicion
+  gratuita matricula al instante; aprobar una de pago envia el enlace de pago y espera.
+- Al matricular se crea la cuenta de WordPress sin contrasena: el alumno la establece desde un
+  enlace seguro de un solo uso incluido en la bienvenida.
+- Modulo de emails: plantillas editables desde el panel (asunto, contenido, activar/desactivar,
+  envio de prueba), 24 variables (`{{first_name}}`, `{{course_name}}`, `{{schedule_time}}`,
+  `{{payment_url}}`, `{{set_password_url}}`...) y seis plantillas por defecto que se siembran sin
+  pisar las editadas.
+- Los correos salen por `wp_mail()`, con lo que cualquier plugin SMTP del sitio sigue valiendo.
+- Ediciones: dias, horario y precio informativo, que llegan a la landing y a la bienvenida.
+- Esquema 1.1.0 con migracion que regenera las reglas de reescritura en sitios ya instalados.
+- Smoke test ampliado a 75 comprobaciones y 58 clases.
+
 ## [0.2.0] - 2026-09-02
 
 Vertical fina de punta a punta: crear una edicion, cargarle sesiones, matricular a mano un

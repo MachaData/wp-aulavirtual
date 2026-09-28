@@ -10,6 +10,9 @@ declare( strict_types = 1 );
 namespace SIQA\AulaVirtual\Database;
 
 use SIQA\AulaVirtual\Courses\CoursePostType;
+use SIQA\AulaVirtual\Emails\EmailDefaults;
+use SIQA\AulaVirtual\Emails\EmailTemplateRepository;
+use SIQA\AulaVirtual\Enrollments\RegistrationController;
 use SIQA\AulaVirtual\Permissions\Roles;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -51,11 +54,16 @@ final class Installer {
 
 		$migrator->migrate();
 
+		// Al activar, los proveedores todavia no han arrancado, asi que las
+		// plantillas se siembran aqui y no desde el hook de migracion.
+		EmailDefaults::seed( new EmailTemplateRepository( $schema ) );
+
 		Roles::install();
 		self::install_default_options();
 		self::create_pages();
 
 		CoursePostType::register();
+		RegistrationController::register_rewrite();
 		flush_rewrite_rules();
 
 		update_option( self::VERSION_OPTION, AV_VERSION, false );

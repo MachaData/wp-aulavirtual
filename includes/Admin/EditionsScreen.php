@@ -14,9 +14,11 @@ use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Curriculum\LessonService;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Editions\EditionService;
+use SIQA\AulaVirtual\Enrollments\EnrollmentLinkRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
 use SIQA\AulaVirtual\Enrollments\EnrollmentStatus;
+use SIQA\AulaVirtual\Enrollments\RegistrationService;
 use SIQA\AulaVirtual\Permissions\AccessControl;
 use SIQA\AulaVirtual\Permissions\Capabilities;
 use WP_Error;
@@ -36,6 +38,7 @@ final class EditionsScreen {
 	public const ACTION_SAVE_EDITION = 'av_save_edition';
 	public const ACTION_ADD_LESSON   = 'av_add_lesson';
 	public const ACTION_ENROLL       = 'av_enroll_student';
+	public const ACTION_CREATE_LINK  = 'av_create_registration_link';
 
 	/**
 	 * Edition persistence.
@@ -94,6 +97,20 @@ final class EditionsScreen {
 	private AccessControl $access;
 
 	/**
+	 * Registration link persistence.
+	 *
+	 * @var EnrollmentLinkRepository
+	 */
+	private EnrollmentLinkRepository $links;
+
+	/**
+	 * Registration rules.
+	 *
+	 * @var RegistrationService
+	 */
+	private RegistrationService $registration;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EditionRepository    $editions           Edition persistence.
@@ -104,6 +121,8 @@ final class EditionsScreen {
 	 * @param EnrollmentService    $enrollment_service Enrollment rules.
 	 * @param CourseRepository     $courses            Course queries.
 	 * @param AccessControl        $access             Permission checks.
+	 * @param EnrollmentLinkRepository $links          Registration link persistence.
+	 * @param RegistrationService  $registration       Registration rules.
 	 */
 	public function __construct(
 		EditionRepository $editions,
@@ -113,7 +132,9 @@ final class EditionsScreen {
 		EnrollmentRepository $enrollments,
 		EnrollmentService $enrollment_service,
 		CourseRepository $courses,
-		AccessControl $access
+		AccessControl $access,
+		EnrollmentLinkRepository $links,
+		RegistrationService $registration
 	) {
 		$this->editions           = $editions;
 		$this->edition_service    = $edition_service;
@@ -123,6 +144,8 @@ final class EditionsScreen {
 		$this->enrollment_service = $enrollment_service;
 		$this->courses            = $courses;
 		$this->access             = $access;
+		$this->links              = $links;
+		$this->registration       = $registration;
 	}
 
 	/**
@@ -246,6 +269,7 @@ final class EditionsScreen {
 				'lessons'  => $this->lessons->for_edition( $edition_id, false ),
 				'students' => $students,
 				'names'    => $user_cache,
+				'links'    => $this->links->for_edition( $edition_id ),
 				'notice'   => $notice,
 			)
 		);
@@ -332,6 +356,30 @@ final class EditionsScreen {
 		}
 
 		$this->redirect_with_notice( $url, 'success', __( 'Alumno matriculado.', 'aula-virtual' ) );
+	}
+
+	/**
+	 * Creates a registration link for an edition.
+	 *
+	 * @return void
+	 */
+	public function handle_create_link(): void {
+		$this->guard( self::ACTION_CREATE_LINK, Capabilities::ENROLL_STUDENTS );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
+		$input      = wp_unslash( $_POST );
+		$edition_id = isset( $input['edition_id'] ) ? absint( $input['edition_id'] ) : 0;
+
+		$this->assert_edition_ownership( $edition_id );
+
+		$result = $this->registration->create_link( $edition_id, $input );
+		$url    = AdminMenu::editions_url( array( 'edition' => $edition_id ) );
+
+		if ( $result instanceof WP_Error ) {
+			$this->redirect_with_notice( $url, 'error', $result->get_error_message() );
+		}
+
+		$this->redirect_with_notice( $url, 'success', __( 'Enlace de inscripcion creado.', 'aula-virtual' ) );
 	}
 
 	/**
