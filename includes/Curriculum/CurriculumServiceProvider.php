@@ -31,6 +31,11 @@ final class CurriculumServiceProvider implements ServiceProvider {
 	 */
 	public function register( Container $container ): void {
 		$container->singleton(
+			ModuleRepository::class,
+			static fn( Container $c ): ModuleRepository => new ModuleRepository( $c->get( Schema::class ) )
+		);
+
+		$container->singleton(
 			LessonRepository::class,
 			static fn( Container $c ): LessonRepository => new LessonRepository( $c->get( Schema::class ) )
 		);

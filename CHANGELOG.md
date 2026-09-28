@@ -3,6 +3,27 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.5.0] - 2026-09-28
+
+Migracion desde Tutor LMS, dentro de la misma base de datos.
+
+### Anadido
+
+- Pantalla Aula Virtual > Migrar desde Tutor (solo aparece si hay cursos de Tutor). Un curso por
+  pulsacion: crea el curso con su meta y categorias, una edicion "Alumnos actuales" en curso con
+  el producto de WooCommerce, los temas como modulos y las lecciones con video y contenido.
+- Matricula a cada alumno conservando estado, fecha original y pedido; copia las lecciones
+  completadas y marca como completado a quien termino el curso.
+- Aditiva y repetible: mapa de ids en opciones, indices unicos y comprobacion previa por alumno.
+  Tutor no se modifica ni se borra. No se envia ningun correo. Lotes de 300 alumnos.
+- Origen de matricula `migration`, modo silencioso en matricula y recalculo de progreso, fecha
+  de matricula preservable, y repositorio de modulos.
+- Smoke test ampliado a 104 comprobaciones y 68 clases.
+
+### Corregido
+
+- El evento "matricula aprobada" ya no se emite para matriculas que nacen canceladas o pendientes.
+
 ## [0.4.0] - 2026-09-28
 
 Compra directa por WooCommerce: el tramo Landing -> Comprar -> Pago -> Matricula -> Bienvenida.

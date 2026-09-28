@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Admin;
 
+use SIQA\AulaVirtual\Migration\TutorReader;
 use SIQA\AulaVirtual\Permissions\Capabilities;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -48,16 +49,25 @@ final class AdminMenu {
 	private EmailsScreen $emails;
 
 	/**
+	 * Migration screen.
+	 *
+	 * @var MigrationScreen
+	 */
+	private MigrationScreen $migration;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EditionsScreen $editions Editions screen.
 	 * @param RequestsScreen $requests Requests screen.
-	 * @param EmailsScreen   $emails   Emails screen.
+	 * @param EmailsScreen    $emails    Emails screen.
+	 * @param MigrationScreen $migration Migration screen.
 	 */
-	public function __construct( EditionsScreen $editions, RequestsScreen $requests, EmailsScreen $emails ) {
-		$this->editions = $editions;
-		$this->requests = $requests;
-		$this->emails   = $emails;
+	public function __construct( EditionsScreen $editions, RequestsScreen $requests, EmailsScreen $emails, MigrationScreen $migration ) {
+		$this->editions  = $editions;
+		$this->requests  = $requests;
+		$this->emails    = $emails;
+		$this->migration = $migration;
 	}
 
 	/**
@@ -102,6 +112,17 @@ final class AdminMenu {
 			EmailsScreen::SLUG,
 			array( $this->emails, 'render' )
 		);
+
+		if ( TutorReader::is_available() ) {
+			add_submenu_page(
+				self::EDITIONS_SLUG,
+				__( 'Migrar desde Tutor LMS', 'aula-virtual' ),
+				__( 'Migrar desde Tutor', 'aula-virtual' ),
+				Capabilities::MANAGE_LMS,
+				MigrationScreen::SLUG,
+				array( $this->migration, 'render' )
+			);
+		}
 
 		add_submenu_page(
 			self::EDITIONS_SLUG,

@@ -202,11 +202,12 @@ final class ProgressService {
 	/**
 	 * Recalculates the cached percentage of an enrollment.
 	 *
-	 * @param int $user_id    Student id.
-	 * @param int $edition_id Edition id.
+	 * @param int  $user_id    Student id.
+	 * @param int  $edition_id Edition id.
+	 * @param bool $silent     Whether to mark the completion event as silent (no emails).
 	 * @return float
 	 */
-	public function recalculate( int $user_id, int $edition_id ): float {
+	public function recalculate( int $user_id, int $edition_id, bool $silent = false ): float {
 		$total      = $this->lessons->count_published( $edition_id );
 		$completed  = $this->progress->count_completed( $user_id, $edition_id );
 		$percentage = ProgressCalculator::percentage( $completed, $total );
@@ -240,6 +241,7 @@ final class ProgressService {
 					'edition_id'    => $edition_id,
 					'course_id'     => (int) $enrollment['course_id'],
 					'enrollment_id' => (int) $enrollment['id'],
+					'silent'        => $silent,
 				)
 			);
 		}

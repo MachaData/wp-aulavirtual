@@ -154,7 +154,7 @@ final class EnrollmentService {
 				'source'      => Sanitizer::enum( $source, EnrollmentStatus::sources(), EnrollmentStatus::SOURCE_MANUAL ),
 				'order_id'    => Sanitizer::int( $args['order_id'] ?? 0 ),
 				'notes'       => Sanitizer::textarea( $args['notes'] ?? '' ),
-				'enrolled_at' => $now,
+				'enrolled_at' => Sanitizer::datetime( $args['enrolled_at'] ?? '' ) ?? $now,
 				'approved_at' => EnrollmentStatus::PENDING === $status ? null : $now,
 				'approved_by' => EnrollmentStatus::PENDING === $status ? 0 : get_current_user_id(),
 				'expires_at'  => $edition['access_end'],
@@ -201,11 +201,13 @@ final class EnrollmentService {
 			// La bienvenida ofrece crear o restablecer la contrasena: el alumno
 			// nunca recibe una contrasena por correo, solo este enlace de un uso.
 			'with_password_link' => true,
+			// Una migracion no debe disparar cientos de bienvenidas.
+			'silent'             => ! empty( $args['silent'] ),
 		);
 
 		$this->events->dispatch( Events::ENROLLMENT_CREATED, $payload );
 
-		if ( EnrollmentStatus::PENDING !== $status ) {
+		if ( EnrollmentStatus::grants_access( $status ) ) {
 			$this->events->dispatch( Events::ENROLLMENT_APPROVED, $payload );
 		}
 

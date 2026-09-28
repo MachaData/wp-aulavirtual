@@ -20,6 +20,7 @@ use SIQA\AulaVirtual\Database\Schema;
 use SIQA\AulaVirtual\Editions\EditionsServiceProvider;
 use SIQA\AulaVirtual\Emails\EmailsServiceProvider;
 use SIQA\AulaVirtual\Enrollments\EnrollmentsServiceProvider;
+use SIQA\AulaVirtual\Migration\MigrationServiceProvider;
 use SIQA\AulaVirtual\Permissions\PermissionsServiceProvider;
 use SIQA\AulaVirtual\Progress\ProgressServiceProvider;
 use SIQA\AulaVirtual\REST\RestServiceProvider;
@@ -161,6 +162,7 @@ final class Plugin {
 			new ProgressServiceProvider(),
 			new EmailsServiceProvider(),
 			new WooCommerceServiceProvider(),
+			new MigrationServiceProvider(),
 			new AdminServiceProvider(),
 			new CampusServiceProvider(),
 			new RestServiceProvider(),

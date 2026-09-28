@@ -175,3 +175,7 @@ function __( $text, $domain = 'default' ) {
 function esc_html__( $text, $domain = 'default' ) {
 	return $text;
 }
+
+function wp_get_attachment_url( $id ) {
+	return 'https://example.test/uploads/' . (int) $id . '.mp4';
+}

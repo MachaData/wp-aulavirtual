@@ -184,7 +184,49 @@ configurable con la opción `av_campus_slug`). Las inscripciones quedan en
 | Aprobación y pago | Compra directa sin aprobación (el pago aprueba); inscripción con enlace sí pasa por aprobación |
 | Pasarelas | Culqi, PayPal y transferencia manual, las tres como pasarelas de WooCommerce |
 
-## 8. Preguntas que siguen abiertas
+## 8. Respuestas del 2026-09-28 y migración desde Tutor LMS
+
+| Pregunta | Respuesta |
+|---|---|
+| ¿Hay alumnos en Tutor LMS? | **Sí, y se migran.** |
+| ¿Qué es `cn-cursos`? | Un plugin propio para enlazar a mano los cursos desde la raíz. **Se puede eliminar** cuando las landings nuevas existan; el menú *Escuela* enlazará a `/campus/curso/{slug}/`. |
+| ¿Pasarela actual en `/campus/`? | Ninguna. **Se instalan Culqi y PayPal** como pasarelas de WooCommerce en `/campus/`. |
+
+**Cómo se migra (v0.5.0).** Como el plugin se instala en el mismo WordPress que Tutor, la
+migración lee la misma base de datos: no hay exportación ni archivos. Pantalla *Aula Virtual →
+Migrar desde Tutor*, un curso por pulsación:
+
+| Tutor LMS | Aula Virtual |
+|---|---|
+| Curso (`courses`) con imagen, nivel, duración, beneficios, requisitos, público, categorías | Curso `av_course` publicado o borrador según estuviera, con la misma meta y categorías |
+| Producto WooCommerce vinculado | El mismo producto, en la edición |
+| — | Edición "Alumnos actuales", estado *En curso* |
+| Temas (`topics`) | Módulos |
+| Lecciones (`lesson`) con su video (YouTube, Vimeo, URL, embed, HTML5) y contenido | Lecciones con proveedor, URL, duración y contenido |
+| Matrícula (`tutor_enrolled`): activa / cancelada / pendiente, fecha, pedido | Matrícula con el mismo estado, **la fecha original**, el pedido y el origen `migration` |
+| Lección completada (user meta) | Fila de progreso completada con su fecha |
+| Curso terminado (comentario `course_completed`) | Matrícula *Completada* con su fecha |
+| Quizzes y tareas | **No se migran** (fase 2) |
+
+Reglas: Tutor **no se modifica ni se borra**; la migración es aditiva y repetible sin duplicar
+(mapa de ids + índices únicos); **no sale ningún correo** durante la migración; los alumnos se
+procesan en lotes de 300 por pulsación. Recomendación: ejecutarla primero en un staging de
+`/campus/`, comparar conteos, y sólo después en producción.
+
+**Qué pasa con Tutor después.** Los alumnos siguen entrando por el campus nuevo; Tutor se
+mantiene activo, sin enlazar desde ningún menú, hasta confirmar que todo está migrado, y luego
+se desactiva. Mientras los dos convivan, un producto de WooCommerce no debe estar vinculado a
+la vez a un curso de Tutor y a una edición de Aula Virtual.
+
+## 9. Preguntas que siguen abiertas
+
+1. **Correo de los alumnos migrados.** No se les avisa automáticamente. ¿Se les envía un correo
+   único "tu campus cambió, entra por aquí" cuando esté todo listo? Se puede hacer desde la
+   pantalla de Emails con una plantilla nueva.
+2. **Quizzes y tareas de Tutor.** Si algún curso los usa para aprobar, hay que decidir si el
+   alumno que los aprobó se marca como completado a mano.
+
+## 10. Decisiones necesarias (histórico, ya respondidas)
 
 1. **¿Hay alumnos activos en Tutor LMS?** Si los hay, ¿terminan ahí o se migran sus matrículas?
 2. **¿Qué es el plugin `cn-cursos` de la raíz?** Si es un listado de cursos hecho a medida,
@@ -192,7 +234,7 @@ configurable con la opción `av_campus_slug`). Las inscripciones quedan en
 3. **¿Qué pasarela tiene configurada hoy el WooCommerce de `/campus/`?** Desde fuera no se ve.
    Culqi y PayPal se instalan ahí, no en la raíz.
 
-## 9. Decisiones necesarias (histórico, ya respondidas)
+## 10. Decisiones necesarias (histórico, ya respondidas)
 
 1. **¿Dónde está WooCommerce?** ¿En el mismo WordPress donde irá el campus o en otro? Define
    si la matrícula por compra son hooks locales (una semana) o un webhook entre sitios (dos y
@@ -204,11 +246,12 @@ configurable con la opción `av_campus_slug`). Las inscripciones quedan en
 4. **Pasarela para arrancar.** Culqi cubre Perú (tarjeta, Yape, PagoEfectivo). PayPal se suma
    cuando haya alumnos fuera. ¿Empezamos sólo con Culqi?
 
-## 10. Orden de trabajo
+## 11. Orden de trabajo
 
 1. ~~**WooCommerce**~~ Hecho en v0.4.0: pestaña en el producto, matrícula por pedido (invitado
    incluido), política de reembolso, aviso en la página de gracias, botón *Comprar* directo al
    checkout.
+1b. ~~**Migración desde Tutor LMS**~~ Hecho en v0.5.0.
 2. **Landing por secciones**: modelo JSON, pestaña *Landing* en el curso, plantilla de
    conversión, shortcodes.
 3. **Perfil del alumno** en el campus (datos, teléfono, contraseña).

@@ -46,6 +46,9 @@ use SIQA\AulaVirtual\Emails\EmailsServiceProvider;
 use SIQA\AulaVirtual\Emails\TemplateRenderer;
 use SIQA\AulaVirtual\Emails\VariableResolver;
 use SIQA\AulaVirtual\Admin\AdminMenu;
+use SIQA\AulaVirtual\Migration\MigrationServiceProvider;
+use SIQA\AulaVirtual\Migration\TutorMapping;
+use SIQA\AulaVirtual\Migration\TutorMigrator;
 use SIQA\AulaVirtual\WooCommerce\OrderHandler;
 use SIQA\AulaVirtual\WooCommerce\Settings as WooSettings;
 use SIQA\AulaVirtual\WooCommerce\WooCommerceServiceProvider;
@@ -310,6 +313,7 @@ foreach (
 		new ProgressServiceProvider(),
 		new EmailsServiceProvider(),
 		new WooCommerceServiceProvider(),
+		new MigrationServiceProvider(),
 		new AdminServiceProvider(),
 		new CampusServiceProvider(),
 	) as $provider
@@ -343,6 +347,37 @@ try {
 }
 check( 'el manejador de pedidos de WooCommerce resuelve sus dependencias', $orders instanceof OrderHandler && '' === $woo_error );
 check( 'sin WooCommerce cargado el modulo no engancha nada', ! WooCommerceServiceProvider::is_active() );
+
+$migration_error = '';
+try {
+	$migrator = $plugin_container->get( TutorMigrator::class );
+} catch ( Throwable $e ) {
+	$migration_error = $e->getMessage();
+	$migrator        = null;
+}
+check( 'el migrador de Tutor LMS resuelve sus diez dependencias', $migrator instanceof TutorMigrator && '' === $migration_error );
+
+echo "\nMigracion desde Tutor LMS\n";
+$yt = TutorMapping::video( array( 'source' => 'youtube', 'source_youtube' => 'https://youtu.be/abc', 'runtime' => array( 'hours' => '1', 'minutes' => '30', 'seconds' => '0' ) ) );
+check( 'un video de YouTube conserva proveedor, URL y duracion en minutos', array( 'youtube', 'https://youtu.be/abc', 90 ) === array( $yt['provider'], $yt['url'], $yt['minutes'] ) );
+$vm = TutorMapping::video( array( 'source' => 'vimeo', 'source_vimeo' => 'https://vimeo.com/1', 'runtime' => array( 'hours' => 0, 'minutes' => 0, 'seconds' => 45 ) ) );
+check( 'menos de un minuto redondea a un minuto', 1 === $vm['minutes'] && 'vimeo' === $vm['provider'] );
+check( 'una URL externa se mapea al proveedor url', 'url' === TutorMapping::video( array( 'source' => 'external_url', 'source_external_url' => 'https://x.test/v.mp4' ) )['provider'] );
+check( 'un video sin URL no deja proveedor colgado', '' === TutorMapping::video( array( 'source' => 'youtube', 'source_youtube' => '' ) )['provider'] );
+check( 'un meta que no es array se ignora', array( 'provider' => '', 'url' => '', 'minutes' => 0 ) === TutorMapping::video( 'basura' ) );
+check( 'una fuente desconocida se ignora', '' === TutorMapping::video( array( 'source' => 'tiktok', 'source_tiktok' => 'https://t' ) )['url'] );
+
+check( 'la matricula "completed" de Tutor es una matricula activa, no un curso terminado', 'active' === TutorMapping::enrollment_status( 'completed' ) );
+check( 'una matricula cancelada en Tutor queda cancelada', 'cancelled' === TutorMapping::enrollment_status( 'cancel' ) );
+check( 'una matricula pendiente en Tutor queda pendiente', 'pending' === TutorMapping::enrollment_status( 'pending' ) );
+check( 'un estado desconocido no otorga acceso', 'cancelled' === TutorMapping::enrollment_status( 'trash' ) );
+
+check( 'el nivel expert de Tutor es avanzado', 'advanced' === TutorMapping::level( 'expert' ) );
+check( 'el nivel all_levels de Tutor es todos', 'all' === TutorMapping::level( 'all_levels' ) );
+check( 'los beneficios multilinea se convierten en lista limpia', array( 'Uno', 'Dos' ) === TutorMapping::lines( "Uno\r\n\r\n  Dos  \n" ) );
+check( 'un beneficio que no es texto da lista vacia', array() === TutorMapping::lines( null ) );
+check( 'la duracion se formatea en horas y minutos', '2 h 15 min' === TutorMapping::duration( array( 'hours' => '2', 'minutes' => '15' ) ) );
+check( 'una duracion en cero queda vacia', '' === TutorMapping::duration( array( 'hours' => 0, 'minutes' => 0 ) ) );
 
 echo "\nWooCommerce\n";
 check( 'con disparador en procesando, un pedido procesando matricula', WooSettings::should_enroll( 'processing', 'processing' ) );

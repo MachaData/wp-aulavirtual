@@ -36,6 +36,7 @@ final class EnrollmentStatus {
 	public const SOURCE_PRIVATE_LINK = 'private_link';
 	public const SOURCE_FREE         = 'free';
 	public const SOURCE_ADMIN        = 'admin';
+	public const SOURCE_MIGRATION    = 'migration';
 
 	/**
 	 * Every valid state.
@@ -68,6 +69,7 @@ final class EnrollmentStatus {
 			self::SOURCE_PRIVATE_LINK,
 			self::SOURCE_FREE,
 			self::SOURCE_ADMIN,
+			self::SOURCE_MIGRATION,
 		);
 	}
 

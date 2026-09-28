@@ -23,6 +23,8 @@ use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
 use SIQA\AulaVirtual\Enrollments\RegistrationRequestRepository;
 use SIQA\AulaVirtual\Enrollments\RegistrationService;
+use SIQA\AulaVirtual\Migration\TutorMigrator;
+use SIQA\AulaVirtual\Migration\TutorReader;
 use SIQA\AulaVirtual\Permissions\AccessControl;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -76,11 +78,20 @@ final class AdminServiceProvider implements ServiceProvider {
 		);
 
 		$container->singleton(
+			MigrationScreen::class,
+			static fn( Container $c ): MigrationScreen => new MigrationScreen(
+				$c->get( TutorReader::class ),
+				$c->get( TutorMigrator::class )
+			)
+		);
+
+		$container->singleton(
 			AdminMenu::class,
 			static fn( Container $c ): AdminMenu => new AdminMenu(
 				$c->get( EditionsScreen::class ),
 				$c->get( RequestsScreen::class ),
-				$c->get( EmailsScreen::class )
+				$c->get( EmailsScreen::class ),
+				$c->get( MigrationScreen::class )
 			)
 		);
 	}
@@ -113,6 +124,7 @@ final class AdminServiceProvider implements ServiceProvider {
 			RequestsScreen::ACTION_MARK_PAID    => array( RequestsScreen::class, 'handle_mark_paid' ),
 			EmailsScreen::ACTION_SAVE           => array( EmailsScreen::class, 'handle_save' ),
 			EmailsScreen::ACTION_TEST           => array( EmailsScreen::class, 'handle_test' ),
+			MigrationScreen::ACTION_MIGRATE     => array( MigrationScreen::class, 'handle_migrate' ),
 		);
 
 		foreach ( $handlers as $action => $target ) {
