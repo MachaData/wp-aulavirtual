@@ -76,7 +76,18 @@ function esc_html( $text ) {
 }
 
 function esc_url_raw( $url ) {
-	return filter_var( (string) $url, FILTER_SANITIZE_URL );
+	$url = trim( (string) $url );
+
+	if ( '' === $url ) {
+		return '';
+	}
+
+	// WordPress solo admite una lista de protocolos; javascript: y data: no estan.
+	if ( preg_match( '/^([a-z][a-z0-9+.-]*):/i', $url, $m ) && ! in_array( strtolower( $m[1] ), array( 'http', 'https', 'mailto', 'tel' ), true ) ) {
+		return '';
+	}
+
+	return filter_var( $url, FILTER_SANITIZE_URL );
 }
 
 function sanitize_key( $key ) {

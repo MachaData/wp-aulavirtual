@@ -3,6 +3,35 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.6.0] - 2026-09-28
+
+Landing por curso, administrable por secciones y orientada a conversion.
+
+### Anadido
+
+- Caja "Landing del curso" en el editor del curso con ocho secciones en orden fijo
+  (presentacion, beneficios, contenido, instructor, informacion, precio, preguntas frecuentes,
+  cierre), cada una con su interruptor mostrar/ocultar y campos propios: titulos, textos,
+  imagen, imagen de fondo, color, video (YouTube, Vimeo o MP4), listas, FAQ, boton con texto y
+  comportamiento (comprar, inscribirse, WhatsApp, enlace propio o ninguno).
+- Los botones salen de las ediciones abiertas: "Comprar" va al checkout del producto de la
+  edicion y "Inscribirse" a su enlace de inscripcion. La seccion de informacion muestra una
+  tarjeta por edicion con fechas, dias, horario, cupo y botones; la de contenido muestra el
+  temario de la proxima edicion.
+- Plantilla propia para el permalink del curso (solo si el tema no trae la suya, desactivable
+  por filtro), con barra fija de compra en movil, etiquetas Open Graph y datos estructurados
+  Course de schema.org.
+- Shortcodes `[av_course_landing id=""]` y `[av_course_editions id=""]` para armar la landing
+  en Elementor u otra pagina.
+- Todo se guarda como una sola meta JSON del curso: duplicar el curso duplica su landing. Las
+  plantillas se sobrescriben desde el tema en `aula-virtual/landing/`.
+- Smoke test ampliado a 123 comprobaciones y 73 clases.
+
+### Corregido
+
+- El saneado de la landing conserva el valor por defecto de las claves que no vienen en el
+  envio, en vez de vaciarlas; una clave enviada vacia se guarda vacia.
+
 ## [0.5.0] - 2026-09-28
 
 Migracion desde Tutor LMS, dentro de la misma base de datos.

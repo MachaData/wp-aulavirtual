@@ -23,7 +23,7 @@ migra, se reconstruye dentro de WordPress con inscripción y pago integrados.
 | Emails editables desde el panel, con variables y prueba | Hecho |
 | Matrícula, campus, temario, progreso | Hecho |
 | Compra directa por WooCommerce → matrícula automática | Hecho (v0.4.0) |
-| Landing por secciones administrable | **Pendiente** (diseño en §4) |
+| Landing por secciones administrable | Hecho (v0.6.0) |
 | Integración con otro WordPress | Resuelto por diseño: el plugin va en el WordPress del campus (§6) |
 
 ## 2. El flujo propuesto
@@ -223,8 +223,7 @@ la vez a un curso de Tutor y a una edición de Aula Virtual.
 1. **Correo de los alumnos migrados.** No se les avisa automáticamente. ¿Se les envía un correo
    único "tu campus cambió, entra por aquí" cuando esté todo listo? Se puede hacer desde la
    pantalla de Emails con una plantilla nueva.
-2. **Quizzes y tareas de Tutor.** Si algún curso los usa para aprobar, hay que decidir si el
-   alumno que los aprobó se marca como completado a mano.
+2. ~~Quizzes y tareas de Tutor.~~ Confirmado el 2026-09-28: no se necesitan.
 
 ## 10. Decisiones necesarias (histórico, ya respondidas)
 
@@ -252,8 +251,9 @@ la vez a un curso de Tutor y a una edición de Aula Virtual.
    incluido), política de reembolso, aviso en la página de gracias, botón *Comprar* directo al
    checkout.
 1b. ~~**Migración desde Tutor LMS**~~ Hecho en v0.5.0.
-2. **Landing por secciones**: modelo JSON, pestaña *Landing* en el curso, plantilla de
-   conversión, shortcodes.
+2. ~~**Landing por secciones**~~ Hecho en v0.6.0: caja "Landing del curso" en el editor del
+   curso con las 8 secciones, plantilla propia de conversión, barra fija en móvil, etiquetas
+   sociales y datos estructurados, shortcodes `[av_course_landing]` y `[av_course_editions]`.
 3. **Perfil del alumno** en el campus (datos, teléfono, contraseña).
 4. **Integración con el otro WordPress**, según la decisión 3.
 5. Después: materiales, clases en vivo con enlace, importación Excel, anuncios.

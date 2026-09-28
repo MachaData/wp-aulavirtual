@@ -1,0 +1,97 @@
+/* Aula Virtual: landing de curso. Un objetivo por pantalla, boton siempre visible. */
+.av-landing{--av-brand:#1d4ed8;--av-ink:#111827;--av-muted:#6b7280;--av-bg:#ffffff;--av-soft:#f3f4f6;--av-radius:14px;color:var(--av-ink);font-size:17px;line-height:1.6}
+.av-landing *,.av-landing *::before,.av-landing *::after{box-sizing:border-box}
+.av-container{max-width:1100px;margin:0 auto;padding:0 20px}
+.av-section{padding:64px 0}
+.av-section__title{font-size:clamp(26px,3.4vw,38px);line-height:1.15;margin:0 0 20px;font-weight:700}
+.av-prose p{margin:0 0 1em}
+.av-kicker{text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--av-brand);font-weight:700;margin:0 0 12px}
+.av-btn{display:inline-block;padding:14px 26px;border-radius:999px;font-weight:700;text-decoration:none;transition:transform .12s ease,box-shadow .12s ease;border:2px solid transparent}
+.av-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.av-btn--primary{background:var(--av-brand);color:#fff}
+.av-btn--secondary{background:transparent;color:var(--av-brand);border-color:var(--av-brand)}
+.av-btn--whatsapp{background:#25d366;color:#fff}
+.av-btn--lg{padding:18px 34px;font-size:18px}
+/* Hero */
+.av-hero{padding:72px 0;background:var(--av-soft);background-size:cover;background-position:center}
+.av-hero--has-bg{color:#fff;position:relative}
+.av-hero--has-bg::before{content:"";position:absolute;inset:0;background:rgba(10,12,30,.55)}
+.av-hero--has-bg .av-container{position:relative}
+.av-hero--has-bg .av-kicker{color:#fff}
+.av-hero__grid{display:grid;grid-template-columns:1.15fr 1fr;gap:48px;align-items:center}
+.av-hero__title{font-size:clamp(32px,4.6vw,52px);line-height:1.08;margin:0 0 16px;font-weight:800}
+.av-hero__subtitle{font-size:clamp(18px,2vw,22px);margin:0 0 16px;color:inherit;opacity:.9}
+.av-hero__facts{list-style:none;padding:0;margin:20px 0;display:flex;flex-wrap:wrap;gap:10px 22px;font-size:15px}
+.av-hero__facts strong{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.7}
+.av-hero__actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:24px 0 0}
+.av-hero__price{font-size:22px;font-weight:800}
+.av-hero__media img{width:100%;height:auto;border-radius:var(--av-radius);box-shadow:0 20px 60px rgba(0,0,0,.18)}
+.av-video{position:relative;border-radius:var(--av-radius);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.18);background:#000}
+.av-video iframe,.av-video video{width:100%;aspect-ratio:16/9;height:auto;display:block;border:0}
+/* Beneficios */
+.av-benefits__grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.av-benefits__media img{width:100%;height:auto;border-radius:var(--av-radius)}
+.av-checklist{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.av-checklist li{padding-left:34px;position:relative}
+.av-checklist li::before{content:"";position:absolute;left:0;top:4px;width:22px;height:22px;border-radius:50%;background:var(--av-brand);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.2 14.4-4-4 1.4-1.4 2.6 2.6 5.6-5.6 1.4 1.4-7 7z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.2 14.4-4-4 1.4-1.4 2.6 2.6 5.6-5.6 1.4 1.4-7 7z'/%3E%3C/svg%3E") center/contain no-repeat}
+.av-checklist--compact{gap:8px;font-size:16px}
+/* Contenido */
+.av-content{background:var(--av-soft)}
+.av-curriculum{display:grid;gap:12px;margin-top:24px}
+.av-curriculum__module{background:var(--av-bg);border-radius:var(--av-radius);padding:6px 20px;border:1px solid #e5e7eb}
+.av-curriculum__module summary{cursor:pointer;font-weight:700;padding:14px 0;display:flex;justify-content:space-between;align-items:center;list-style:none}
+.av-curriculum__module summary::-webkit-details-marker{display:none}
+.av-curriculum__count{font-size:13px;font-weight:600;color:var(--av-muted);background:var(--av-soft);padding:2px 10px;border-radius:999px}
+.av-curriculum__module ol{margin:0 0 14px;padding-left:22px}
+.av-curriculum__module li{padding:6px 0;border-top:1px solid #f3f4f6}
+/* Instructor */
+.av-instructor__grid{display:grid;grid-template-columns:260px 1fr;gap:40px;align-items:start}
+.av-instructor__photo img{width:100%;height:auto;border-radius:var(--av-radius)}
+.av-instructor__name{font-size:20px;font-weight:700;margin:0 0 12px}
+.av-instructor__links a{margin-right:16px;color:var(--av-brand);font-weight:600}
+/* Info y ediciones */
+.av-editions{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:8px}
+.av-edition-card{border:1px solid #e5e7eb;border-radius:var(--av-radius);padding:24px;background:var(--av-bg);display:flex;flex-direction:column;gap:14px}
+.av-edition-card__name{margin:0;font-size:22px}
+.av-edition-card__facts{margin:0;display:grid;gap:8px}
+.av-edition-card__facts div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed #e5e7eb;padding-bottom:6px}
+.av-edition-card__facts dt{color:var(--av-muted);font-size:14px}
+.av-edition-card__facts dd{margin:0;font-weight:600;text-align:right}
+.av-edition-card__actions{display:flex;gap:10px;flex-wrap:wrap;margin:auto 0 0}
+.av-info__extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:24px 0 0}
+.av-info__extra div{background:var(--av-soft);border-radius:10px;padding:14px 16px}
+.av-info__extra dt{font-size:13px;color:var(--av-muted)}
+.av-info__extra dd{margin:0;font-weight:600}
+/* Precio */
+.av-price{background:var(--av-soft)}
+.av-price__card{max-width:620px;background:var(--av-bg);border-radius:var(--av-radius);padding:40px;text-align:center;border:1px solid #e5e7eb}
+.av-price__amount{font-size:clamp(34px,5vw,48px);font-weight:800;margin:0 0 20px;display:flex;justify-content:center;gap:14px;align-items:baseline}
+.av-price__old{font-size:.55em;color:var(--av-muted);font-weight:500}
+.av-price .av-checklist{text-align:left;margin:0 auto 24px;max-width:420px}
+.av-price__note{font-size:14px;color:var(--av-muted);margin-top:14px}
+/* FAQ */
+.av-faq__inner{max-width:780px}
+.av-faq__item{border-bottom:1px solid #e5e7eb;padding:6px 0}
+.av-faq__item summary{cursor:pointer;font-weight:700;padding:14px 0;list-style:none;display:flex;justify-content:space-between;gap:16px}
+.av-faq__item summary::-webkit-details-marker{display:none}
+.av-faq__item summary::after{content:"+";font-size:22px;color:var(--av-brand);line-height:1}
+.av-faq__item[open] summary::after{content:"\2212"}
+/* CTA */
+.av-cta{background:var(--av-brand);color:#fff;text-align:center;background-size:cover;background-position:center;position:relative}
+.av-cta--has-bg::before{content:"";position:absolute;inset:0;background:rgba(10,12,30,.6)}
+.av-cta__inner{position:relative;max-width:720px}
+.av-cta .av-btn--primary{background:#fff;color:var(--av-brand)}
+.av-cta__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:24px 0 0}
+/* Barra fija (movil) */
+.av-sticky-cta{display:none}
+@media (max-width:900px){
+	.av-section{padding:48px 0}
+	.av-hero{padding:48px 0}
+	.av-hero__grid,.av-benefits__grid,.av-instructor__grid{grid-template-columns:1fr;gap:28px}
+	.av-hero__media{order:-1}
+	.av-instructor__photo{max-width:220px}
+	.av-price__card{padding:28px 20px}
+	.av-sticky-cta{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#fff;border-top:1px solid #e5e7eb;padding:10px 16px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -8px 24px rgba(0,0,0,.08)}
+	.av-sticky-cta__price{font-weight:800;font-size:18px}
+	.av-landing{padding-bottom:76px}
+}

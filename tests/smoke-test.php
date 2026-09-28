@@ -46,6 +46,9 @@ use SIQA\AulaVirtual\Emails\EmailsServiceProvider;
 use SIQA\AulaVirtual\Emails\TemplateRenderer;
 use SIQA\AulaVirtual\Emails\VariableResolver;
 use SIQA\AulaVirtual\Admin\AdminMenu;
+use SIQA\AulaVirtual\Landing\LandingData;
+use SIQA\AulaVirtual\Landing\LandingServiceProvider;
+use SIQA\AulaVirtual\Landing\LandingTemplate;
 use SIQA\AulaVirtual\Migration\MigrationServiceProvider;
 use SIQA\AulaVirtual\Migration\TutorMapping;
 use SIQA\AulaVirtual\Migration\TutorMigrator;
@@ -314,6 +317,7 @@ foreach (
 		new EmailsServiceProvider(),
 		new WooCommerceServiceProvider(),
 		new MigrationServiceProvider(),
+		new LandingServiceProvider(),
 		new AdminServiceProvider(),
 		new CampusServiceProvider(),
 	) as $provider
@@ -356,6 +360,56 @@ try {
 	$migrator        = null;
 }
 check( 'el migrador de Tutor LMS resuelve sus diez dependencias', $migrator instanceof TutorMigrator && '' === $migration_error );
+
+$landing_error = '';
+try {
+	$landing_template = $plugin_container->get( LandingTemplate::class );
+} catch ( Throwable $e ) {
+	$landing_error    = $e->getMessage();
+	$landing_template = null;
+}
+check( 'la landing resuelve renderer y plantilla', $landing_template instanceof LandingTemplate && '' === $landing_error );
+
+echo "\nLanding por secciones\n";
+$defaults = LandingData::defaults( 0 );
+check( 'las ocho secciones existen en los valores por defecto', LandingData::sections() === array_keys( $defaults ) );
+check( 'el orden es presentacion, beneficios, contenido, instructor, informacion, precio, FAQ y cierre', array( 'hero', 'benefits', 'content', 'instructor', 'info', 'price', 'faq', 'cta' ) === LandingData::sections() );
+check( 'todas las secciones nacen visibles', array() === array_filter( $defaults, static fn( array $s ): bool => empty( $s['enabled'] ) ) );
+
+$clean = LandingData::sanitize(
+	array(
+		'hero'     => array(
+			'enabled'     => '1',
+			'title'       => '<b>Numerologia</b> 2027',
+			'video_url'   => 'javascript:alert(1)',
+			'image_id'    => '-5',
+			'bg_color'    => 'red',
+			'button_type' => 'evil',
+			'button_url'  => 'https://x.test/comprar',
+		),
+		'benefits' => array( 'enabled' => '0', 'items' => "Uno\n\n<i>Dos</i>\n   " ),
+		'faq'      => array( 'items' => array( array( 'question' => 'Cuando?', 'answer' => '<p>En julio</p><script>x</script>' ), array( 'question' => '', 'answer' => 'huerfana' ) ) ),
+		'info'     => array( 'items' => array( array( 'label' => 'Plataforma', 'value' => 'Zoom' ), array( 'label' => '', 'value' => '' ) ) ),
+		'cta'      => array( 'whatsapp' => '+51 999-888-777', 'bg_color' => '#1D4ED8' ),
+		'hacker'   => array( 'enabled' => '1' ),
+	),
+	0
+);
+check( 'descarta secciones desconocidas', ! isset( $clean['hacker'] ) );
+check( 'descarta claves desconocidas y conserva las conocidas', isset( $clean['hero']['title'] ) && count( $clean['hero'] ) === count( $defaults['hero'] ) );
+check( 'el titulo pierde el HTML', 'Numerologia 2027' === $clean['hero']['title'] );
+check( 'una URL de video peligrosa no sobrevive', ! str_starts_with( $clean['hero']['video_url'], 'javascript' ) );
+check( 'un id de imagen negativo queda en cero', 0 === $clean['hero']['image_id'] );
+check( 'un color que no es hex queda vacio', '' === $clean['hero']['bg_color'] );
+check( 'un color hex valido se normaliza a minusculas', '#1d4ed8' === $clean['cta']['bg_color'] );
+check( 'un tipo de boton desconocido vuelve al valor por defecto', LandingData::BUTTON_BUY === $clean['hero']['button_type'] );
+check( 'el interruptor apagado se respeta', false === $clean['benefits']['enabled'] );
+check( 'los beneficios se leen de un textarea, una linea por item, sin HTML ni vacios', array( 'Uno', 'Dos' ) === $clean['benefits']['items'] );
+check( 'las FAQ exigen pregunta y limpian la respuesta', 1 === count( $clean['faq']['items'] ) && ! str_contains( $clean['faq']['items'][0]['answer'], 'script' ) );
+check( 'los datos adicionales descartan filas vacias', array( array( 'label' => 'Plataforma', 'value' => 'Zoom' ) ) === $clean['info']['items'] );
+check( 'el WhatsApp conserva solo digitos y el mas', '+51999888777' === $clean['cta']['whatsapp'] );
+check( 'una seccion ausente en el envio queda con sus valores por defecto', $defaults['price'] === $clean['price'] );
+check( 'una clave enviada vacia se guarda vacia, no vuelve al defecto', '' === LandingData::sanitize( array( 'price' => array( 'title' => '' ) ), 0 )['price']['title'] );
 
 echo "\nMigracion desde Tutor LMS\n";
 $yt = TutorMapping::video( array( 'source' => 'youtube', 'source_youtube' => 'https://youtu.be/abc', 'runtime' => array( 'hours' => '1', 'minutes' => '30', 'seconds' => '0' ) ) );
