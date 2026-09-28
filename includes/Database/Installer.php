@@ -105,11 +105,35 @@ final class Installer {
 			'av_enrollment_auto_approve' => false,
 			'av_send_welcome_email'      => true,
 			'av_progress_mode'           => 'flexible',
+			'av_wc_enroll_status'        => 'processing',
+			'av_wc_refund_action'        => 'suspend',
 		);
 
 		foreach ( $defaults as $option => $value ) {
 			add_option( $option, $value, '', false );
 		}
+	}
+
+	/**
+	 * Slug of the campus page.
+	 *
+	 * When WordPress itself lives under /campus/ (a dedicated campus install),
+	 * a page called "campus" would produce /campus/campus/. In that case the
+	 * page is created as /campus/aula/ instead. Configurable afterwards.
+	 *
+	 * @return string
+	 */
+	public static function campus_page_slug(): string {
+		$configured = get_option( 'av_campus_slug', '' );
+
+		if ( is_string( $configured ) && '' !== sanitize_title( $configured ) ) {
+			return sanitize_title( $configured );
+		}
+
+		$path = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+		$path = is_string( $path ) ? untrailingslashit( $path ) : '';
+
+		return str_ends_with( strtolower( $path ), '/campus' ) ? 'aula' : 'campus';
 	}
 
 	/**
@@ -124,7 +148,7 @@ final class Installer {
 		$pages = array(
 			'campus' => array(
 				'title'     => __( 'Campus', 'aula-virtual' ),
-				'slug'      => 'campus',
+				'slug'      => self::campus_page_slug(),
 				'shortcode' => '[av_campus]',
 			),
 		);

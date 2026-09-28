@@ -3,6 +3,26 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.4.0] - 2026-09-28
+
+Compra directa por WooCommerce: el tramo Landing -> Comprar -> Pago -> Matricula -> Bienvenida.
+
+### Anadido
+
+- Pestana "Aula Virtual" en el producto de WooCommerce para vincularlo a una edicion. Un
+  producto vende una edicion; el vinculo se guarda en el producto y se refleja en la edicion.
+- Matricula automatica al pasar el pedido a Procesando o Completado (configurable). Idempotente:
+  un pedido notificado dos veces no duplica matriculas ni correos.
+- Compra como invitado: si el comprador no tiene cuenta se crea sin contrasena y la bienvenida
+  lleva el enlace seguro para establecerla. El pedido queda asociado a la cuenta.
+- Si el comprador tenia una solicitud de inscripcion aprobada, el pago la cierra como matriculada.
+- Politica ante reembolso o cancelacion: no hacer nada, suspender o cancelar. Nunca se borra.
+- Aviso de acceso al campus en la pagina de gracias y notas en el pedido con cada matricula.
+- El modulo solo engancha hooks si WooCommerce esta cargado; sin el, el plugin funciona igual.
+- En una instalacion que vive bajo /campus/, la pagina del campus se crea como /aula/ para no
+  producir /campus/campus/.
+- Smoke test ampliado a 87 comprobaciones y 62 clases.
+
 ## [0.3.0] - 2026-09-28
 
 Inscripcion con aprobacion y correos 100% editables: el tramo

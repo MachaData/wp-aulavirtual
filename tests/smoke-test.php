@@ -46,6 +46,9 @@ use SIQA\AulaVirtual\Emails\EmailsServiceProvider;
 use SIQA\AulaVirtual\Emails\TemplateRenderer;
 use SIQA\AulaVirtual\Emails\VariableResolver;
 use SIQA\AulaVirtual\Admin\AdminMenu;
+use SIQA\AulaVirtual\WooCommerce\OrderHandler;
+use SIQA\AulaVirtual\WooCommerce\Settings as WooSettings;
+use SIQA\AulaVirtual\WooCommerce\WooCommerceServiceProvider;
 use SIQA\AulaVirtual\Enrollments\EnrollmentStatus;
 use SIQA\AulaVirtual\Enrollments\EnrollmentsServiceProvider;
 use SIQA\AulaVirtual\Permissions\PermissionsServiceProvider;
@@ -306,6 +309,7 @@ foreach (
 		new EnrollmentsServiceProvider(),
 		new ProgressServiceProvider(),
 		new EmailsServiceProvider(),
+		new WooCommerceServiceProvider(),
 		new AdminServiceProvider(),
 		new CampusServiceProvider(),
 	) as $provider
@@ -329,6 +333,28 @@ check( 'el grafo de dependencias del campus se resuelve entero', $campus instanc
 check( 'el grafo de dependencias del admin se resuelve entero', $screen instanceof EditionsScreen );
 check( 'el menu resuelve solicitudes y emails con sus servicios', $menu instanceof AdminMenu );
 check( 'ningun servicio quedo sin registrar', '' === $wiring_error );
+
+$woo_error = '';
+try {
+	$orders = $plugin_container->get( OrderHandler::class );
+} catch ( Throwable $e ) {
+	$woo_error = $e->getMessage();
+	$orders    = null;
+}
+check( 'el manejador de pedidos de WooCommerce resuelve sus dependencias', $orders instanceof OrderHandler && '' === $woo_error );
+check( 'sin WooCommerce cargado el modulo no engancha nada', ! WooCommerceServiceProvider::is_active() );
+
+echo "\nWooCommerce\n";
+check( 'con disparador en procesando, un pedido procesando matricula', WooSettings::should_enroll( 'processing', 'processing' ) );
+check( 'con disparador en procesando, un pedido completado tambien matricula', WooSettings::should_enroll( 'completed', 'processing' ) );
+check( 'con disparador en completado, procesando espera', ! WooSettings::should_enroll( 'processing', 'completed' ) );
+check( 'un pedido en espera nunca matricula', ! WooSettings::should_enroll( 'on-hold', 'processing' ) );
+check( 'un pedido pendiente de pago nunca matricula', ! WooSettings::should_enroll( 'pending', 'completed' ) );
+check( 'la politica suspender mapea a suspendida', 'suspended' === WooSettings::status_for_refund( 'suspend' ) );
+check( 'la politica cancelar mapea a cancelada', 'cancelled' === WooSettings::status_for_refund( 'cancel' ) );
+check( 'la politica no hacer nada no toca la matricula', '' === WooSettings::status_for_refund( 'none' ) );
+check( 'una politica desconocida no toca la matricula', '' === WooSettings::status_for_refund( 'delete' ) );
+check( 'reembolsado y cancelado son los estados que revocan', array( 'refunded', 'cancelled' ) === WooSettings::revoking_statuses() );
 
 echo "\nEmails\n";
 $vars = array( 'first_name' => 'Ana', 'course_name' => 'Numerologia' );

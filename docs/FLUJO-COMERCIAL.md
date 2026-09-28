@@ -22,9 +22,9 @@ migra, se reconstruye dentro de WordPress con inscripción y pago integrados.
 | Cuenta sin contraseña + enlace seguro para crearla | Hecho |
 | Emails editables desde el panel, con variables y prueba | Hecho |
 | Matrícula, campus, temario, progreso | Hecho |
-| Compra directa por WooCommerce → matrícula automática | **Pendiente** (depende de la decisión 1) |
+| Compra directa por WooCommerce → matrícula automática | Hecho (v0.4.0) |
 | Landing por secciones administrable | **Pendiente** (diseño en §4) |
-| Integración con otro WordPress | **Pendiente** (depende de la decisión 3) |
+| Integración con otro WordPress | Resuelto por diseño: el plugin va en el WordPress del campus (§6) |
 
 ## 2. El flujo propuesto
 
@@ -137,7 +137,62 @@ alumnos y matrículas con sus permisos. Compartir "accesos" entre dos WordPress 
 es corto: conviene confirmar si de verdad hace falta o si basta con que cada sitio tenga su
 sesión.
 
-## 6. Decisiones necesarias
+## 6. El sitio destino: astronumerologia.com
+
+Revisado el 2026-09-28 desde fuera (HTML público y `wp-json`). Son **dos instalaciones de
+WordPress distintas** bajo el mismo dominio:
+
+| | `astronumerologia.com/` | `astronumerologia.com/campus/` |
+|---|---|---|
+| Qué es | Tienda y marketing | Campus |
+| WordPress / Woo | 7.1.2 / WooCommerce 10.1.4 | Propio (tiene su `wp-content` y su `wp-json`) |
+| Tema | Minimog + Elementor Pro | HiStudy (child) + Elementor Pro |
+| LMS | Ninguno (plugin `cn-cursos`, a identificar) | **Tutor LMS Pro**, con WooCommerce propio |
+| Contenido | Velas numerológicas (S/ 35), calculadora, sesiones, eventos | 3 cursos publicados: Certificación Numerología Terapéutica Nivel 1 2026, Introducción a Numerología y Propósito de Vida, Numerología y Sinastría de Parejas |
+| Formularios / chat | FluentForms, WhatsApp (Creame) | WhatsApp (Creame) |
+| Pasarelas visibles | Ninguna detectable desde fuera | Ninguna detectable desde fuera |
+
+**Recomendación: instalar Aula Virtual en `/campus/`, no en la raíz, y no fusionar los dos
+sitios ahora.** Motivos:
+
+1. Ahí están las cuentas de los alumnos y ahí entran a estudiar. La matrícula tiene que vivir
+   donde vive la sesión del alumno.
+2. Ahí hay ya un WooCommerce (el que usa Tutor). La matrícula por compra queda como hooks en el
+   mismo proceso, sin webhook entre sitios.
+3. La raíz sigue siendo la tienda de velas y el escaparate: su menú *Escuela* enlaza a las
+   landings de los cursos en `/campus/curso/{slug}/`. No hace falta tocarla.
+4. Fusionar dos sitios con dos tiendas, dos temas y dos Elementor es una migración de días y no
+   aporta nada al flujo pedido.
+
+**Convivencia con Tutor LMS.** No hay choque técnico: Tutor usa `courses` y `course-category`;
+el plugin usa `av_course` y `av_course_cat`; los roles y las tablas tienen prefijos distintos.
+Lo que sí hay que decidir es el destino de Tutor: si los cursos nuevos se venden y cursan con
+Aula Virtual, Tutor queda para los alumnos actuales hasta que terminen, y se desactiva después.
+Un producto de WooCommerce no debe estar vinculado a la vez a un curso de Tutor y a una edición
+de Aula Virtual, o el comprador quedará matriculado en los dos.
+
+**Detalle de instalación.** Como el WordPress del campus vive bajo `/campus/`, el plugin crea su
+página de campus como `/campus/aula/` en vez de `/campus/campus/` (detección automática,
+configurable con la opción `av_campus_slug`). Las inscripciones quedan en
+`/campus/inscripcion/{token}/`.
+
+## 7. Decisiones tomadas (2026-09-28)
+
+| Decisión | Respuesta |
+|---|---|
+| Dónde va el plugin | En el mismo WordPress que WooCommerce: la instalación de `/campus/` |
+| Aprobación y pago | Compra directa sin aprobación (el pago aprueba); inscripción con enlace sí pasa por aprobación |
+| Pasarelas | Culqi, PayPal y transferencia manual, las tres como pasarelas de WooCommerce |
+
+## 8. Preguntas que siguen abiertas
+
+1. **¿Hay alumnos activos en Tutor LMS?** Si los hay, ¿terminan ahí o se migran sus matrículas?
+2. **¿Qué es el plugin `cn-cursos` de la raíz?** Si es un listado de cursos hecho a medida,
+   conviene que apunte a las landings nuevas.
+3. **¿Qué pasarela tiene configurada hoy el WooCommerce de `/campus/`?** Desde fuera no se ve.
+   Culqi y PayPal se instalan ahí, no en la raíz.
+
+## 9. Decisiones necesarias (histórico, ya respondidas)
 
 1. **¿Dónde está WooCommerce?** ¿En el mismo WordPress donde irá el campus o en otro? Define
    si la matrícula por compra son hooks locales (una semana) o un webhook entre sitios (dos y
@@ -149,10 +204,11 @@ sesión.
 4. **Pasarela para arrancar.** Culqi cubre Perú (tarjeta, Yape, PagoEfectivo). PayPal se suma
    cuando haya alumnos fuera. ¿Empezamos sólo con Culqi?
 
-## 7. Orden de trabajo propuesto
+## 10. Orden de trabajo
 
-1. **WooCommerce** (en cuanto se responda la decisión 1): pestaña en el producto, matrícula por
-   pedido, política de reembolso, botón *Comprar* directo al checkout.
+1. ~~**WooCommerce**~~ Hecho en v0.4.0: pestaña en el producto, matrícula por pedido (invitado
+   incluido), política de reembolso, aviso en la página de gracias, botón *Comprar* directo al
+   checkout.
 2. **Landing por secciones**: modelo JSON, pestaña *Landing* en el curso, plantilla de
    conversión, shortcodes.
 3. **Perfil del alumno** en el campus (datos, teléfono, contraseña).

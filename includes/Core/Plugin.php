@@ -23,6 +23,7 @@ use SIQA\AulaVirtual\Enrollments\EnrollmentsServiceProvider;
 use SIQA\AulaVirtual\Permissions\PermissionsServiceProvider;
 use SIQA\AulaVirtual\Progress\ProgressServiceProvider;
 use SIQA\AulaVirtual\REST\RestServiceProvider;
+use SIQA\AulaVirtual\WooCommerce\WooCommerceServiceProvider;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -159,6 +160,7 @@ final class Plugin {
 			new EnrollmentsServiceProvider(),
 			new ProgressServiceProvider(),
 			new EmailsServiceProvider(),
+			new WooCommerceServiceProvider(),
 			new AdminServiceProvider(),
 			new CampusServiceProvider(),
 			new RestServiceProvider(),
