@@ -14,6 +14,7 @@ use SIQA\AulaVirtual\Editions\EditionStatus;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
 use SIQA\AulaVirtual\Enrollments\EnrollmentStatus;
+use SIQA\AulaVirtual\Permissions\AccessControl;
 use SIQA\AulaVirtual\Permissions\Capabilities;
 use SIQA\AulaVirtual\Permissions\Roles;
 use SIQA\AulaVirtual\Security\Sanitizer;
@@ -57,16 +58,25 @@ final class EnrollmentsController extends AbstractController {
 	private EditionRepository $editions;
 
 	/**
+	 * Permission checks.
+	 *
+	 * @var AccessControl
+	 */
+	private AccessControl $access;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EnrollmentRepository $enrollments Enrollment persistence.
 	 * @param EnrollmentService    $service     Enrollment rules.
 	 * @param EditionRepository    $editions    Edition persistence.
+	 * @param AccessControl        $access      Permission checks.
 	 */
 	public function __construct(
 		EnrollmentRepository $enrollments,
 		EnrollmentService $service,
-		EditionRepository $editions
+		EditionRepository $editions,
+		AccessControl $access
 	) {
 		parent::__construct();
 
@@ -74,6 +84,7 @@ final class EnrollmentsController extends AbstractController {
 		$this->enrollments = $enrollments;
 		$this->service     = $service;
 		$this->editions    = $editions;
+		$this->access      = $access;
 	}
 
 	/**
@@ -158,12 +169,7 @@ final class EnrollmentsController extends AbstractController {
 		}
 
 		$user = get_user_by( 'email', $email );
-
-		if ( false === $user ) {
-			return $this->not_found( __( 'No existe un alumno con ese correo.', 'aula-virtual' ) );
-		}
-
-		$rows = $this->enrollments->all(
+		$rows = false === $user ? array() : $this->enrollments->all(
 			array(
 				'where'    => array( 'user_id' => (int) $user->ID ),
 				'order_by' => 'enrolled_at',
@@ -171,6 +177,14 @@ final class EnrollmentsController extends AbstractController {
 				'limit'    => 200,
 			)
 		);
+
+		// Solo matriculas de cursos propios; la misma respuesta 404 exista o no
+		// la cuenta, para no revelar quien tiene usuario en el sitio.
+		$rows = array_values( array_filter( $rows, fn( array $e ): bool => $this->access->can_manage_editions( (int) $e['course_id'] ) ) );
+
+		if ( false === $user || ( array() === $rows && ! $this->access->can_manage() ) ) {
+			return $this->not_found( __( 'No hay matriculas visibles para ese correo.', 'aula-virtual' ) );
+		}
 
 		return rest_ensure_response(
 			array(
@@ -197,6 +211,10 @@ final class EnrollmentsController extends AbstractController {
 
 		if ( null === $edition ) {
 			return $this->not_found( __( 'La edicion no existe.', 'aula-virtual' ) );
+		}
+
+		if ( ! $this->access->can_manage_editions( (int) $edition['course_id'] ) ) {
+			return $this->forbidden();
 		}
 
 		$email = Sanitizer::email( $request->get_param( 'email' ) );
@@ -267,6 +285,15 @@ final class EnrollmentsController extends AbstractController {
 	public function update_item( $request ) {
 		$enrollment_id = (int) $request->get_param( 'id' );
 		$status        = Sanitizer::key( $request->get_param( 'status' ) );
+		$current       = $this->enrollments->find( $enrollment_id );
+
+		if ( null === $current ) {
+			return $this->not_found( __( 'La matricula no existe.', 'aula-virtual' ) );
+		}
+
+		if ( ! $this->access->can_manage_editions( (int) $current['course_id'] ) ) {
+			return $this->forbidden();
+		}
 
 		$result = $this->service->change_status( $enrollment_id, $status );
 

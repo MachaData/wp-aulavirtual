@@ -240,6 +240,36 @@ final class EnrollmentService {
 			);
 		}
 
+		$from = (string) $enrollment['status'];
+
+		// Mismo estado: nada que hacer, y sobre todo ningun correo repetido.
+		if ( $from === $status ) {
+			return true;
+		}
+
+		if ( ! EnrollmentStatus::can_transition( $from, $status ) ) {
+			return new WP_Error(
+				'av_invalid_transition',
+				sprintf(
+					/* translators: 1: current status, 2: requested status. */
+					__( 'No se puede pasar una matricula de "%1$s" a "%2$s".', 'aula-virtual' ),
+					EnrollmentStatus::label( $from ),
+					EnrollmentStatus::label( $status )
+				),
+				array( 'status' => 409 )
+			);
+		}
+
+		// Volver a ocupar plaza exige que quede cupo.
+		if ( ! in_array( $from, EnrollmentStatus::occupying_seat(), true ) && in_array( $status, EnrollmentStatus::occupying_seat(), true ) ) {
+			$edition  = $this->editions->find( (int) $enrollment['edition_id'] );
+			$capacity = null === $edition ? 0 : (int) $edition['capacity'];
+
+			if ( $capacity > 0 && $this->enrollments->count_seats_taken( (int) $enrollment['edition_id'] ) >= $capacity ) {
+				return new WP_Error( 'av_edition_full', __( 'La edicion alcanzo su cupo maximo.', 'aula-virtual' ), array( 'status' => 409 ) );
+			}
+		}
+
 		$this->enrollments->update(
 			$enrollment_id,
 			array(

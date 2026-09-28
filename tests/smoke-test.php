@@ -58,6 +58,8 @@ use SIQA\AulaVirtual\Admin\ReportsScreen;
 use SIQA\AulaVirtual\Admin\CertificatesScreen;
 use SIQA\AulaVirtual\Core\Events\Events;
 use SIQA\AulaVirtual\Curriculum\LessonService;
+use SIQA\AulaVirtual\Enrollments\RegistrationService;
+use SIQA\AulaVirtual\Security\RateLimiter;
 use SIQA\AulaVirtual\REST\AbstractController;
 use SIQA\AulaVirtual\REST\EditionsController;
 use SIQA\AulaVirtual\REST\EnrollmentsController;
@@ -580,6 +582,18 @@ check( 'admin-post.php se reconoce para no bloquear el campus', PermissionsServi
 $GLOBALS['pagenow'] = 'index.php';
 $plain = VariableResolver::plain_all( array( 'first_name' => "O'Brien &amp; Cia", 'comment_content' => "a<br />\nb" ) );
 check( 'el asunto del correo sale en texto plano', "O'Brien & Cia" === $plain['first_name'] && 'a b' === $plain['comment_content'] );
+
+check( 'una matricula cancelada puede reactivarse', EnrollmentStatus::can_transition( 'cancelled', 'active' ) );
+check( 'una rechazada no vuelve a ningun estado', ! EnrollmentStatus::can_transition( 'rejected', 'active' ) );
+check( 'no se salta de pendiente a completada', ! EnrollmentStatus::can_transition( 'pending', 'completed' ) );
+check( 'el reembolso puede suspender una completada', EnrollmentStatus::can_transition( 'completed', 'suspended' ) );
+check( 'todas las transiciones apuntan a estados reales', array() === array_diff( array_merge( ...array_values( EnrollmentStatus::transitions() ) ), EnrollmentStatus::all() ) && array() === array_diff( EnrollmentStatus::all(), array_keys( EnrollmentStatus::transitions() ) ) );
+check( 'el CSV neutraliza formulas de Excel', "'=HYPERLINK(1)" === ReportService::neutralize( '=HYPERLINK(1)' ) && "'+51 955" === ReportService::neutralize( '+51 955' ) && 'Ana' === ReportService::neutralize( 'Ana' ) );
+check( 'el export aplica la neutralizacion', str_contains( ReportService::to_csv( array( 'N' ), array( array( '=cmd' ) ) ), "'=cmd" ) );
+check( 'los errores del formulario salen de una lista cerrada', 'Indica tu nombre y apellido.' === RegistrationService::error_message( 'av_missing_name' ) && ! str_contains( RegistrationService::error_message( '<b>texto inyectado</b>' ), 'inyectado' ) );
+check( 'el limitador corta al superar el limite', RateLimiter::hit( 't1', 2 ) && RateLimiter::hit( 't1', 2 ) && ! RateLimiter::hit( 't1', 2 ) && RateLimiter::exceeded( 't1', 2 ) );
+check( 'el alias con + no multiplica el limite por correo', 'ana@example.test' === RateLimiter::email_bucket( 'Ana+spam7@Example.test' ) );
+check( 'un codigo de certificado mal formado no llega a la base de datos', null === $cert_service->verify( "AV-2026-K7Q2ZM' OR 1=1" ) );
 
 echo "\nClases en vivo\n";
 check( 'antes de la ventana el boton no aparece', LiveClassService::WINDOW_BEFORE === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:44:59' ) );

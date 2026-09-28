@@ -89,10 +89,22 @@ final class CertificateController {
 
 		nocache_headers();
 
-		$code        = CertificateService::normalize_code( $raw );
+		$code = CertificateService::normalize_code( $raw );
+
+		// Solo cuentan los intentos fallidos: frena que alguien recorra codigos
+		// para sacar nombres de alumnos, sin molestar a quien verifica uno real.
+		$bucket = 'cert_miss_' . \SIQA\AulaVirtual\Security\RateLimiter::client_ip();
+
+		if ( \SIQA\AulaVirtual\Security\RateLimiter::exceeded( $bucket, 30 ) ) {
+			status_header( 429 );
+			wp_die( esc_html__( 'Demasiadas consultas. Intentalo de nuevo en una hora.', 'aula-virtual' ), '', array( 'response' => 429 ) );
+		}
+
 		$certificate = $this->certificates->verify( $code );
 
 		if ( null === $certificate ) {
+			\SIQA\AulaVirtual\Security\RateLimiter::hit( $bucket, 1000 );
+
 			status_header( 404 );
 			$this->template( $this->invalid_data( $code ) );
 			exit;

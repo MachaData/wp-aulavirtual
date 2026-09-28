@@ -189,6 +189,10 @@ retirarlo para conservar las URLs antiguas.
       pendiente; sin clave devuelve 401/403; el intento 21 en una hora devuelve 429.
 - [ ] Con un Application Password, `POST /enrollments` matricula y `PATCH` cambia el estado.
 
+## 8e. Seguridad
+
+Recorrer la lista de la sección 9 de [`SEGURIDAD.md`](SEGURIDAD.md).
+
 ## 8d. Anuncios y modo enfoque
 
 - [ ] *Anuncios*: publicar uno para la edición de prueba con envío por correo. Aparece en el

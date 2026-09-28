@@ -152,12 +152,25 @@ final class ReportService {
 	}
 
 	/**
-	 * Serialises header and rows as a UTF-8 CSV with BOM and ";" delimiter.
+	 * Neutralises a cell that a spreadsheet would run as a formula.
 	 *
-	 * Pure: no WordPress calls, so it can be unit tested.
+	 * @param mixed $value Cell value.
+	 * @return string
+	 */
+	public static function neutralize( mixed $value ): string {
+		$value = (string) $value;
+
+		// Excel ejecuta como formula lo que empieza por = + - @ (y tab/CR):
+		// un nombre como =HYPERLINK(...) en una inscripcion se volveria un enlace
+		// o un comando al abrir el export. El apostrofo lo fuerza a texto.
+		return 1 === preg_match( '/^[=+\-@\t\r]/', $value ) ? "'" . $value : $value;
+	}
+
+	/**
+	 * Builds a CSV (UTF-8 BOM, semicolon) from a header and rows.
 	 *
-	 * @param array<int, string>             $header Column names.
-	 * @param array<int, array<int, string>> $rows   Data rows.
+	 * @param array<int, string>             $header Header cells.
+	 * @param array<int, array<int, mixed>> $rows   Data rows.
 	 * @return string
 	 */
 	public static function to_csv( array $header, array $rows ): string {
@@ -172,7 +185,7 @@ final class ReportService {
 
 		foreach ( $rows as $row ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv -- in-memory stream.
-			fputcsv( $handle, array_map( 'strval', $row ), self::DELIMITER, '"', '\\', "\r\n" );
+			fputcsv( $handle, array_map( array( self::class, 'neutralize' ), $row ), self::DELIMITER, '"', '\\', "\r\n" );
 		}
 
 		rewind( $handle );

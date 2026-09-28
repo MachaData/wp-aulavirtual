@@ -9,7 +9,9 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Enrollments;
 
+use SIQA\AulaVirtual\Security\RateLimiter;
 use WP_Error;
+
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -69,8 +71,9 @@ final class RegistrationController {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flag set by our own redirect.
 		$result = isset( $_GET[ self::QUERY_RESULT ] ) ? sanitize_key( wp_unslash( $_GET[ self::QUERY_RESULT ] ) ) : '';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only message set by our own redirect.
-		$message = isset( $_GET['av_mensaje'] ) ? sanitize_text_field( wp_unslash( $_GET['av_mensaje'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only code set by our own redirect.
+		$code    = isset( $_GET['av_error'] ) ? sanitize_key( wp_unslash( $_GET['av_error'] ) ) : '';
+		$message = '' === $code ? '' : RegistrationService::error_message( $code );
 
 		$link = $this->registration->usable_link( $token );
 
@@ -117,11 +120,20 @@ final class RegistrationController {
 			$this->redirect( (string) $token, 'ok' );
 		}
 
+		// Limites: 10 envios por direccion y 3 por correo cada hora. Frena el
+		// uso del formulario para mandar correos en masa a terceros.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
+		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( (string) $_POST['email'] ) ) : '';
+
+		if ( ! RateLimiter::hit( 'form_ip_' . RateLimiter::client_ip(), 10 ) || ( '' !== $email && ! RateLimiter::hit( 'form_mail_' . RateLimiter::email_bucket( $email ), 3 ) ) ) {
+			$this->redirect( (string) $token, 'error', 'av_rate_limited' );
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
 		$result = $this->registration->submit( (string) $token, wp_unslash( $_POST ) );
 
 		if ( $result instanceof WP_Error ) {
-			$this->redirect( (string) $token, 'error', $result->get_error_message() );
+			$this->redirect( (string) $token, 'error', $result->get_error_code() );
 		}
 
 		$this->redirect( (string) $token, 'ok' );
@@ -132,14 +144,14 @@ final class RegistrationController {
 	 *
 	 * @param string $token   Link token.
 	 * @param string $result  ok or error.
-	 * @param string $message Message for errors.
+	 * @param string $code    Error code (the message is looked up on display).
 	 * @return void
 	 */
-	private function redirect( string $token, string $result, string $message = '' ): void {
+	private function redirect( string $token, string $result, string $code = '' ): void {
 		$args = array( self::QUERY_RESULT => $result );
 
-		if ( '' !== $message ) {
-			$args['av_mensaje'] = rawurlencode( $message );
+		if ( '' !== $code ) {
+			$args['av_error'] = sanitize_key( $code );
 		}
 
 		wp_safe_redirect( add_query_arg( $args, RegistrationService::link_url( $token ) ) );

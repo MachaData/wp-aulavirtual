@@ -214,7 +214,7 @@ final class VideoEmbed {
 		);
 
 		if ( '' !== $key ) {
-			$ttl     = max( 300, (int) get_option( self::OPTION_BUNNY_TOKEN_TTL, 6 * HOUR_IN_SECONDS ) );
+			$ttl     = min( DAY_IN_SECONDS, max( 300, (int) get_option( self::OPTION_BUNNY_TOKEN_TTL, 6 * HOUR_IN_SECONDS ) ) );
 			$expires = time() + $ttl;
 
 			$args['token']   = self::bunny_token( $key, $video, $expires );
@@ -273,7 +273,7 @@ final class VideoEmbed {
 			return $url;
 		}
 
-		$ttl     = max( 300, (int) get_option( self::OPTION_BUNNY_TOKEN_TTL, 6 * HOUR_IN_SECONDS ) );
+		$ttl     = min( DAY_IN_SECONDS, max( 300, (int) get_option( self::OPTION_BUNNY_TOKEN_TTL, 6 * HOUR_IN_SECONDS ) ) );
 		$expires = time() + $ttl;
 
 		return add_query_arg(

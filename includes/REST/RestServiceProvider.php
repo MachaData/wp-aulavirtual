@@ -70,7 +70,8 @@ final class RestServiceProvider implements ServiceProvider {
 			static fn( Container $c ): EnrollmentsController => new EnrollmentsController(
 				$c->get( EnrollmentRepository::class ),
 				$c->get( EnrollmentService::class ),
-				$c->get( EditionRepository::class )
+				$c->get( EditionRepository::class ),
+				$c->get( AccessControl::class )
 			)
 		);
 	}

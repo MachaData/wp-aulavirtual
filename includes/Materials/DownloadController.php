@@ -107,6 +107,10 @@ final class DownloadController {
 				wp_die( esc_html__( 'El material no tiene archivo ni enlace.', 'aula-virtual' ), '', array( 'response' => 404 ) );
 			}
 
+			if ( ! in_array( wp_parse_url( $url, PHP_URL_SCHEME ), array( 'http', 'https' ), true ) ) {
+				wp_die( esc_html__( 'Enlace no valido.', 'aula-virtual' ), '', array( 'response' => 400 ) );
+			}
+
 			wp_redirect( esc_url_raw( $url ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- external link chosen by the instructor.
 			exit;
 		}
@@ -117,7 +121,7 @@ final class DownloadController {
 			wp_die( esc_html__( 'El archivo ya no esta disponible.', 'aula-virtual' ), '', array( 'response' => 404 ) );
 		}
 
-		$this->stream( $path, (bool) $material['downloadable'] );
+		$this->stream( $path, (bool) $material['downloadable'], (string) $material['title'] );
 	}
 
 	/**
@@ -139,12 +143,15 @@ final class DownloadController {
 	 *
 	 * @param string $path         Absolute path.
 	 * @param bool   $downloadable Attachment (download) or inline (view).
+	 * @param string $title        Material title, used as the file name.
 	 * @return void
 	 */
-	private function stream( string $path, bool $downloadable ): void {
+	private function stream( string $path, bool $downloadable, string $title = '' ): void {
 		$check = wp_check_filetype( $path );
 		$mime  = is_string( $check['type'] ?? null ) && '' !== $check['type'] ? $check['type'] : 'application/octet-stream';
-		$name  = sanitize_file_name( basename( $path ) );
+		$ext   = strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) );
+		$base  = sanitize_file_name( '' === trim( $title ) ? pathinfo( $path, PATHINFO_FILENAME ) : $title );
+		$name  = ( '' === $base ? 'material' : $base ) . ( '' === $ext || str_ends_with( strtolower( $base ), '.' . $ext ) ? '' : '.' . $ext );
 		$size  = filesize( $path );
 
 		while ( ob_get_level() > 0 ) {

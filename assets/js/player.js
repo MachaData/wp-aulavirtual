@@ -39,6 +39,10 @@
 
 		var script = document.createElement( 'script' );
 		script.src = HLS_SRC;
+		// Integridad: si el CDN sirviera otro archivo, el navegador no lo ejecuta.
+		script.integrity = 'sha512-laeOywAR8veaLuF0pnbe9aXnZF0OhY25VdUkVgeRDUezc5IB1XVvqNYASMEVLh2nFvLEX/MStxGvpaNoVH6hRQ==';
+		script.crossOrigin = 'anonymous';
+		script.referrerPolicy = 'no-referrer';
 		script.async = true;
 		script.onload = run;
 		script.onerror = run;

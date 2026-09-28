@@ -15,6 +15,7 @@ use SIQA\AulaVirtual\Enrollments\EnrollmentLinkRepository;
 use SIQA\AulaVirtual\Enrollments\RegistrationRequestRepository;
 use SIQA\AulaVirtual\Enrollments\RegistrationService;
 use SIQA\AulaVirtual\Permissions\Capabilities;
+use SIQA\AulaVirtual\Security\RateLimiter;
 use SIQA\AulaVirtual\Security\Sanitizer;
 use WP_Error;
 use WP_REST_Request;
@@ -44,6 +45,16 @@ final class RegistrationsController extends AbstractController {
 	 * Registrations accepted per address and hour.
 	 */
 	public const RATE_LIMIT = 20;
+
+	/**
+	 * Hourly limit for the integration (all calls of the external site share it).
+	 */
+	public const RATE_LIMIT_KEY = 300;
+
+	/**
+	 * Hourly limit per email address, whatever the origin.
+	 */
+	public const RATE_LIMIT_EMAIL = 3;
 
 	/**
 	 * Transient prefix of the rate limit counters.
@@ -170,7 +181,7 @@ final class RegistrationsController extends AbstractController {
 
 		$exempt = is_user_logged_in() && current_user_can( Capabilities::ENROLL_STUDENTS );
 
-		if ( ! $exempt && ! $this->within_rate_limit() ) {
+		if ( ! $exempt && ! $this->within_rate_limit( $request, $email ) ) {
 			return $this->too_many_requests();
 		}
 
@@ -227,26 +238,18 @@ final class RegistrationsController extends AbstractController {
 	 * @return array<string, mixed>|WP_Error Usable link row.
 	 */
 	private function usable_link_for( int $edition_id ) {
-		$preferred = null;
-
+		// Solo enlaces propios de la API: los del administrador pueden no pedir
+		// aprobacion o tener un limite de usos pensado para otro publico.
 		foreach ( $this->links->for_edition( $edition_id ) as $candidate ) {
-			$link = $this->registration->usable_link( (string) $candidate['token'] );
-
-			if ( $link instanceof WP_Error ) {
+			if ( self::LINK_LABEL !== (string) $candidate['label'] ) {
 				continue;
 			}
 
-			if ( self::LINK_LABEL === (string) $link['label'] ) {
+			$link = $this->registration->usable_link( (string) $candidate['token'] );
+
+			if ( ! $link instanceof WP_Error ) {
 				return $link;
 			}
-
-			if ( null === $preferred ) {
-				$preferred = $link;
-			}
-		}
-
-		if ( null !== $preferred ) {
-			return $preferred;
 		}
 
 		$args = array( 'label' => self::LINK_LABEL );
@@ -288,17 +291,14 @@ final class RegistrationsController extends AbstractController {
 	 *
 	 * @return bool True while the address is under the limit.
 	 */
-	private function within_rate_limit(): bool {
-		$key   = self::RATE_PREFIX . md5( $this->client_ip() );
-		$count = (int) get_transient( $key );
+	private function within_rate_limit( WP_REST_Request $request, string $email ): bool {
+		// Con clave: un solo cubo para la integracion (tras un proxy todas sus
+		// llamadas comparten IP). Sin clave: por direccion.
+		$identity = $this->integration_key_valid( $request )
+			? RateLimiter::hit( self::RATE_PREFIX . 'key', self::RATE_LIMIT_KEY )
+			: RateLimiter::hit( self::RATE_PREFIX . 'ip_' . $this->client_ip(), self::RATE_LIMIT );
 
-		if ( $count >= self::RATE_LIMIT ) {
-			return false;
-		}
-
-		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
-
-		return true;
+		return $identity && RateLimiter::hit( self::RATE_PREFIX . 'mail_' . RateLimiter::email_bucket( $email ), self::RATE_LIMIT_EMAIL );
 	}
 
 	/**

@@ -3,6 +3,35 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.12.3] - 2026-09-28
+
+Correcciones de la segunda revision de seguridad (API, formularios, archivos, importacion y
+certificados) y documento `docs/SEGURIDAD.md`.
+
+### Seguridad
+
+- API: `GET /editions/{id}/students` y `/enrollments` comprueban que el curso sea del usuario;
+  `GET /enrollments?email=` responde el mismo 404 exista o no la cuenta.
+- Matriculas: tabla de transiciones de estado (`EnrollmentStatus::transitions()`), el mismo
+  estado no repite eventos ni correos, reactivar exige cupo.
+- Formulario publico: 10 envios por IP y 3 por correo cada hora (alias `+` incluidos); responde
+  igual si el correo ya estaba matriculado; mensajes de error por codigo, nunca desde la URL.
+- API de inscripciones: limite por identidad (300/h con clave, 20/h por IP sin clave) y 3/h por
+  correo; solo reutiliza enlaces etiquetados `api`.
+- `Security\RateLimiter` compartido; filtro `aula_virtual/client_ip` para proxies.
+- CSV: neutraliza celdas que Excel ejecutaria como formula.
+- Materiales: nombre aleatorio en la carpeta protegida, no se pueden usar imagenes del sitio,
+  ocultos en la API de medios y la biblioteca para quien no puede editarlos; la descarga usa el
+  titulo del material como nombre; enlaces externos solo `http`/`https`.
+- Importacion: maximo 5 MB, corte de filas al leer, sin evaluar formulas de Excel.
+- Certificados: hash con separador (acepta el anterior), codigo validado antes de consultar,
+  30 codigos invalidos por IP y hora.
+- Catalogo publico: los cursos en borrador se filtran antes de paginar.
+- `hls.js` con integridad SHA-512; token de video con validez maxima de 24 h.
+- Desinstalacion: lista explicita de opciones, transients del plugin y metadatos `av_phone`,
+  `av_document` y `_av_protected`.
+- Smoke test: 263 comprobaciones, 111 clases.
+
 ## [0.12.2] - 2026-09-28
 
 Correcciones de la primera revision de seguridad (administracion, campus y nucleo).

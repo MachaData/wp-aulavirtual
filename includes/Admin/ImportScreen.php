@@ -165,6 +165,10 @@ final class ImportScreen {
 			$this->finish( 'error', __( 'Sube un archivo .csv o .xlsx.', 'aula-virtual' ) );
 		}
 
+		if ( (int) ( $file['size'] ?? 0 ) > ImportParser::MAX_BYTES ) {
+			$this->finish( 'error', __( 'El archivo es demasiado grande (maximo 5 MB).', 'aula-virtual' ) );
+		}
+
 		$filename = sanitize_file_name( (string) $file['name'] );
 		$parsed   = ImportParser::parse( (string) $file['tmp_name'], $filename );
 

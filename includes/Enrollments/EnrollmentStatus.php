@@ -96,6 +96,37 @@ final class EnrollmentStatus {
 	}
 
 	/**
+	 * Allowed status changes. Completing is left to the progress rules (or
+	 * to an explicit admin action from active); a rejected enrollment is
+	 * final and a new one must be created.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public static function transitions(): array {
+		return array(
+			self::PENDING   => array( self::APPROVED, self::ACTIVE, self::REJECTED, self::CANCELLED ),
+			self::APPROVED  => array( self::ACTIVE, self::SUSPENDED, self::CANCELLED ),
+			self::ACTIVE    => array( self::COMPLETED, self::SUSPENDED, self::EXPIRED, self::CANCELLED ),
+			self::SUSPENDED => array( self::ACTIVE, self::CANCELLED ),
+			self::EXPIRED   => array( self::ACTIVE, self::CANCELLED ),
+			self::COMPLETED => array( self::ACTIVE, self::SUSPENDED, self::CANCELLED ),
+			self::CANCELLED => array( self::ACTIVE ),
+			self::REJECTED  => array(),
+		);
+	}
+
+	/**
+	 * Whether an enrollment may move from one status to another.
+	 *
+	 * @param string $from Current status.
+	 * @param string $to   Requested status.
+	 * @return bool
+	 */
+	public static function can_transition( string $from, string $to ): bool {
+		return in_array( $to, self::transitions()[ $from ] ?? array(), true );
+	}
+
+	/**
 	 * States that occupy a seat of the cohort.
 	 *
 	 * @return array<int, string>

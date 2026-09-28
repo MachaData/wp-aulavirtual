@@ -235,7 +235,7 @@ final class MaterialService {
 	 * @return true|WP_Error
 	 */
 	public static function can_use_attachment( int $attachment_id, int $course_id, array $existing ) {
-		if ( 'attachment' !== get_post_type( $attachment_id ) || ! current_user_can( 'edit_post', $attachment_id ) ) {
+		if ( 'attachment' !== get_post_type( $attachment_id ) || ! current_user_can( 'edit_post', $attachment_id ) || self::is_site_image( $attachment_id ) ) {
 			return new WP_Error( 'av_attachment_forbidden', __( 'No puedes usar ese archivo como material.', 'aula-virtual' ), array( 'status' => 403 ) );
 		}
 
@@ -246,6 +246,24 @@ final class MaterialService {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Whether the attachment is used as a featured image or the certificate
+	 * logo: moving it would break the public site.
+	 *
+	 * @param int $attachment_id Attachment id.
+	 * @return bool
+	 */
+	public static function is_site_image( int $attachment_id ): bool {
+		global $wpdb;
+
+		if ( (int) get_option( 'av_certificate_logo', 0 ) === $attachment_id || (int) get_option( 'site_icon', 0 ) === $attachment_id || (int) get_theme_mod( 'custom_logo', 0 ) === $attachment_id ) {
+			return true;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- single indexed lookup.
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_thumbnail_id' AND meta_value = %s", (string) $attachment_id ) ) > 0;
 	}
 
 	/**
@@ -276,7 +294,11 @@ final class MaterialService {
 			return true;
 		}
 
-		$target = trailingslashit( $dir ) . wp_unique_filename( $dir, basename( $current ) );
+		// Nombre aleatorio: la ruta directa no se puede adivinar aunque el
+		// servidor ignore el .htaccess. El nombre original se conserva en la
+		// descarga (Content-Disposition usa el titulo del material).
+		$extension = strtolower( (string) pathinfo( $current, PATHINFO_EXTENSION ) );
+		$target    = trailingslashit( $dir ) . wp_generate_password( 24, false, false ) . ( '' === $extension ? '' : '.' . $extension );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- moving inside uploads.
 		if ( ! rename( $current, $target ) ) {

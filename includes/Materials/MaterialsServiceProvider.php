@@ -71,6 +71,36 @@ final class MaterialsServiceProvider implements ServiceProvider {
 			}
 		);
 
+		// Los archivos protegidos no se anuncian por la API de medios ni en la
+		// biblioteca a quien no puede editarlos: su ruta no debe circular.
+		add_filter(
+			'rest_prepare_attachment',
+			static function ( $response, $post ) {
+				if ( $post instanceof \WP_Post && get_post_meta( $post->ID, '_av_protected', true ) && ! current_user_can( 'edit_post', $post->ID ) ) {
+					return new \WP_Error( 'rest_forbidden', __( 'No tienes acceso a este archivo.', 'aula-virtual' ), array( 'status' => 403 ) );
+				}
+
+				return $response;
+			},
+			10,
+			2
+		);
+
+		add_filter(
+			'ajax_query_attachments_args',
+			static function ( array $query ): array {
+				if ( ! current_user_can( 'edit_others_posts' ) ) {
+					$query['meta_query']   = (array) ( $query['meta_query'] ?? array() );
+					$query['meta_query'][] = array(
+						'key'     => '_av_protected',
+						'compare' => 'NOT EXISTS',
+					);
+				}
+
+				return $query;
+			}
+		);
+
 		add_action(
 			'admin_post_nopriv_' . DownloadController::ACTION,
 			static function () use ( $container ): void {

@@ -277,7 +277,7 @@ final class CertificateService {
 	public function verify( string $code ): ?array {
 		$code = self::normalize_code( $code );
 
-		if ( '' === $code ) {
+		if ( ! self::is_valid_code( $code ) ) {
 			return null;
 		}
 
@@ -287,7 +287,12 @@ final class CertificateService {
 			return null;
 		}
 
-		if ( ! hash_equals( (string) $certificate['verification_hash'], self::hash( $code, (int) $certificate['user_id'], (int) $certificate['edition_id'] ) ) ) {
+		$stored = (string) $certificate['verification_hash'];
+		$user   = (int) $certificate['user_id'];
+		$ed     = (int) $certificate['edition_id'];
+
+		// Acepta tambien el formato anterior (sin separador) de certificados ya emitidos.
+		if ( ! hash_equals( $stored, self::hash( $code, $user, $ed ) ) && ! hash_equals( $stored, wp_hash( $code . $user . $ed ) ) ) {
 			return null;
 		}
 
@@ -361,7 +366,8 @@ final class CertificateService {
 	 * @return string
 	 */
 	public static function hash( string $code, int $user_id, int $edition_id ): string {
-		return wp_hash( $code . $user_id . $edition_id );
+		// Con separador: (1, 12) y (11, 2) no deben dar el mismo hash.
+		return wp_hash( implode( '|', array( $code, (string) $user_id, (string) $edition_id ) ) );
 	}
 
 	/**

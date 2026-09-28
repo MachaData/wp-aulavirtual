@@ -29,6 +29,11 @@ final class ImportParser {
 	public const MAX_ROWS = 5000;
 
 	/**
+	 * Largest file accepted (bytes).
+	 */
+	public const MAX_BYTES = 5242880;
+
+	/**
 	 * Parses an uploaded file.
 	 *
 	 * @param string $path     Local file path.
@@ -40,6 +45,10 @@ final class ImportParser {
 
 		if ( ! is_readable( $path ) ) {
 			return new WP_Error( 'av_import_unreadable', __( 'No se pudo leer el archivo.', 'aula-virtual' ) );
+		}
+
+		if ( (int) filesize( $path ) > self::MAX_BYTES ) {
+			return new WP_Error( 'av_import_too_large', __( 'El archivo es demasiado grande (maximo 5 MB).', 'aula-virtual' ) );
 		}
 
 		switch ( $extension ) {
@@ -122,6 +131,10 @@ final class ImportParser {
 		rewind( $handle );
 
 		while ( ( $row = fgetcsv( $handle, 0, $delimiter, '"', '\\' ) ) !== false ) {
+			if ( count( $rows ) > self::MAX_ROWS ) {
+				break;
+			}
+
 			$rows[] = array_map( static fn( $c ): string => (string) $c, $row );
 		}
 
@@ -151,7 +164,7 @@ final class ImportParser {
 
 			$rows = array();
 
-			foreach ( $sheet->toArray( '', true, false, false ) as $row ) {
+			foreach ( $sheet->toArray( '', false, false, false ) as $row ) {
 				$rows[] = array_map( static fn( $c ): string => (string) $c, (array) $row );
 			}
 

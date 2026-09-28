@@ -293,3 +293,19 @@ abstract class WP_REST_Controller {
 		return array();
 	}
 }
+
+// Transients en memoria para probar los limites de tasa.
+$GLOBALS['av_test_transients'] = array();
+
+function get_transient( $key ) {
+	return $GLOBALS['av_test_transients'][ $key ] ?? false;
+}
+
+function set_transient( $key, $value, $expiration = 0 ) {
+	$GLOBALS['av_test_transients'][ $key ] = $value;
+	return true;
+}
+
+function wp_unslash( $value ) {
+	return is_string( $value ) ? stripslashes( $value ) : $value;
+}

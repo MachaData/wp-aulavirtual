@@ -154,16 +154,7 @@ abstract class AbstractController extends WP_REST_Controller {
 	 * @return string
 	 */
 	protected function client_ip(): string {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
-
-		/**
-		 * Filters the client address used by the REST rate limits.
-		 *
-		 * @param string $ip Address detected so far.
-		 */
-		$ip = (string) apply_filters( 'aula_virtual/rest_client_ip', $ip );
-
-		return '' === $ip ? 'unknown' : $ip;
+		return \SIQA\AulaVirtual\Security\RateLimiter::client_ip();
 	}
 
 	/**

@@ -190,6 +190,39 @@ final class RegistrationService {
 	 * @return int|WP_Error Request id.
 	 */
 	public function submit( string $token, array $input ) {
+		return $this->do_submit( $token, $input );
+	}
+
+	/**
+	 * Public message for an error code of the registration flow. Only these
+	 * texts reach the form, never text taken from the URL.
+	 *
+	 * @param string $code Error code.
+	 * @return string
+	 */
+	public static function error_message( string $code ): string {
+		$messages = array(
+			'av_missing_name'        => __( 'Indica tu nombre y apellido.', 'aula-virtual' ),
+			'av_invalid_email'       => __( 'Indica un correo electronico valido.', 'aula-virtual' ),
+			'av_link_invalid'        => __( 'Este enlace de inscripcion no es valido.', 'aula-virtual' ),
+			'av_link_expired'        => __( 'Este enlace de inscripcion ya vencio.', 'aula-virtual' ),
+			'av_link_exhausted'      => __( 'Este enlace de inscripcion alcanzo su limite de usos.', 'aula-virtual' ),
+			'av_edition_closed'      => __( 'Esta edicion ya no admite inscripciones.', 'aula-virtual' ),
+			'av_edition_full'        => __( 'La edicion alcanzo su cupo maximo.', 'aula-virtual' ),
+			'av_rate_limited'        => __( 'Recibimos demasiadas solicitudes. Intentalo de nuevo en una hora.', 'aula-virtual' ),
+		);
+
+		return $messages[ $code ] ?? __( 'No se pudo registrar la solicitud. Revisa los datos e intentalo de nuevo.', 'aula-virtual' );
+	}
+
+	/**
+	 * Validates and stores a submission.
+	 *
+	 * @param string               $token Link token.
+	 * @param array<string, mixed> $input Form input.
+	 * @return int|WP_Error Request id (0 when nothing had to be created).
+	 */
+	private function do_submit( string $token, array $input ) {
 		$link = $this->usable_link( $token );
 
 		if ( $link instanceof WP_Error ) {
@@ -217,8 +250,10 @@ final class RegistrationService {
 
 		$user = get_user_by( 'email', $email );
 
+		// Ya matriculado: se responde igual que a una inscripcion nueva para no
+		// revelar a un tercero quien estudia en la edicion. No se crea nada.
 		if ( false !== $user && null !== $this->enrollments_for( $user->ID, $edition_id ) ) {
-			return new WP_Error( 'av_already_enrolled', __( 'Este correo ya esta matriculado en la edicion.', 'aula-virtual' ), array( 'status' => 409 ) );
+			return 0;
 		}
 
 		$request_id = $this->requests->insert(

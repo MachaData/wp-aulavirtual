@@ -148,7 +148,20 @@ final class EditionsController extends AbstractController {
 	 * @return true|WP_Error
 	 */
 	public function students_permissions_check( $request ) {
-		return $this->require_capability( Capabilities::VIEW_STUDENTS );
+		$check = $this->require_capability( Capabilities::VIEW_STUDENTS );
+
+		if ( true !== $check ) {
+			return $check;
+		}
+
+		// Un instructor solo ve los alumnos de ediciones de sus propios cursos.
+		$edition = $this->editions->find( (int) $request->get_param( 'id' ) );
+
+		if ( null === $edition ) {
+			return $this->not_found( __( 'La edicion no existe.', 'aula-virtual' ) );
+		}
+
+		return $this->access->can_manage_editions( (int) $edition['course_id'] ) ? true : $this->forbidden();
 	}
 
 	/**
@@ -177,6 +190,25 @@ final class EditionsController extends AbstractController {
 			$where['status'] = $status;
 		} elseif ( ! $this->can_see_hidden() ) {
 			$where['status'] = $this->public_statuses();
+		}
+
+		// Sin permisos, solo cursos publicados; se filtra antes de paginar para
+		// que el total no delate cursos en borrador.
+		if ( ! $this->can_see_hidden() ) {
+			$visible = array_map(
+				'intval',
+				(array) get_posts(
+					array(
+						'post_type'      => \SIQA\AulaVirtual\Courses\CoursePostType::POST_TYPE,
+						'post_status'    => 'publish',
+						'fields'         => 'ids',
+						'posts_per_page' => -1,
+						'no_found_rows'  => true,
+					)
+				)
+			);
+
+			$where['course_id'] = $course_id > 0 ? ( in_array( $course_id, $visible, true ) ? $course_id : array() ) : $visible;
 		}
 
 		$result = $this->editions->paginate(
