@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Emails;
 
+use SIQA\AulaVirtual\Comments\CommentRepository;
 use SIQA\AulaVirtual\Core\Container;
 use SIQA\AulaVirtual\Core\Events\EventBus;
 use SIQA\AulaVirtual\Core\Logger;
@@ -44,7 +45,8 @@ final class EmailsServiceProvider implements ServiceProvider {
 			static fn( Container $c ): VariableResolver => new VariableResolver(
 				$c->get( EditionRepository::class ),
 				$c->get( RegistrationRequestRepository::class ),
-				$c->get( LessonRepository::class )
+				$c->get( LessonRepository::class ),
+				$c->get( CommentRepository::class )
 			)
 		);
 
@@ -58,7 +60,8 @@ final class EmailsServiceProvider implements ServiceProvider {
 			static fn( Container $c ): EmailNotifier => new EmailNotifier(
 				$c->get( EmailTemplateRepository::class ),
 				$c->get( VariableResolver::class ),
-				$c->get( Mailer::class )
+				$c->get( Mailer::class ),
+				$c->get( CommentRepository::class )
 			)
 		);
 	}

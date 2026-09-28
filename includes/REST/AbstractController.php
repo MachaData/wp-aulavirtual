@@ -11,6 +11,7 @@ namespace SIQA\AulaVirtual\REST;
 
 use WP_Error;
 use WP_REST_Controller;
+use WP_REST_Request;
 use WP_REST_Response;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -30,6 +31,16 @@ abstract class AbstractController extends WP_REST_Controller {
 	 * REST namespace shared by the plugin.
 	 */
 	public const NAMESPACE_V1 = 'aula-virtual/v1';
+
+	/**
+	 * Option holding the shared integration key of external sites.
+	 */
+	public const OPTION_INTEGRATION_KEY = 'av_integration_key';
+
+	/**
+	 * Header that carries the integration key.
+	 */
+	public const HEADER_INTEGRATION_KEY = 'X-AV-Key';
 
 	/**
 	 * Constructor.
@@ -105,6 +116,68 @@ abstract class AbstractController extends WP_REST_Controller {
 		$response->header( 'X-WP-TotalPages', (string) $paging['pages'] );
 
 		return $response;
+	}
+
+	/**
+	 * Whether the request carries the shared integration key.
+	 *
+	 * The key lives in the `av_integration_key` option and travels in the
+	 * `X-AV-Key` header. It is compared in constant time and is never logged
+	 * nor echoed back. An empty option disables key access altogether.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return bool
+	 */
+	protected function integration_key_valid( WP_REST_Request $request ): bool {
+		$stored = get_option( self::OPTION_INTEGRATION_KEY, '' );
+		$stored = is_string( $stored ) ? trim( $stored ) : '';
+
+		if ( '' === $stored ) {
+			return false;
+		}
+
+		$provided = $request->get_header( self::HEADER_INTEGRATION_KEY );
+
+		if ( ! is_string( $provided ) || '' === $provided ) {
+			return false;
+		}
+
+		return hash_equals( $stored, trim( $provided ) );
+	}
+
+	/**
+	 * Best-effort client address used for rate limiting.
+	 *
+	 * Only `REMOTE_ADDR` is trusted; a site behind a proxy can resolve the
+	 * real address through the filter.
+	 *
+	 * @return string
+	 */
+	protected function client_ip(): string {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
+
+		/**
+		 * Filters the client address used by the REST rate limits.
+		 *
+		 * @param string $ip Address detected so far.
+		 */
+		$ip = (string) apply_filters( 'aula_virtual/rest_client_ip', $ip );
+
+		return '' === $ip ? 'unknown' : $ip;
+	}
+
+	/**
+	 * Builds a "too many requests" error response.
+	 *
+	 * @param string $message Message shown to the client.
+	 * @return WP_Error
+	 */
+	protected function too_many_requests( string $message = '' ): WP_Error {
+		return new WP_Error(
+			'av_rate_limited',
+			'' === $message ? __( 'Demasiadas solicitudes. Intenta de nuevo mas tarde.', 'aula-virtual' ) : $message,
+			array( 'status' => 429 )
+		);
 	}
 
 	/**

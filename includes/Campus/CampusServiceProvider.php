@@ -10,6 +10,8 @@ declare( strict_types = 1 );
 namespace SIQA\AulaVirtual\Campus;
 
 use SIQA\AulaVirtual\Announcements\AnnouncementRepository;
+use SIQA\AulaVirtual\Certificates\CertificateRepository;
+use SIQA\AulaVirtual\Certificates\CertificateService;
 use SIQA\AulaVirtual\Comments\CommentService;
 use SIQA\AulaVirtual\Core\Container;
 use SIQA\AulaVirtual\Core\ServiceProvider;
@@ -50,7 +52,9 @@ final class CampusServiceProvider implements ServiceProvider {
 				$c->get( LiveClassRepository::class ),
 				$c->get( MaterialRepository::class ),
 				$c->get( AnnouncementRepository::class ),
-				$c->get( CommentService::class )
+				$c->get( CommentService::class ),
+				$c->get( CertificateRepository::class ),
+				$c->get( CertificateService::class )
 			)
 		);
 	}

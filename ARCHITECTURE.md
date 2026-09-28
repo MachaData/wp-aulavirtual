@@ -221,7 +221,7 @@ Decisiones concretas que conviene revisar en la aprobación:
 
 ### 4.3 Versionado del esquema
 
-`Database\Schema::VERSION` (hoy `1.2.0`) se guarda en la opción `av_db_version`.
+`Database\Schema::VERSION` (hoy `1.3.0`) se guarda en la opción `av_db_version`.
 `Database\Migrator`:
 
 - ejecuta `dbDelta()` sobre todas las definiciones sólo cuando la versión instalada es menor;

@@ -64,39 +64,6 @@ class WP_Query {
 	}
 }
 
-class WP_REST_Response {
-
-	public function __construct( public mixed $data = null ) {
-	}
-
-	public function header( string $name, string $value ): void {
-	}
-}
-
-class WP_REST_Request {
-
-	public function get_param( string $key ): mixed {
-		return null;
-	}
-}
-
-abstract class WP_REST_Controller {
-
-	protected string $namespace = '';
-
-	protected string $rest_base = '';
-
-	protected ?array $schema = null;
-
-	public function add_additional_fields_schema( $schema ) {
-		return $schema;
-	}
-
-	public function get_public_item_schema() {
-		return array();
-	}
-}
-
 spl_autoload_register(
 	static function ( string $class_name ): void {
 		$prefix = 'SIQA\\AulaVirtual\\';

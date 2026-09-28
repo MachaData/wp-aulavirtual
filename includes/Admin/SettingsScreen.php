@@ -9,11 +9,13 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Admin;
 
+use SIQA\AulaVirtual\Certificates\CertificateService;
 use SIQA\AulaVirtual\Comments\CommentService;
 use SIQA\AulaVirtual\Core\AuditLog;
 use SIQA\AulaVirtual\Materials\MaterialService;
 use SIQA\AulaVirtual\Courses\CoursePostType;
 use SIQA\AulaVirtual\Permissions\Capabilities;
+use SIQA\AulaVirtual\REST\AbstractController;
 use SIQA\AulaVirtual\Security\Sanitizer;
 use SIQA\AulaVirtual\Videos\VideoEmbed;
 use SIQA\AulaVirtual\WooCommerce\Settings as WooSettings;
@@ -159,6 +161,34 @@ final class SettingsScreen {
 					),
 				),
 			),
+			'certificates' => array(
+				'label'  => __( 'Certificados', 'aula-virtual' ),
+				'fields' => array(
+					CertificateService::OPTION_AUTO_ISSUE      => array(
+						'label'   => __( 'Emitir certificado automaticamente', 'aula-virtual' ),
+						'type'    => 'bool',
+						'default' => true,
+						'help'    => __( 'Al completar todas las sesiones, el alumno recibe su certificado y el enlace publico de verificacion. Desactivado: se emite a mano desde Aula Virtual > Certificados.', 'aula-virtual' ),
+					),
+					CertificateService::OPTION_SIGNATURE_NAME  => array(
+						'label'   => __( 'Nombre de quien firma', 'aula-virtual' ),
+						'type'    => 'text',
+						'default' => '',
+					),
+					CertificateService::OPTION_SIGNATURE_TITLE => array(
+						'label'   => __( 'Cargo de quien firma', 'aula-virtual' ),
+						'type'    => 'text',
+						'default' => '',
+					),
+					CertificateService::OPTION_LOGO            => array(
+						'label'   => __( 'Logo del certificado (ID de adjunto)', 'aula-virtual' ),
+						'type'    => 'int',
+						'default' => 0,
+						'min'     => 0,
+						'help'    => __( 'ID de una imagen de la biblioteca de medios. Vacio o 0: se muestra el nombre del sitio.', 'aula-virtual' ),
+					),
+				),
+			),
 			'videos'      => array(
 				'label'  => __( 'Videos', 'aula-virtual' ),
 				'fields' => array(
@@ -226,6 +256,12 @@ final class SettingsScreen {
 							'error'   => 'error',
 							'off'     => __( 'Desactivado', 'aula-virtual' ),
 						),
+					),
+					AbstractController::OPTION_INTEGRATION_KEY => array(
+						'label'   => __( 'Clave de integracion (API REST)', 'aula-virtual' ),
+						'type'    => 'secret',
+						'default' => '',
+						'help'    => __( 'Clave que el sitio externo envia en la cabecera X-AV-Key al llamar a POST /wp-json/aula-virtual/v1/registrations. Vacia = acceso por clave desactivado. Usa 32 o mas caracteres aleatorios.', 'aula-virtual' ),
 					),
 					'av_delete_data_on_uninstall' => array(
 						'label'   => __( 'Eliminar todos los datos al desinstalar', 'aula-virtual' ),

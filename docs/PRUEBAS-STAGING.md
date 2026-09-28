@@ -40,13 +40,13 @@ retirarlo para conservar las URLs antiguas.
 
 - [ ] Activar el plugin sin errores fatales ni avisos en `debug.log`.
 - [ ] Existen las 16 tablas `wp_av_*` (`SHOW TABLES LIKE 'wp_av_%'`).
-- [ ] Opción `av_db_version` = `1.2.0`.
+- [ ] Opción `av_db_version` = `1.3.0`.
 - [ ] Roles `av_admin`, `av_instructor`, `av_student` en *Usuarios → Roles* (o con un plugin
       de roles).
 - [ ] Página *Campus* creada como `/campus/aula/` con `[av_campus]`.
-- [ ] *Aula Virtual → Emails* muestra 6 plantillas.
-- [ ] Menú *Aula Virtual* con: Ediciones, Solicitudes, Importar alumnos, Anuncios, Emails,
-      Migrar desde Tutor, Cursos, Configuración.
+- [ ] *Aula Virtual → Emails* muestra 9 plantillas.
+- [ ] Menú *Aula Virtual* con: Ediciones, Solicitudes, Importar alumnos, Anuncios, Certificados,
+      Reportes, Emails, Migrar desde Tutor, Cursos, Configuración.
 - [ ] Desactivar y reactivar: no se duplican páginas ni plantillas.
 
 ## 2. Curso y edición
@@ -172,7 +172,24 @@ retirarlo para conservar las URLs antiguas.
       *Instructor*); eliminar el comentario propio; el editor de la sesión lista el hilo y
       permite eliminar. Desactivar la opción: desaparece el bloque.
 
-## 8c. Anuncios y modo enfoque
+## 8c. Certificados, reportes, correos de comentarios y API
+
+- [ ] Con un alumno que completa las 3 sesiones: aparece *Ver certificado* en su panel; la
+      página `/campus/certificado/{código}/` se ve e imprime; el correo "Curso finalizado"
+      trae el enlace si la plantilla usa `{{certificate_url}}`.
+- [ ] *Certificados*: anular el certificado; la página pública dice que no es válido. Emitir a
+      mano a otro alumno activo.
+- [ ] *Reportes*: el resumen cuadra con las ediciones creadas; en la edición de prueba, el
+      avance por sesión coincide con lo marcado. *Exportar alumnos (CSV)* abre en Excel con
+      acentos correctos.
+- [ ] Comentar como alumno: llega "Nueva pregunta" al autor del curso. Responder como
+      administrador: llega "Respondieron a tu comentario" al alumno.
+- [ ] API: `GET /wp-json/aula-virtual/v1/editions?open_only=true` lista la edición abierta con
+      `checkout_url`. Con la clave de integración, `POST /registrations` crea una solicitud
+      pendiente; sin clave devuelve 401/403; el intento 21 en una hora devuelve 429.
+- [ ] Con un Application Password, `POST /enrollments` matricula y `PATCH` cambia el estado.
+
+## 8d. Anuncios y modo enfoque
 
 - [ ] *Anuncios*: publicar uno para la edición de prueba con envío por correo. Aparece en el
       panel del alumno y en el temario; llega el correo con título y contenido.

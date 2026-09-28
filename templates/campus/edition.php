@@ -11,6 +11,7 @@
  * @var array<int, array<string, mixed>> $announcements
  * @var string                           $back_url
  * @var bool                             $can_retake
+ * @var string                           $certificate_url
  */
 
 use SIQA\AulaVirtual\Campus\CampusController;
@@ -81,6 +82,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</li>
 			<?php endforeach; ?>
 		</ol>
+	<?php endif; ?>
+
+	<?php if ( ! empty( $certificate_url ) ) : ?>
+		<p class="av-edition__certificate">
+			<a href="<?php echo esc_url( $certificate_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Ver mi certificado', 'aula-virtual' ); ?></a>
+		</p>
 	<?php endif; ?>
 
 	<?php if ( ! empty( $can_retake ) ) : ?>

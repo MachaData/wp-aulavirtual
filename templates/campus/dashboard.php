@@ -70,6 +70,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<a href="<?php echo esc_url( (string) $av_card['url'] ); ?>">
 							<?php esc_html_e( 'Continuar', 'aula-virtual' ); ?>
 						</a>
+						<?php if ( ! empty( $av_card['certificate_url'] ) ) : ?>
+							&middot; <a href="<?php echo esc_url( (string) $av_card['certificate_url'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Ver certificado', 'aula-virtual' ); ?></a>
+						<?php endif; ?>
 					</p>
 				</li>
 			<?php endforeach; ?>

@@ -49,6 +49,19 @@ use SIQA\AulaVirtual\Admin\AdminMenu;
 use SIQA\AulaVirtual\Admin\SettingsScreen;
 use SIQA\AulaVirtual\Admin\ImportScreen;
 use SIQA\AulaVirtual\Comments\CommentService;
+use SIQA\AulaVirtual\Certificates\CertificateController;
+use SIQA\AulaVirtual\Certificates\CertificateService;
+use SIQA\AulaVirtual\Certificates\CertificatesServiceProvider;
+use SIQA\AulaVirtual\Reports\ReportService;
+use SIQA\AulaVirtual\Reports\ReportsServiceProvider;
+use SIQA\AulaVirtual\Admin\ReportsScreen;
+use SIQA\AulaVirtual\Admin\CertificatesScreen;
+use SIQA\AulaVirtual\Core\Events\Events;
+use SIQA\AulaVirtual\REST\AbstractController;
+use SIQA\AulaVirtual\REST\EditionsController;
+use SIQA\AulaVirtual\REST\EnrollmentsController;
+use SIQA\AulaVirtual\REST\RegistrationsController;
+use SIQA\AulaVirtual\REST\RestServiceProvider;
 use SIQA\AulaVirtual\Comments\CommentsServiceProvider;
 use SIQA\AulaVirtual\Curriculum\ReleaseSchedule;
 use SIQA\AulaVirtual\Materials\DownloadController;
@@ -333,9 +346,11 @@ foreach (
 		new CurriculumServiceProvider(),
 		new EnrollmentsServiceProvider(),
 		new ProgressServiceProvider(),
+		new CertificatesServiceProvider(),
 		new LiveClassesServiceProvider(),
 		new MaterialsServiceProvider(),
 		new AnnouncementsServiceProvider(),
+		new ReportsServiceProvider(),
 		new CommentsServiceProvider(),
 		new EmailsServiceProvider(),
 		new WooCommerceServiceProvider(),
@@ -344,6 +359,7 @@ foreach (
 		new ImportsServiceProvider(),
 		new AdminServiceProvider(),
 		new CampusServiceProvider(),
+		new RestServiceProvider(),
 	) as $provider
 ) {
 	$provider->register( $plugin_container );
@@ -479,6 +495,57 @@ check( 'el texto se recorta y se limpia', 'Hola  mundo' === CommentService::sani
 check( 'no pasa de 2000 caracteres', 2000 === mb_strlen( CommentService::sanitize_content( str_repeat( 'a', 2500 ) ) ) );
 check( 'los saltos de linea repetidos se compactan', "a\n\nb" === CommentService::sanitize_content( "a\n\n\n\n\nb" ) );
 check( 'la URL de descarga pasa por admin-post', str_contains( DownloadController::url( 7 ), 'action=av_download' ) && str_contains( DownloadController::url( 7 ), 'material=7' ) );
+
+$more_error = '';
+try {
+	$reports_screen = $plugin_container->get( ReportsScreen::class );
+	$certs_screen   = $plugin_container->get( CertificatesScreen::class );
+	$cert_service   = $plugin_container->get( CertificateService::class );
+} catch ( Throwable $e ) {
+	$more_error     = $e->getMessage();
+	$reports_screen = null;
+	$certs_screen   = null;
+	$cert_service   = null;
+}
+check( 'la pantalla de reportes resuelve repositorio y servicio', $reports_screen instanceof ReportsScreen && '' === $more_error );
+check( 'la pantalla de certificados y su servicio resuelven', $certs_screen instanceof CertificatesScreen && $cert_service instanceof CertificateService );
+
+echo "\nReportes\n";
+$csv = ReportService::to_csv( array( 'A', 'B' ), array( array( 'x;y', 'plain' ), array( 'con "comillas"', '' ) ) );
+check( 'el CSV empieza con BOM UTF-8', str_starts_with( $csv, "\xEF\xBB\xBF" ) );
+check( 'el CSV usa punto y coma', str_contains( $csv, "A;B\r\n" ) );
+check( 'los valores con punto y coma van entre comillas', str_contains( $csv, '"x;y";plain' ) );
+check( 'las comillas dobles se escapan', str_contains( $csv, '"con ""comillas""";' ) );
+check( 'una fecha vacia queda vacia', '' === ReportService::format_date( '0000-00-00 00:00:00' ) );
+check( 'las fechas salen como Y-m-d H:i', '2026-03-05 14:07' === ReportService::format_date( '2026-03-05 14:07:33' ) );
+
+echo "\nCertificados\n";
+check( 'un codigo de certificado tiene el formato AV-AAAA-XXXXXX', CertificateService::is_valid_code( 'AV-2026-K7Q2ZM' ) );
+check( 'un codigo en minusculas no pasa sin normalizar', ! CertificateService::is_valid_code( 'av-2026-k7q2zm' ) );
+check( 'normalize_code limpia y pone en mayusculas', 'AV-2026-K7Q2ZM' === CertificateService::normalize_code( ' av-2026-k7q2zm ' ) );
+check( 'la emision automatica esta activa por defecto', CertificateService::auto_issue_enabled() );
+check( 'la query var del certificado se registra', in_array( CertificateController::QUERY_VAR, CertificateController::query_vars( array() ), true ) );
+check( 'las plantillas de correo de comentarios existen', 2 === count( array_filter( EmailDefaults::definitions(), static fn( array $d ): bool => Events::COMMENT_POSTED === $d['event'] ) ) );
+
+echo "\nAPI REST\n";
+$rest_error = '';
+try {
+	$editions_api = $plugin_container->get( EditionsController::class );
+	$regs_api     = $plugin_container->get( RegistrationsController::class );
+	$enr_api      = $plugin_container->get( EnrollmentsController::class );
+} catch ( Throwable $e ) {
+	$rest_error   = $e->getMessage();
+	$editions_api = null;
+	$regs_api     = null;
+	$enr_api      = null;
+}
+check( "los tres controladores REST resuelven sus dependencias: " . $rest_error, $editions_api instanceof EditionsController && $regs_api instanceof RegistrationsController && $enr_api instanceof EnrollmentsController && '' === $rest_error );
+$ed_params = $editions_api->get_collection_params();
+check( 'el listado de ediciones filtra por curso, estado y abiertas', isset( $ed_params['course'], $ed_params['status'], $ed_params['open_only'] ) );
+check( 'el esquema de edicion enumera los estados reales', EditionStatus::all() === ( $editions_api->get_item_schema()['properties']['status']['enum'] ?? null ) );
+check( 'el esquema de matricula enumera estados y origenes', EnrollmentStatus::all() === ( $enr_api->get_item_schema()['properties']['status']['enum'] ?? null ) && EnrollmentStatus::sources() === ( $enr_api->get_item_schema()['properties']['source']['enum'] ?? null ) );
+check( 'el limite de inscripciones por IP es 20 por hora', 20 === RegistrationsController::RATE_LIMIT && 'api' === RegistrationsController::LINK_LABEL );
+check( 'la clave de integracion viaja en X-AV-Key', 'av_integration_key' === AbstractController::OPTION_INTEGRATION_KEY && 'X-AV-Key' === AbstractController::HEADER_INTEGRATION_KEY );
 
 echo "\nClases en vivo\n";
 check( 'antes de la ventana el boton no aparece', LiveClassService::WINDOW_BEFORE === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:44:59' ) );

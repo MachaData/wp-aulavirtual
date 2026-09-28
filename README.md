@@ -26,7 +26,7 @@ El flujo completo funciona de punta a punta:
 `Landing → Inscripción o Compra → Aprobación → Pago → Matrícula → Bienvenida → Campus →
 Clase en vivo / Materiales → Progreso`.
 
-**Nada de esto ha corrido todavía contra un WordPress real.** Las 221 comprobaciones
+**Nada de esto ha corrido todavía contra un WordPress real.** Las 241 comprobaciones
 automáticas cubren la lógica pura y el cableado de los módulos; el SQL, los hooks de
 WooCommerce y las pantallas se validan siguiendo `docs/PRUEBAS-STAGING.md`.
 
@@ -37,6 +37,7 @@ WooCommerce y las pantallas se validan siguiendo `docs/PRUEBAS-STAGING.md`.
 | [`docs/GUIA-ADMINISTRADOR.md`](docs/GUIA-ADMINISTRADOR.md) | Coordinación académica | Cómo crear cursos, ediciones, sesiones, aprobar inscripciones, vincular productos, editar correos y landings, migrar desde Tutor |
 | [`docs/PRUEBAS-STAGING.md`](docs/PRUEBAS-STAGING.md) | Quien instala | Lista de verificación para la primera activación en un sitio de pruebas |
 | [`docs/GUIA-TECNICA.md`](docs/GUIA-TECNICA.md) | Desarrollo | Mapa de módulos, convenciones, hooks, eventos, shortcodes, opciones, cómo añadir un módulo |
+| [`docs/API-REST.md`](docs/API-REST.md) | Integrador (WordPress de la tienda) | Rutas, autenticación, ejemplos curl y notas para Elementor |
 | [`docs/FLUJO-COMERCIAL.md`](docs/FLUJO-COMERCIAL.md) | Dirección | Revisión del flujo comercial, decisiones tomadas y análisis del sitio destino |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Desarrollo | Arquitectura de fondo: modelo de datos, roles, seguridad, rendimiento |
 | [`CHANGELOG.md`](CHANGELOG.md) | Todos | Qué cambió en cada versión |
@@ -60,8 +61,8 @@ WordPress 6.4+, PHP 8.1+, MySQL 5.7+ o MariaDB 10.3+. WooCommerce es opcional.
 ## Verificación rápida
 
 ```bash
-php tests/smoke-test.php      # 221 comprobaciones de logica y cableado
-php tests/lint-classes.php    # carga las 98 clases del plugin
+php tests/smoke-test.php      # 241 comprobaciones de logica y cableado
+php tests/lint-classes.php    # carga las 110 clases del plugin
 composer install && composer lint   # WordPress Coding Standards (opcional)
 ```
 

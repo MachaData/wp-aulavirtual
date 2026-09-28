@@ -3,6 +3,28 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.12.0] - 2026-09-28
+
+Certificados, reportes, API REST para la integracion y correos de comentarios.
+
+### Anadido
+
+- Certificados: emision automatica al completar (opcion `av_auto_certificate`), emision manual
+  y anulacion desde Aula Virtual > Certificados, pagina publica de verificacion
+  `/certificado/{codigo}/` imprimible como PDF, firma y logo configurables, enlace en el panel
+  y el temario del alumno, variable `{{certificate_url}}` rellenada en los correos.
+- Reportes: resumen del sitio, detalle por edicion (estados, origenes, avance medio,
+  finalizacion, activos 7 dias, avance por sesion) y exportacion CSV de alumnos.
+- API REST `aula-virtual/v1`: ediciones (publico), alumnos de una edicion, inscripciones desde
+  un sitio externo con clave `X-AV-Key` (limite 20/IP/hora), matriculas (crear, consultar por
+  correo, cambiar estado) con Application Passwords. Documentada en `docs/API-REST.md`.
+- Correos de comentarios: "Nueva pregunta" al docente del curso y "Respondieron a tu
+  comentario" al autor del hilo; nuevos destinatarios `instructor` y `comment_parent_author`;
+  variables `comment_author`, `comment_content`, `lesson_url`.
+- Esquema 1.3.0 (regla de reescritura del certificado y siembra de las plantillas nuevas en
+  sitios ya instalados).
+- Smoke test: 241 comprobaciones, 110 clases.
+
 ## [0.11.0] - 2026-09-28
 
 Liberacion programada aplicada, materiales protegidos, URLs limpias y comentarios.

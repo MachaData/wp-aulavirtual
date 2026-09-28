@@ -150,6 +150,15 @@ final class Migrator {
 
 				flush_rewrite_rules();
 			},
+			// 1.3.0 anade la URL publica /certificado/{codigo}/ y, via el hook
+			// schema_migrated, siembra las plantillas de correo de comentarios.
+			'1.3.0' => static function (): void {
+				if ( class_exists( \SIQA\AulaVirtual\Certificates\CertificateController::class ) ) {
+					\SIQA\AulaVirtual\Certificates\CertificateController::register_rewrite();
+				}
+
+				flush_rewrite_rules();
+			},
 		);
 	}
 

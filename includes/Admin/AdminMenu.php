@@ -77,6 +77,20 @@ final class AdminMenu {
 	private ImportScreen $import;
 
 	/**
+	 * Reports screen.
+	 *
+	 * @var ReportsScreen
+	 */
+	private ReportsScreen $reports;
+
+	/**
+	 * Certificates screen.
+	 *
+	 * @var CertificatesScreen
+	 */
+	private CertificatesScreen $certificates;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EditionsScreen $editions Editions screen.
@@ -86,6 +100,8 @@ final class AdminMenu {
 	 * @param AnnouncementsScreen $announcements Announcements screen.
 	 * @param SettingsScreen      $settings      Settings screen.
 	 * @param ImportScreen        $import        Import screen.
+	 * @param ReportsScreen       $reports       Reports screen.
+	 * @param CertificatesScreen  $certificates  Certificates screen.
 	 */
 	public function __construct(
 		EditionsScreen $editions,
@@ -94,7 +110,9 @@ final class AdminMenu {
 		MigrationScreen $migration,
 		AnnouncementsScreen $announcements,
 		SettingsScreen $settings,
-		ImportScreen $import
+		ImportScreen $import,
+		ReportsScreen $reports,
+		CertificatesScreen $certificates
 	) {
 		$this->editions      = $editions;
 		$this->requests      = $requests;
@@ -103,6 +121,8 @@ final class AdminMenu {
 		$this->announcements = $announcements;
 		$this->settings      = $settings;
 		$this->import        = $import;
+		$this->reports       = $reports;
+		$this->certificates  = $certificates;
 	}
 
 	/**
@@ -155,6 +175,24 @@ final class AdminMenu {
 			Capabilities::MANAGE_ANNOUNCE,
 			AnnouncementsScreen::SLUG,
 			array( $this->announcements, 'render' )
+		);
+
+		add_submenu_page(
+			self::EDITIONS_SLUG,
+			__( 'Certificados', 'aula-virtual' ),
+			__( 'Certificados', 'aula-virtual' ),
+			Capabilities::ISSUE_CERTIFICATES,
+			CertificatesScreen::SLUG,
+			array( $this->certificates, 'render' )
+		);
+
+		add_submenu_page(
+			self::EDITIONS_SLUG,
+			__( 'Reportes', 'aula-virtual' ),
+			__( 'Reportes', 'aula-virtual' ),
+			Capabilities::VIEW_REPORTS,
+			ReportsScreen::SLUG,
+			array( $this->reports, 'render' )
 		);
 
 		add_submenu_page(

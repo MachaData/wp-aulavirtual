@@ -10,6 +10,7 @@
  */
 
 use SIQA\AulaVirtual\Admin\EmailsScreen;
+use SIQA\AulaVirtual\Emails\EmailDefaults;
 use SIQA\AulaVirtual\Emails\EmailTemplateRepository;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -44,7 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</a>
 					</strong>
 				</td>
-				<td><?php echo esc_html( EmailTemplateRepository::RECIPIENT_ADMIN === $av_template['recipient'] ? __( 'Administrador', 'aula-virtual' ) : __( 'Alumno', 'aula-virtual' ) ); ?></td>
+				<td><?php echo esc_html( EmailDefaults::recipients()[ (string) $av_template['recipient'] ] ?? (string) $av_template['recipient'] ); ?></td>
 				<td><?php echo esc_html( (string) $av_template['subject'] ); ?></td>
 				<td><?php echo esc_html( (int) $av_template['enabled'] ? __( 'Activa', 'aula-virtual' ) : __( 'Desactivada', 'aula-virtual' ) ); ?></td>
 			</tr>

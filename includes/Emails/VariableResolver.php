@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Emails;
 
+use SIQA\AulaVirtual\Campus\CampusController;
+use SIQA\AulaVirtual\Comments\CommentRepository;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Editions\EditionService;
@@ -48,20 +50,30 @@ final class VariableResolver {
 	private LessonRepository $lessons;
 
 	/**
+	 * Comment persistence.
+	 *
+	 * @var CommentRepository
+	 */
+	private CommentRepository $comments;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EditionRepository             $editions Edition persistence.
 	 * @param RegistrationRequestRepository $requests Request persistence.
 	 * @param LessonRepository              $lessons  Lesson persistence.
+	 * @param CommentRepository             $comments Comment persistence.
 	 */
 	public function __construct(
 		EditionRepository $editions,
 		RegistrationRequestRepository $requests,
-		LessonRepository $lessons
+		LessonRepository $lessons,
+		CommentRepository $comments
 	) {
 		$this->editions = $editions;
 		$this->requests = $requests;
 		$this->lessons  = $lessons;
+		$this->comments = $comments;
 	}
 
 	/**
@@ -90,6 +102,9 @@ final class VariableResolver {
 			'login_url'        => __( 'Pagina de ingreso al campus', 'aula-virtual' ),
 			'campus_url'       => __( 'Pagina del campus', 'aula-virtual' ),
 			'lesson_name'      => __( 'Nombre de la sesion', 'aula-virtual' ),
+			'lesson_url'       => __( 'Enlace de la sesion en el campus', 'aula-virtual' ),
+			'comment_author'   => __( 'Nombre de quien escribio el comentario', 'aula-virtual' ),
+			'comment_content'  => __( 'Texto del comentario', 'aula-virtual' ),
 			'class_url'        => __( 'Enlace de la clase en vivo', 'aula-virtual' ),
 			'certificate_url'  => __( 'Enlace del certificado', 'aula-virtual' ),
 			'rejection_reason' => __( 'Motivo del rechazo', 'aula-virtual' ),
@@ -174,7 +189,17 @@ final class VariableResolver {
 
 			if ( null !== $lesson ) {
 				$vars['lesson_name'] = (string) $lesson['title'];
+				$vars['lesson_url']  = $this->lesson_url( (int) $lesson['id'] );
 			}
+		}
+
+		$comment = isset( $payload['comment_id'] ) && (int) $payload['comment_id'] > 0 ? $this->comments->find( (int) $payload['comment_id'] ) : null;
+
+		if ( null !== $comment ) {
+			$vars['comment_author']  = $this->display_name( (int) $comment['user_id'] );
+			$vars['comment_content'] = nl2br( esc_html( (string) $comment['content'] ) );
+		} elseif ( false !== $user ) {
+			$vars['comment_author'] = (string) $user->display_name;
 		}
 
 		/**
@@ -231,6 +256,42 @@ final class VariableResolver {
 		}
 
 		return network_site_url( 'wp-login.php?action=rp&key=' . rawurlencode( $key ) . '&login=' . rawurlencode( $user->user_login ), 'login' );
+	}
+
+	/**
+	 * Display name of a user, empty when the account no longer exists.
+	 *
+	 * @param int $user_id User id.
+	 * @return string
+	 */
+	private function display_name( int $user_id ): string {
+		$user = $user_id > 0 ? get_userdata( $user_id ) : false;
+
+		return false === $user ? '' : (string) $user->display_name;
+	}
+
+	/**
+	 * Returns the campus URL of a lesson, clean when permalinks are enabled.
+	 *
+	 * Mirrors {@see CampusController::campus_url()} without pulling the whole
+	 * controller (and its dependencies) into the email module.
+	 *
+	 * @param int $lesson_id Lesson id.
+	 * @return string
+	 */
+	private function lesson_url( int $lesson_id ): string {
+		$args = array( CampusController::QUERY_LESSON => $lesson_id );
+		$base = $this->campus_url();
+
+		if ( CampusController::page_id() > 0 && '' !== (string) get_option( 'permalink_structure', '' ) ) {
+			$pretty = CampusController::pretty_path( $args );
+
+			if ( null !== $pretty ) {
+				return trailingslashit( $base ) . $pretty;
+			}
+		}
+
+		return add_query_arg( $args, $base );
 	}
 
 	/**

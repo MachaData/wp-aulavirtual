@@ -13,6 +13,7 @@ use SIQA\AulaVirtual\Core\Events\EventBus;
 use SIQA\AulaVirtual\Admin\AdminServiceProvider;
 use SIQA\AulaVirtual\Announcements\AnnouncementsServiceProvider;
 use SIQA\AulaVirtual\Campus\CampusServiceProvider;
+use SIQA\AulaVirtual\Certificates\CertificatesServiceProvider;
 use SIQA\AulaVirtual\Comments\CommentsServiceProvider;
 use SIQA\AulaVirtual\Courses\CoursesServiceProvider;
 use SIQA\AulaVirtual\Curriculum\CurriculumServiceProvider;
@@ -30,6 +31,7 @@ use SIQA\AulaVirtual\Migration\MigrationServiceProvider;
 use SIQA\AulaVirtual\Permissions\PermissionsServiceProvider;
 use SIQA\AulaVirtual\Progress\ProgressServiceProvider;
 use SIQA\AulaVirtual\REST\RestServiceProvider;
+use SIQA\AulaVirtual\Reports\ReportsServiceProvider;
 use SIQA\AulaVirtual\WooCommerce\WooCommerceServiceProvider;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -166,9 +168,11 @@ final class Plugin {
 			new CurriculumServiceProvider(),
 			new EnrollmentsServiceProvider(),
 			new ProgressServiceProvider(),
+			new CertificatesServiceProvider(),
 			new LiveClassesServiceProvider(),
 			new MaterialsServiceProvider(),
 			new AnnouncementsServiceProvider(),
+			new ReportsServiceProvider(),
 			new CommentsServiceProvider(),
 			new EmailsServiceProvider(),
 			new WooCommerceServiceProvider(),

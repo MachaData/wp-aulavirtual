@@ -10,6 +10,8 @@ declare( strict_types = 1 );
 namespace SIQA\AulaVirtual\Campus;
 
 use SIQA\AulaVirtual\Announcements\AnnouncementRepository;
+use SIQA\AulaVirtual\Certificates\CertificateRepository;
+use SIQA\AulaVirtual\Certificates\CertificateService;
 use SIQA\AulaVirtual\Comments\CommentService;
 use SIQA\AulaVirtual\Curriculum\ReleaseSchedule;
 use SIQA\AulaVirtual\Materials\DownloadController;
@@ -119,6 +121,20 @@ final class CampusController {
 	private CommentService $comments;
 
 	/**
+	 * Certificate persistence.
+	 *
+	 * @var CertificateRepository
+	 */
+	private CertificateRepository $certificates;
+
+	/**
+	 * Certificate rules.
+	 *
+	 * @var CertificateService
+	 */
+	private CertificateService $certificate_service;
+
+	/**
 	 * Edition codes already loaded in this request, for pretty URLs.
 	 *
 	 * @var array<int, string>
@@ -138,6 +154,8 @@ final class CampusController {
 	 * @param MaterialRepository   $materials          Material persistence.
 	 * @param AnnouncementRepository $announcements    Announcement persistence.
 	 * @param CommentService       $comments           Lesson comments.
+	 * @param CertificateRepository $certificates      Certificate persistence.
+	 * @param CertificateService   $certificate_service Certificate rules.
 	 */
 	public function __construct(
 		EnrollmentRepository $enrollments,
@@ -149,7 +167,9 @@ final class CampusController {
 		LiveClassRepository $live_classes,
 		MaterialRepository $materials,
 		AnnouncementRepository $announcements,
-		CommentService $comments
+		CommentService $comments,
+		CertificateRepository $certificates,
+		CertificateService $certificate_service
 	) {
 		$this->enrollments        = $enrollments;
 		$this->enrollment_service = $enrollment_service;
@@ -161,6 +181,8 @@ final class CampusController {
 		$this->materials          = $materials;
 		$this->announcements      = $announcements;
 		$this->comments           = $comments;
+		$this->certificates       = $certificates;
+		$this->certificate_service = $certificate_service;
 	}
 
 	/**
@@ -202,6 +224,7 @@ final class CampusController {
 	private function render_dashboard( int $user_id ): string {
 		$enrollments = $this->enrollments->active_for_student( $user_id );
 		$cards       = array();
+		$cert_urls   = $this->certificate_urls( $user_id );
 
 		foreach ( $enrollments as $enrollment ) {
 			$edition = $this->editions->find( (int) $enrollment['edition_id'] );
@@ -217,6 +240,7 @@ final class CampusController {
 				'enrollment' => $enrollment,
 				'course'     => get_post( (int) $enrollment['course_id'] ),
 				'url'        => $this->campus_url( array( self::QUERY_EDITION => (int) $edition['id'] ) ),
+				'certificate_url' => $cert_urls[ (int) $edition['id'] ] ?? '',
 			);
 		}
 
@@ -288,6 +312,7 @@ final class CampusController {
 				'announcements' => $this->announcements->for_student( (int) $edition['course_id'], $edition_id, 10 ),
 				'back_url'   => $this->campus_url(),
 				'can_retake' => (bool) get_option( 'av_allow_retake', true ) && ! empty( $completed ),
+				'certificate_url' => $this->certificate_urls( $user_id )[ $edition_id ] ?? '',
 			)
 		);
 	}
@@ -605,6 +630,24 @@ final class CampusController {
 
 		wp_safe_redirect( $redirect );
 		exit;
+	}
+
+	/**
+	 * Verification URLs of the student's valid certificates, by edition id.
+	 *
+	 * @param int $user_id Student id.
+	 * @return array<int, string>
+	 */
+	private function certificate_urls( int $user_id ): array {
+		$urls = array();
+
+		foreach ( $this->certificates->for_student( $user_id ) as $certificate ) {
+			if ( CertificateRepository::STATUS_ISSUED === $certificate['status'] ) {
+				$urls[ (int) $certificate['edition_id'] ] = $this->certificate_service->url( $certificate );
+			}
+		}
+
+		return $urls;
 	}
 
 	/**

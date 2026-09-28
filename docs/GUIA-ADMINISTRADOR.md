@@ -211,6 +211,10 @@ Cada alumno puede eliminar sus propios comentarios; el instructor puede eliminar
 tanto desde el campus como desde el editor de la sesión, donde ve el hilo completo. Hay un
 respiro de 15 segundos entre comentarios del mismo alumno.
 
+Dos correos editables acompañan al hilo: *Nueva pregunta* al docente del curso (el autor del
+curso; si no tiene correo, el de avisos al administrador) cuando escribe un alumno, y
+*Respondieron a tu comentario* al autor del comentario respondido.
+
 ### Repetir el curso
 
 Si en *Configuración → Matrículas* está activo **Permitir repetir el curso** (lo está por
@@ -218,6 +222,27 @@ defecto, como en Tutor), el alumno ve al final del temario el botón *Volver a h
 (o *Reiniciar mi progreso* si no lo terminó). Tras confirmar, se borra su progreso en esa
 edición, la matrícula vuelve a *Activa* con 0 % y empieza desde la primera sesión. El
 certificado que ya tuviera se conserva y no se envía ningún correo.
+
+## 6b. Certificados
+
+Con *Configuración → Certificados → Emitir automáticamente* (activo por defecto), al completar
+todas las sesiones el alumno recibe su certificado: aparece como *Ver certificado* en su panel y
+en el temario, y el correo "Curso finalizado" puede incluir `{{certificate_url}}`. El
+certificado es una página pública de verificación, `/certificado/{código}/`, con formato A4
+apaisado y botón *Imprimir / Guardar como PDF*. Cualquiera con el enlace puede comprobar que es
+válido; si se anula, la página lo dice.
+
+En *Aula Virtual → Certificados* se listan por edición, se anulan y se emiten a mano (para un
+alumno con acceso, aunque no haya completado). En Configuración se define quién firma, su cargo
+y el logo (ID de una imagen de la biblioteca de medios).
+
+## 6c. Reportes
+
+*Aula Virtual → Reportes* muestra el resumen del sitio (ediciones y matrículas por estado,
+alumnos, cursos completados, las diez ediciones con más matrícula) y, por edición: matrículas
+por estado y origen, avance medio, tasa de finalización, activos en los últimos 7 días,
+comentarios y el avance sesión por sesión. Desde ahí, o desde el detalle de la edición, se
+exporta la lista de alumnos a CSV (separado por punto y coma, abre directo en Excel).
 
 ## 7. Emails
 

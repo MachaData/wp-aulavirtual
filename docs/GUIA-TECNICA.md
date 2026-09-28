@@ -33,6 +33,8 @@ final porque consumen servicios de todos los demás.
 | `LiveClasses` | repositorio, servicio (ventana, zonas horarias) | Curriculum |
 | `Videos` | VideoEmbed: registro de proveedores, embeds firmados de Bunny, saneado de iframes | — |
 | `Announcements` | repositorio y servicio; el envio por correo dispara un evento por alumno | Enrollments |
+| `Certificates` | repositorio, servicio (emision automatica al completar, verificacion por codigo + hash), controlador de la URL publica `/certificado/{codigo}/` | Enrollments, Editions |
+| `Reports` | ReportRepository (agregados con `$wpdb`), ReportService (CSV) | Enrollments, Progress, Comments |
 | `Comments` | CommentRepository, CommentService (un nivel de respuestas, moderacion por el instructor, evento `comment_posted`) | Curriculum, Enrollments |
 | `Materials` | repositorio, servicio (lista blanca, carpeta protegida), DownloadController (`admin-post.php?action=av_download`) | Curriculum, Enrollments |
 | `Emails` | plantillas, variables, renderer, mailer, notificador | Enrollments, Curriculum |
@@ -42,7 +44,7 @@ final porque consumen servicios de todos los demás.
 | `Imports` | ImportParser (CSV/XLSX, detección de separador y cabeceras), ImportService (validar sin escribir, trabajos por lotes de 200, alta de usuarios sin enviar contraseña), ImportJobRepository | Enrollments |
 | `Campus` | CampusController (dashboard, temario, sesión, perfil) | casi todo |
 | `Admin` | AdminMenu y pantallas (ediciones, sesión, solicitudes, importar alumnos, emails, anuncios, migración, configuración) | casi todo |
-| `REST` | AbstractController, CoursesController | Courses |
+| `REST` | AbstractController, Courses/Editions/Registrations/Enrollments controllers; ver `docs/API-REST.md` | Courses, Editions, Enrollments |
 
 Reglas de dependencia: los servicios de negocio **no** conocen a Admin, Campus ni Emails. La
 comunicación hacia afuera es por eventos.
@@ -168,7 +170,10 @@ usa ahí.
   `/aula/perfil/`) se registran en `init` a partir de la pagina guardada en `av_pages`;
   las de consulta (`?av_edicion=`) siguen funcionando. Sin enlaces permanentes se usan
   siempre las de consulta.
-- Los comentarios no envian correo (el evento `comment_posted` existe para engancharlo).
+- El certificado se imprime desde el navegador (sin libreria PDF). Un PDF generado en
+  servidor queda para una fase posterior si hace falta enviarlo adjunto.
+- Los agregados de reportes se calculan en cada carga; con decenas de miles de matriculas
+  conviene cachearlos en un transient corto.
 - El envío por correo de un anuncio recorre a los alumnos en la misma petición (bien para
   cientos; con miles conviene pasarlo a Action Scheduler).
 - REST expone solo `/aula-virtual/v1/courses`; el resto de recursos llegan con la integración

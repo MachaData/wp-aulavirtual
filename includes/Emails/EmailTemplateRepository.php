@@ -24,6 +24,16 @@ final class EmailTemplateRepository extends Repository {
 	public const RECIPIENT_ADMIN   = 'admin';
 
 	/**
+	 * Author of the course the event belongs to (falls back to the admin address).
+	 */
+	public const RECIPIENT_INSTRUCTOR = 'instructor';
+
+	/**
+	 * Author of the comment being replied to (only when someone else replies).
+	 */
+	public const RECIPIENT_COMMENT_PARENT_AUTHOR = 'comment_parent_author';
+
+	/**
 	 * Logical table name.
 	 *
 	 * @return string

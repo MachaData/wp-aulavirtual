@@ -12,6 +12,12 @@ namespace SIQA\AulaVirtual\REST;
 use SIQA\AulaVirtual\Core\Container;
 use SIQA\AulaVirtual\Core\ServiceProvider;
 use SIQA\AulaVirtual\Courses\CourseRepository;
+use SIQA\AulaVirtual\Editions\EditionRepository;
+use SIQA\AulaVirtual\Enrollments\EnrollmentLinkRepository;
+use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
+use SIQA\AulaVirtual\Enrollments\EnrollmentService;
+use SIQA\AulaVirtual\Enrollments\RegistrationRequestRepository;
+use SIQA\AulaVirtual\Enrollments\RegistrationService;
 use SIQA\AulaVirtual\Permissions\AccessControl;
 use WP_REST_Controller;
 
@@ -38,6 +44,35 @@ final class RestServiceProvider implements ServiceProvider {
 				$c->get( AccessControl::class )
 			)
 		);
+
+		$container->singleton(
+			EditionsController::class,
+			static fn( Container $c ): EditionsController => new EditionsController(
+				$c->get( EditionRepository::class ),
+				$c->get( CourseRepository::class ),
+				$c->get( EnrollmentRepository::class ),
+				$c->get( AccessControl::class )
+			)
+		);
+
+		$container->singleton(
+			RegistrationsController::class,
+			static fn( Container $c ): RegistrationsController => new RegistrationsController(
+				$c->get( RegistrationService::class ),
+				$c->get( EnrollmentLinkRepository::class ),
+				$c->get( RegistrationRequestRepository::class ),
+				$c->get( EditionRepository::class )
+			)
+		);
+
+		$container->singleton(
+			EnrollmentsController::class,
+			static fn( Container $c ): EnrollmentsController => new EnrollmentsController(
+				$c->get( EnrollmentRepository::class ),
+				$c->get( EnrollmentService::class ),
+				$c->get( EditionRepository::class )
+			)
+		);
 	}
 
 	/**
@@ -50,7 +85,12 @@ final class RestServiceProvider implements ServiceProvider {
 		add_action(
 			'rest_api_init',
 			static function () use ( $container ): void {
-				$controllers = array( CoursesController::class );
+				$controllers = array(
+					CoursesController::class,
+					EditionsController::class,
+					RegistrationsController::class,
+					EnrollmentsController::class,
+				);
 
 				/**
 				 * Filters the REST controllers registered by Aula Virtual.

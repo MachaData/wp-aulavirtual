@@ -76,6 +76,21 @@ final class EmailDefaults {
 			Events::EDITION_STARTING              => __( 'Curso proximo a iniciar', 'aula-virtual' ),
 			Events::COURSE_COMPLETED              => __( 'Curso finalizado', 'aula-virtual' ),
 			Events::CERTIFICATE_ISSUED            => __( 'Certificado disponible', 'aula-virtual' ),
+			Events::COMMENT_POSTED                => __( 'Nuevo comentario en una sesion', 'aula-virtual' ),
+		);
+	}
+
+	/**
+	 * Recipient types a template can go to, with their label for the admin screen.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function recipients(): array {
+		return array(
+			EmailTemplateRepository::RECIPIENT_STUDENT               => __( 'Alumno', 'aula-virtual' ),
+			EmailTemplateRepository::RECIPIENT_ADMIN                 => __( 'Administrador', 'aula-virtual' ),
+			EmailTemplateRepository::RECIPIENT_INSTRUCTOR            => __( 'Docente del curso', 'aula-virtual' ),
+			EmailTemplateRepository::RECIPIENT_COMMENT_PARENT_AUTHOR => __( 'Autor del comentario respondido', 'aula-virtual' ),
 		);
 	}
 
@@ -85,8 +100,10 @@ final class EmailDefaults {
 	 * @return array<int, array{event: string, recipient: string, subject: string, body: string, enabled: bool}>
 	 */
 	public static function definitions(): array {
-		$student = EmailTemplateRepository::RECIPIENT_STUDENT;
-		$admin   = EmailTemplateRepository::RECIPIENT_ADMIN;
+		$student    = EmailTemplateRepository::RECIPIENT_STUDENT;
+		$admin      = EmailTemplateRepository::RECIPIENT_ADMIN;
+		$instructor = EmailTemplateRepository::RECIPIENT_INSTRUCTOR;
+		$replied    = EmailTemplateRepository::RECIPIENT_COMMENT_PARENT_AUTHOR;
 
 		return array(
 			array(
@@ -136,6 +153,22 @@ final class EmailDefaults {
 				'recipient' => $student,
 				'subject'   => 'Completaste {{course_name}}',
 				'body'      => "<p>Felicitaciones, {{first_name}}.</p>\n<p>Completaste todas las sesiones de <strong>{{course_name}}</strong> ({{edition_name}}).</p>\n<p>{{site_name}}</p>",
+				'enabled'   => true,
+			),
+			// Nuevas plantillas se anaden al final: la prueba de humo referencia
+			// las anteriores por indice.
+			array(
+				'event'     => Events::COMMENT_POSTED,
+				'recipient' => $instructor,
+				'subject'   => 'Nueva pregunta en {{lesson_name}}',
+				'body'      => "<p>Hola,</p>\n<p><strong>{{first_name}}</strong> dejo una pregunta en la sesion <strong>{{lesson_name}}</strong> de <strong>{{course_name}}</strong> ({{edition_name}}):</p>\n<blockquote>{{comment_content}}</blockquote>\n<p><a href=\"{{lesson_url}}\">Responder en el campus</a></p>\n<p>{{site_name}}</p>",
+				'enabled'   => true,
+			),
+			array(
+				'event'     => Events::COMMENT_POSTED,
+				'recipient' => $replied,
+				'subject'   => 'Respondieron a tu comentario en {{lesson_name}}',
+				'body'      => "<p>Hola,</p>\n<p><strong>{{comment_author}}</strong> respondio a tu comentario en la sesion <strong>{{lesson_name}}</strong> de <strong>{{course_name}}</strong>:</p>\n<blockquote>{{comment_content}}</blockquote>\n<p><a href=\"{{lesson_url}}\">Ver la conversacion</a></p>\n<p>{{site_name}}</p>",
 				'enabled'   => true,
 			),
 		);

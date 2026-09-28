@@ -64,6 +64,8 @@ final class Installer {
 
 		CoursePostType::register();
 		RegistrationController::register_rewrite();
+		\SIQA\AulaVirtual\Certificates\CertificateController::register_rewrite();
+		\SIQA\AulaVirtual\Campus\CampusController::register_rewrite();
 		flush_rewrite_rules();
 
 		update_option( self::VERSION_OPTION, AV_VERSION, false );
@@ -108,6 +110,10 @@ final class Installer {
 			'av_allow_retake'            => true,
 			'av_lesson_comments'         => true,
 			'av_protect_materials'       => true,
+			'av_auto_certificate'        => true,
+			'av_certificate_signature_name'  => '',
+			'av_certificate_signature_title' => '',
+			'av_certificate_logo'        => 0,
 			'av_wc_enroll_status'        => 'processing',
 			'av_wc_refund_action'        => 'suspend',
 		);

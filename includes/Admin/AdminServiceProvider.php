@@ -11,6 +11,8 @@ namespace SIQA\AulaVirtual\Admin;
 
 use SIQA\AulaVirtual\Announcements\AnnouncementRepository;
 use SIQA\AulaVirtual\Announcements\AnnouncementService;
+use SIQA\AulaVirtual\Certificates\CertificateRepository;
+use SIQA\AulaVirtual\Certificates\CertificateService;
 use SIQA\AulaVirtual\Comments\CommentService;
 use SIQA\AulaVirtual\Core\AuditLog;
 use SIQA\AulaVirtual\Core\Container;
@@ -39,6 +41,8 @@ use SIQA\AulaVirtual\Materials\MaterialService;
 use SIQA\AulaVirtual\Migration\TutorMigrator;
 use SIQA\AulaVirtual\Migration\TutorReader;
 use SIQA\AulaVirtual\Permissions\AccessControl;
+use SIQA\AulaVirtual\Reports\ReportRepository;
+use SIQA\AulaVirtual\Reports\ReportService;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -142,6 +146,26 @@ final class AdminServiceProvider implements ServiceProvider {
 		);
 
 		$container->singleton(
+			CertificatesScreen::class,
+			static fn( Container $c ): CertificatesScreen => new CertificatesScreen(
+				$c->get( CertificateRepository::class ),
+				$c->get( CertificateService::class ),
+				$c->get( EditionRepository::class ),
+				$c->get( AccessControl::class )
+			)
+		);
+
+		$container->singleton(
+			ReportsScreen::class,
+			static fn( Container $c ): ReportsScreen => new ReportsScreen(
+				$c->get( ReportRepository::class ),
+				$c->get( ReportService::class ),
+				$c->get( EditionRepository::class ),
+				$c->get( AccessControl::class )
+			)
+		);
+
+		$container->singleton(
 			AdminMenu::class,
 			static fn( Container $c ): AdminMenu => new AdminMenu(
 				$c->get( EditionsScreen::class ),
@@ -150,7 +174,9 @@ final class AdminServiceProvider implements ServiceProvider {
 				$c->get( MigrationScreen::class ),
 				$c->get( AnnouncementsScreen::class ),
 				$c->get( SettingsScreen::class ),
-				$c->get( ImportScreen::class )
+				$c->get( ImportScreen::class ),
+				$c->get( ReportsScreen::class ),
+				$c->get( CertificatesScreen::class )
 			)
 		);
 	}
@@ -197,6 +223,9 @@ final class AdminServiceProvider implements ServiceProvider {
 			ImportScreen::ACTION_MAP            => array( ImportScreen::class, 'handle_map' ),
 			ImportScreen::ACTION_CONFIRM        => array( ImportScreen::class, 'handle_confirm' ),
 			ImportScreen::ACTION_RUN            => array( ImportScreen::class, 'handle_run' ),
+			ReportsScreen::ACTION_EXPORT        => array( ReportsScreen::class, 'handle_export' ),
+			CertificatesScreen::ACTION_ISSUE    => array( CertificatesScreen::class, 'handle_issue' ),
+			CertificatesScreen::ACTION_REVOKE   => array( CertificatesScreen::class, 'handle_revoke' ),
 			RequestsScreen::ACTION_APPROVE      => array( RequestsScreen::class, 'handle_approve' ),
 			RequestsScreen::ACTION_REJECT       => array( RequestsScreen::class, 'handle_reject' ),
 			RequestsScreen::ACTION_MARK_PAID    => array( RequestsScreen::class, 'handle_mark_paid' ),

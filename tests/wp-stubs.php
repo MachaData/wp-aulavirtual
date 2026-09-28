@@ -259,3 +259,37 @@ function add_query_arg( ...$args ) {
 function admin_url( $path = '' ) {
 	return 'https://example.test/wp-admin/' . ltrim( (string) $path, '/' );
 }
+
+// Clases REST de WordPress que los controladores extienden o reciben.
+class WP_REST_Response {
+
+	public function __construct( public mixed $data = null ) {
+	}
+
+	public function header( string $name, string $value ): void {
+	}
+}
+
+class WP_REST_Request {
+
+	public function get_param( string $key ): mixed {
+		return null;
+	}
+}
+
+abstract class WP_REST_Controller {
+
+	protected string $namespace = '';
+
+	protected string $rest_base = '';
+
+	protected ?array $schema = null;
+
+	public function add_additional_fields_schema( $schema ) {
+		return $schema;
+	}
+
+	public function get_public_item_schema() {
+		return array();
+	}
+}

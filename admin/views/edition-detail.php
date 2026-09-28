@@ -16,6 +16,7 @@
 use SIQA\AulaVirtual\Admin\AdminMenu;
 use SIQA\AulaVirtual\Admin\EditionsScreen;
 use SIQA\AulaVirtual\Admin\ImportScreen;
+use SIQA\AulaVirtual\Admin\ReportsScreen;
 use SIQA\AulaVirtual\Admin\LessonScreen;
 use SIQA\AulaVirtual\Curriculum\LessonType;
 use SIQA\AulaVirtual\Editions\EditionStatus;
@@ -36,6 +37,7 @@ $av_edition_id = (int) $edition['id'];
 
 	<p>
 		<a href="<?php echo esc_url( AdminMenu::editions_url() ); ?>">&larr; <?php esc_html_e( 'Todas las ediciones', 'aula-virtual' ); ?></a>
+		&nbsp;|&nbsp; <a href="<?php echo esc_url( ReportsScreen::edition_url( $av_edition_id ) ); ?>"><?php esc_html_e( 'Ver reporte', 'aula-virtual' ); ?></a>
 	</p>
 
 	<table class="widefat striped" style="max-width:760px">
