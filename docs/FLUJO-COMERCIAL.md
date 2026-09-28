@@ -218,6 +218,33 @@ mantiene activo, sin enlazar desde ningún menú, hasta confirmar que todo está
 se desactiva. Mientras los dos convivan, un producto de WooCommerce no debe estar vinculado a
 la vez a un curso de Tutor y a una edición de Aula Virtual.
 
+## 8b. Ajustes actuales de Tutor LMS y su equivalente (capturas del 2026-09-28)
+
+| Ajuste en Tutor | Valor hoy | En Aula Virtual |
+|---|---|---|
+| Monetización | **Nativa de Tutor** (Pedidos, Métodos de pago, Suscripciones); WooCommerce instalado pero no vinculado a los cursos | Las ediciones migradas llegan **sin producto** (gratuitas para el plugin: ya se vendieron). Para vender ediciones nuevas: crear el producto en WooCommerce y vincularlo desde su pestaña *Aula Virtual*. Culqi y PayPal van en WooCommerce, no en Tutor |
+| Precios | Precio normal y de oferta en el curso ($612 → $430) | La migración copia el precio de oferta como precio informativo de la edición |
+| Proceso de finalización | Flexible; autocompletar curso al completar lecciones | Igual: `av_progress_mode = flexible`; la matrícula pasa a *Completada* sola |
+| Acceso sin inscribirse para admin e instructores | Activado | Igual: los roles con `view_students` siempre pasan |
+| Volver a hacer el curso | Activado | No existe todavía (fase siguiente: "repetir curso") |
+| Comentarios en lecciones | Activado | No existe todavía (fase 2, punto 44 del brief) |
+| Modo de enfoque (sin cabecera ni pie en las lecciones) | Activado | El campus se muestra dentro del tema. Plantilla "enfoque" pendiente para la fase Campus |
+| Adjuntos: abrir en pestaña nueva | Activado | Igual: los materiales abren en pestaña nueva |
+| Fuentes de video | Todas, incluida BunnyNet; reproductor de Tutor desactivado | Todas cubiertas (v0.8.1). Los videos reales están como "URL externa" del CDN de Bunny |
+| Emails activos | Bienvenida tras registro, Curso inscrito, Nuevo pedido, Estado del pedido, suscripciones | Cubiertos por las plantillas por defecto (solicitud, aprobación, bienvenida). "Curso finalizado" viene activa: desactivarla si no se quiere, como en Tutor |
+| Email manual (a un tipo de destinatario) | Disponible | Llega con **Anuncios** (siguiente bloque): mensaje a los alumnos de una edición, con envío por correo |
+| Diseño: color principal `#3E64DE`, hover `#395BCA`, texto `#212327` | Personalizado | `av_brand_color = #3e64de` para landing, campus y correos |
+| Diseño: elementos visibles en el curso (nivel, duración, barra de progreso, material, beneficios, requisitos, anuncios sí; instructor, autor, reseñas, público objetivo, compartir no) | Configurado | Las secciones de la landing se apagan por curso (v0.6). Los toggles globales (punto 37 del brief) quedan para la pantalla de configuración |
+| Enlace permanente del curso | `/campus/cursos/{slug}/`, lecciones `/clases/` | El plugin usa `/campus/curso/{slug}/` mientras Tutor siga activo (sin choque). Al retirar Tutor, poner `av_course_slug = cursos`: los cursos migrados conservan el mismo slug, así que **las URLs antiguas siguen funcionando** |
+| Enable Tutor LMS Login | Activado | Tutor sustituye `wp-login.php` por su propio login. **Riesgo:** los enlaces de crear contraseña y de recuperación del plugin usan `wp-login.php?action=rp`. Verificar en staging (punto 3 del plan); si Tutor los intercepta, desactivar esa opción: el campus tiene su propio login |
+| Página del escritorio | `/campus/escritorio/` | El campus del plugin vive en `/campus/aula/`; el menú del sitio debe apuntar ahí cuando se retire Tutor |
+| Borrar al desinstalar | Desactivado | Correcto: Tutor se desactiva, nunca se desinstala, hasta confirmar la migración |
+| Membresía: "los estudiantes no podrán registrarse" (aviso del tema) | Desactivada | No afecta: el alta la hace el plugin al aprobar o al pagar, sin registro abierto |
+
+**Volumen real:** unos 180 estudiantes (18 páginas de 10) y 220 matrículas, de las que 219
+activas y 1 cancelada. Un solo lote de 300 por curso alcanza; la migración completa son unos
+pocos clics.
+
 ## 9. Preguntas que siguen abiertas
 
 1. **Correo de los alumnos migrados.** No se les avisa automáticamente. ¿Se les envía un correo

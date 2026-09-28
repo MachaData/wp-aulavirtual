@@ -16,6 +16,20 @@ con el mensaje exacto.
 - [ ] En WooCommerce, activar una pasarela en modo prueba (Culqi sandbox) o "Transferencia
       bancaria".
 
+## 0b. Opciones recomendadas para este sitio
+
+Antes de la sección 2, definir (con `wp option update` o un plugin de opciones):
+
+| Opción | Valor | Por qué |
+|---|---|---|
+| `av_brand_color` | `#3e64de` | Color principal actual del campus (Tutor → Diseño) |
+| `av_bunny_library_id` | ID de la biblioteca de Stream | Convierte las playlist del CDN al embed oficial |
+| `av_bunny_token_key` | clave de la biblioteca | Solo si la biblioteca exige token |
+| `av_admin_notification_email` | correo de coordinación | A dónde llegan los avisos de solicitud |
+
+`av_course_slug` se deja en `curso` mientras Tutor esté activo; se cambia a `cursos` al
+retirarlo para conservar las URLs antiguas.
+
 ## 1. Activación
 
 - [ ] Activar el plugin sin errores fatales ni avisos en `debug.log`.
@@ -52,6 +66,9 @@ con el mensaje exacto.
 - [ ] *Solicitudes*: aparece pendiente. **Aprobar y matricular**.
 - [ ] Se creó el usuario con rol `av_student` y llegó la bienvenida con
       `{{set_password_url}}` funcionando (abre la pantalla de crear contraseña).
+      **Atención:** Tutor tiene activado "Enable Tutor LMS Login", que sustituye
+      `wp-login.php`. Si el enlace no abre la pantalla de crear contraseña, desactivar esa
+      opción en *Tutor → Ajustes → Avanzado* y repetir.
 - [ ] Rechazar otra solicitud con motivo: llega el correo con el motivo.
 
 ## 4. Campus del alumno
