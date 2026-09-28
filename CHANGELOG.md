@@ -3,6 +3,21 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.12.1] - 2026-09-28
+
+### Seguridad
+
+- Correos: todas las variables se escapan antes de insertarse en la plantilla HTML (nombres,
+  telefono, motivo de rechazo, titulos con `esc_html`; enlaces con `esc_url`, que descarta
+  `javascript:`). Antes, un nombre como `<a href=...>` escrito en el formulario de inscripcion
+  llegaba tal cual al correo del administrador. `comment_content` y `announcement_content`
+  conservan su HTML ya saneado.
+
+### Empaquetado
+
+- `composer.lock` versionado para builds reproducibles. El zip de instalacion lleva `vendor/`
+  podado a solo codigo (1,7 MB).
+
 ## [0.12.0] - 2026-09-28
 
 Certificados, reportes, API REST para la integracion y correos de comentarios.

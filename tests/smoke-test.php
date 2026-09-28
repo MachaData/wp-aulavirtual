@@ -547,6 +547,13 @@ check( 'el esquema de matricula enumera estados y origenes', EnrollmentStatus::a
 check( 'el limite de inscripciones por IP es 20 por hora', 20 === RegistrationsController::RATE_LIMIT && 'api' === RegistrationsController::LINK_LABEL );
 check( 'la clave de integracion viaja en X-AV-Key', 'av_integration_key' === AbstractController::OPTION_INTEGRATION_KEY && 'X-AV-Key' === AbstractController::HEADER_INTEGRATION_KEY );
 
+echo "\nSeguridad de correos\n";
+$escaped = VariableResolver::escape_all( array( 'first_name' => '<script>x</script>Ana', 'course_url' => 'javascript:alert(1)', 'comment_content' => 'a<br />b', 'lesson_url' => 'https://example.test/aula/sesion/1/' ) );
+check( 'los nombres se escapan antes de entrar al HTML del correo', '&lt;script&gt;x&lt;/script&gt;Ana' === $escaped['first_name'] );
+check( 'una URL javascript: se descarta', '' === $escaped['course_url'] );
+check( 'el contenido del comentario conserva su HTML ya saneado', 'a<br />b' === $escaped['comment_content'] );
+check( 'las URLs validas se conservan', 'https://example.test/aula/sesion/1/' === $escaped['lesson_url'] );
+
 echo "\nClases en vivo\n";
 check( 'antes de la ventana el boton no aparece', LiveClassService::WINDOW_BEFORE === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:44:59' ) );
 check( '15 minutos antes ya se puede entrar', LiveClassService::WINDOW_OPEN === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:45:00' ) );

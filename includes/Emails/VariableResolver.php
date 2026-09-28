@@ -208,7 +208,34 @@ final class VariableResolver {
 		 * @param array<string, string> $vars    Resolved variables.
 		 * @param array<string, mixed>  $payload Event payload.
 		 */
-		return (array) apply_filters( 'aula_virtual/email_variables', $vars, $payload );
+		return (array) apply_filters( 'aula_virtual/email_variables', self::escape_all( $vars ), $payload );
+	}
+
+	/**
+	 * Escapes every value for insertion into the HTML email.
+	 *
+	 * Text coming from forms (names, phone, rejection reason, titles) is
+	 * HTML-escaped; URLs go through esc_url; the two variables that carry
+	 * HTML on purpose (comment_content, announcement_content) are already
+	 * sanitised where they are built and are left untouched.
+	 *
+	 * @param array<string, string> $vars Resolved variables.
+	 * @return array<string, string>
+	 */
+	public static function escape_all( array $vars ): array {
+		$html_allowed = array( 'comment_content', 'announcement_content' );
+
+		foreach ( $vars as $key => $value ) {
+			$value = (string) $value;
+
+			if ( in_array( $key, $html_allowed, true ) ) {
+				continue;
+			}
+
+			$vars[ $key ] = str_ends_with( $key, '_url' ) ? esc_url( $value ) : esc_html( $value );
+		}
+
+		return $vars;
 	}
 
 	/**
