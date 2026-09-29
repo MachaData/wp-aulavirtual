@@ -102,7 +102,7 @@ final class EnrollmentsController extends AbstractController {
 					'callback'            => array( $this, 'get_items' ),
 					'permission_callback' => array( $this, 'permissions_check' ),
 					'args'                => array(
-						'email' => $this->email_arg( __( 'Correo del alumno cuyas matriculas se consultan.', 'aula-virtual' ) ),
+						'email' => $this->email_arg( __( 'Correo del alumno cuyas matrículas se consultan.', 'aula-virtual' ) ),
 					),
 				),
 				array(
@@ -125,14 +125,14 @@ final class EnrollmentsController extends AbstractController {
 					'permission_callback' => array( $this, 'permissions_check' ),
 					'args'                => array(
 						'id'     => array(
-							'description'       => __( 'Identificador de la matricula.', 'aula-virtual' ),
+							'description'       => __( 'Identificador de la matrícula.', 'aula-virtual' ),
 							'type'              => 'integer',
 							'required'          => true,
 							'minimum'           => 1,
 							'sanitize_callback' => 'absint',
 						),
 						'status' => array(
-							'description'       => __( 'Nuevo estado de la matricula.', 'aula-virtual' ),
+							'description'       => __( 'Nuevo estado de la matrícula.', 'aula-virtual' ),
 							'type'              => 'string',
 							'required'          => true,
 							'enum'              => EnrollmentStatus::all(),
@@ -165,7 +165,7 @@ final class EnrollmentsController extends AbstractController {
 		$email = Sanitizer::email( $request->get_param( 'email' ) );
 
 		if ( '' === $email ) {
-			return $this->invalid( __( 'Indica un correo electronico valido.', 'aula-virtual' ) );
+			return $this->invalid( __( 'Indica un correo electrónico válido.', 'aula-virtual' ) );
 		}
 
 		$user = get_user_by( 'email', $email );
@@ -183,7 +183,7 @@ final class EnrollmentsController extends AbstractController {
 		$rows = array_values( array_filter( $rows, fn( array $e ): bool => $this->access->can_manage_editions( (int) $e['course_id'] ) ) );
 
 		if ( false === $user || ( array() === $rows && ! $this->access->can_manage() ) ) {
-			return $this->not_found( __( 'No hay matriculas visibles para ese correo.', 'aula-virtual' ) );
+			return $this->not_found( __( 'No hay matrículas visibles para ese correo.', 'aula-virtual' ) );
 		}
 
 		return rest_ensure_response(
@@ -210,7 +210,7 @@ final class EnrollmentsController extends AbstractController {
 		$edition    = $this->editions->find( $edition_id );
 
 		if ( null === $edition ) {
-			return $this->not_found( __( 'La edicion no existe.', 'aula-virtual' ) );
+			return $this->not_found( __( 'La edición no existe.', 'aula-virtual' ) );
 		}
 
 		if ( ! $this->access->can_manage_editions( (int) $edition['course_id'] ) ) {
@@ -220,7 +220,7 @@ final class EnrollmentsController extends AbstractController {
 		$email = Sanitizer::email( $request->get_param( 'email' ) );
 
 		if ( '' === $email ) {
-			return $this->invalid( __( 'Indica un correo electronico valido.', 'aula-virtual' ) );
+			return $this->invalid( __( 'Indica un correo electrónico válido.', 'aula-virtual' ) );
 		}
 
 		$status = Sanitizer::enum( $request->get_param( 'status' ), EnrollmentStatus::all(), EnrollmentStatus::ACTIVE );
@@ -288,7 +288,7 @@ final class EnrollmentsController extends AbstractController {
 		$current       = $this->enrollments->find( $enrollment_id );
 
 		if ( null === $current ) {
-			return $this->not_found( __( 'La matricula no existe.', 'aula-virtual' ) );
+			return $this->not_found( __( 'La matrícula no existe.', 'aula-virtual' ) );
 		}
 
 		if ( ! $this->access->can_manage_editions( (int) $current['course_id'] ) ) {
@@ -443,13 +443,13 @@ final class EnrollmentsController extends AbstractController {
 	private function create_args(): array {
 		return array(
 			'edition_id'   => array(
-				'description'       => __( 'Identificador de la edicion.', 'aula-virtual' ),
+				'description'       => __( 'Identificador de la edición.', 'aula-virtual' ),
 				'type'              => 'integer',
 				'required'          => true,
 				'minimum'           => 1,
 				'sanitize_callback' => 'absint',
 			),
-			'email'        => $this->email_arg( __( 'Correo electronico del alumno.', 'aula-virtual' ) ),
+			'email'        => $this->email_arg( __( 'Correo electrónico del alumno.', 'aula-virtual' ) ),
 			'first_name'   => array(
 				'description'       => __( 'Nombre del alumno.', 'aula-virtual' ),
 				'type'              => 'string',
@@ -465,7 +465,7 @@ final class EnrollmentsController extends AbstractController {
 				'sanitize_callback' => 'sanitize_text_field',
 			),
 			'phone'        => array(
-				'description'       => __( 'Telefono de contacto.', 'aula-virtual' ),
+				'description'       => __( 'Teléfono de contacto.', 'aula-virtual' ),
 				'type'              => 'string',
 				'default'           => '',
 				'maxLength'         => 40,
@@ -479,20 +479,20 @@ final class EnrollmentsController extends AbstractController {
 				'sanitize_callback' => 'sanitize_text_field',
 			),
 			'status'       => array(
-				'description'       => __( 'Estado inicial de la matricula.', 'aula-virtual' ),
+				'description'       => __( 'Estado inicial de la matrícula.', 'aula-virtual' ),
 				'type'              => 'string',
 				'default'           => EnrollmentStatus::ACTIVE,
 				'enum'              => EnrollmentStatus::all(),
 				'sanitize_callback' => 'sanitize_key',
 			),
 			'send_welcome' => array(
-				'description'       => __( 'Enviar el correo de bienvenida con el enlace para crear la contrasena.', 'aula-virtual' ),
+				'description'       => __( 'Enviar el correo de bienvenida con el enlace para crear la contraseña.', 'aula-virtual' ),
 				'type'              => 'boolean',
 				'default'           => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			),
 			'notes'        => array(
-				'description'       => __( 'Notas internas de la matricula.', 'aula-virtual' ),
+				'description'       => __( 'Notas internas de la matrícula.', 'aula-virtual' ),
 				'type'              => 'string',
 				'default'           => '',
 				'maxLength'         => 1000,

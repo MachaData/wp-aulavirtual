@@ -50,13 +50,13 @@ final class VideoEmbed {
 		return (array) apply_filters(
 			'aula_virtual/video_providers',
 			array(
-				''              => __( 'Detectar automaticamente', 'aula-virtual' ),
+				''              => __( 'Detectar automáticamente', 'aula-virtual' ),
 				self::YOUTUBE   => 'YouTube',
 				self::VIMEO     => 'Vimeo',
 				self::BUNNY     => 'Bunny Stream',
 				self::HTML5     => __( 'Archivo MP4 / WebM', 'aula-virtual' ),
 				self::URL       => __( 'URL externa (oEmbed)', 'aula-virtual' ),
-				self::EMBED     => __( 'Codigo incrustado (iframe)', 'aula-virtual' ),
+				self::EMBED     => __( 'Código incrustado (iframe)', 'aula-virtual' ),
 				self::SHORTCODE => __( 'Shortcode', 'aula-virtual' ),
 			)
 		);

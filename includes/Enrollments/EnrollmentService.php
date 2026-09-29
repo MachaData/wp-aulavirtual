@@ -107,7 +107,7 @@ final class EnrollmentService {
 		if ( null === $edition ) {
 			return new WP_Error(
 				'av_edition_not_found',
-				__( 'La edicion no existe.', 'aula-virtual' ),
+				__( 'La edición no existe.', 'aula-virtual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -123,7 +123,7 @@ final class EnrollmentService {
 				'av_edition_closed',
 				sprintf(
 					/* translators: %s: edition state label. */
-					__( 'La edicion esta en estado "%s" y no admite matriculas.', 'aula-virtual' ),
+					__( 'La edición está en estado "%s" y no admite matrículas.', 'aula-virtual' ),
 					EditionStatus::label( (string) $edition['status'] )
 				),
 				array( 'status' => 409 )
@@ -135,7 +135,7 @@ final class EnrollmentService {
 		if ( $capacity > 0 && $this->enrollments->count_seats_taken( $edition_id ) >= $capacity ) {
 			return new WP_Error(
 				'av_edition_full',
-				__( 'La edicion alcanzo su cupo maximo.', 'aula-virtual' ),
+				__( 'La edición alcanzó su cupo máximo.', 'aula-virtual' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -174,7 +174,7 @@ final class EnrollmentService {
 
 			return new WP_Error(
 				'av_enrollment_not_created',
-				__( 'No se pudo registrar la matricula.', 'aula-virtual' )
+				__( 'No se pudo registrar la matrícula.', 'aula-virtual' )
 			);
 		}
 
@@ -227,7 +227,7 @@ final class EnrollmentService {
 		if ( null === $enrollment ) {
 			return new WP_Error(
 				'av_enrollment_not_found',
-				__( 'La matricula no existe.', 'aula-virtual' ),
+				__( 'La matrícula no existe.', 'aula-virtual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -235,7 +235,7 @@ final class EnrollmentService {
 		if ( ! in_array( $status, EnrollmentStatus::all(), true ) ) {
 			return new WP_Error(
 				'av_invalid_status',
-				__( 'Estado de matricula no valido.', 'aula-virtual' ),
+				__( 'Estado de matrícula no válido.', 'aula-virtual' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -252,7 +252,7 @@ final class EnrollmentService {
 				'av_invalid_transition',
 				sprintf(
 					/* translators: 1: current status, 2: requested status. */
-					__( 'No se puede pasar una matricula de "%1$s" a "%2$s".', 'aula-virtual' ),
+					__( 'No se puede pasar una matrícula de "%1$s" a "%2$s".', 'aula-virtual' ),
 					EnrollmentStatus::label( $from ),
 					EnrollmentStatus::label( $status )
 				),
@@ -266,7 +266,7 @@ final class EnrollmentService {
 			$capacity = null === $edition ? 0 : (int) $edition['capacity'];
 
 			if ( $capacity > 0 && $this->enrollments->count_seats_taken( (int) $enrollment['edition_id'] ) >= $capacity ) {
-				return new WP_Error( 'av_edition_full', __( 'La edicion alcanzo su cupo maximo.', 'aula-virtual' ), array( 'status' => 409 ) );
+				return new WP_Error( 'av_edition_full', __( 'La edición alcanzó su cupo máximo.', 'aula-virtual' ), array( 'status' => 409 ) );
 			}
 		}
 

@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php
 		printf(
 			/* translators: 1: date and time, 2: timezone. */
-			esc_html__( 'Esta sesion se abre el %1$s (%2$s). Te avisaremos aqui mismo cuando este disponible.', 'aula-virtual' ),
+			esc_html__( 'Esta sesión se abre el %1$s (%2$s). Te avisaremos aquí mismo cuando esté disponible.', 'aula-virtual' ),
 			'<strong>' . esc_html( $available_at ) . '</strong>',
 			esc_html( $timezone )
 		);

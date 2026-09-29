@@ -47,7 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php endif; ?>
 
 	<?php if ( empty( $cards ) ) : ?>
-		<p><?php esc_html_e( 'Todavia no estas matriculado en ningun curso.', 'aula-virtual' ); ?></p>
+		<p><?php esc_html_e( 'Todavía no estás matriculado en ningún curso.', 'aula-virtual' ); ?></p>
 	<?php else : ?>
 		<ul class="av-course-list">
 			<?php foreach ( $cards as $av_card ) : ?>

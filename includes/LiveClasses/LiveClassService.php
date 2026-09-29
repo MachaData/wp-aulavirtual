@@ -105,7 +105,7 @@ final class LiveClassService {
 		$lesson = $this->lessons->find( $lesson_id );
 
 		if ( null === $lesson ) {
-			return new WP_Error( 'av_lesson_not_found', __( 'La sesion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_lesson_not_found', __( 'La sesión no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
 		$edition  = $this->editions->find( (int) $lesson['edition_id'] );

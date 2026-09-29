@@ -43,10 +43,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<p>
 			<label for="av-email"><?php esc_html_e( 'Correo', 'aula-virtual' ); ?></label><br>
 			<input type="email" id="av-email" value="<?php echo esc_attr( $user->user_email ); ?>" readonly>
-			<small><?php esc_html_e( 'Tu correo identifica tu matricula. Para cambiarlo, escribenos.', 'aula-virtual' ); ?></small>
+			<small><?php esc_html_e( 'Tu correo identifica tu matrícula. Para cambiarlo, escríbenos.', 'aula-virtual' ); ?></small>
 		</p>
 		<p>
-			<label for="av-phone"><?php esc_html_e( 'Telefono / WhatsApp', 'aula-virtual' ); ?></label><br>
+			<label for="av-phone"><?php esc_html_e( 'Teléfono / WhatsApp', 'aula-virtual' ); ?></label><br>
 			<input type="tel" id="av-phone" name="phone" value="<?php echo esc_attr( $phone ); ?>" autocomplete="tel">
 		</p>
 		<p>
@@ -54,18 +54,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<input type="text" id="av-document" name="document" value="<?php echo esc_attr( $document ); ?>">
 		</p>
 
-		<h3><?php esc_html_e( 'Cambiar contrasena', 'aula-virtual' ); ?></h3>
-		<p><small><?php esc_html_e( 'Deja estos campos vacios si no quieres cambiarla.', 'aula-virtual' ); ?></small></p>
+		<h3><?php esc_html_e( 'Cambiar contraseña', 'aula-virtual' ); ?></h3>
+		<p><small><?php esc_html_e( 'Deja estos campos vacíos si no quieres cambiarla.', 'aula-virtual' ); ?></small></p>
 		<p>
-			<label for="av-current-password"><?php esc_html_e( 'Contrasena actual', 'aula-virtual' ); ?></label><br>
+			<label for="av-current-password"><?php esc_html_e( 'Contraseña actual', 'aula-virtual' ); ?></label><br>
 			<input type="password" id="av-current-password" name="current_password" autocomplete="current-password">
 		</p>
 		<p>
-			<label for="av-new-password"><?php esc_html_e( 'Nueva contrasena (minimo 8 caracteres)', 'aula-virtual' ); ?></label><br>
+			<label for="av-new-password"><?php esc_html_e( 'Nueva contraseña (mínimo 8 caracteres)', 'aula-virtual' ); ?></label><br>
 			<input type="password" id="av-new-password" name="new_password" autocomplete="new-password" minlength="8">
 		</p>
 		<p>
-			<label for="av-confirm-password"><?php esc_html_e( 'Repite la nueva contrasena', 'aula-virtual' ); ?></label><br>
+			<label for="av-confirm-password"><?php esc_html_e( 'Repite la nueva contraseña', 'aula-virtual' ); ?></label><br>
 			<input type="password" id="av-confirm-password" name="confirm_password" autocomplete="new-password" minlength="8">
 		</p>
 

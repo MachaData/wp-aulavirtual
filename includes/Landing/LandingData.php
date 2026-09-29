@@ -49,14 +49,14 @@ final class LandingData {
 	 */
 	public static function labels(): array {
 		return array(
-			'hero'       => __( 'Presentacion', 'aula-virtual' ),
+			'hero'       => __( 'Presentación', 'aula-virtual' ),
 			'benefits'   => __( 'Beneficios', 'aula-virtual' ),
 			'content'    => __( 'Contenido', 'aula-virtual' ),
 			'instructor' => __( 'Instructor', 'aula-virtual' ),
-			'info'       => __( 'Informacion del curso', 'aula-virtual' ),
+			'info'       => __( 'Información del curso', 'aula-virtual' ),
 			'price'      => __( 'Precio', 'aula-virtual' ),
 			'faq'        => __( 'Preguntas frecuentes', 'aula-virtual' ),
-			'cta'        => __( 'Inscripcion / Compra', 'aula-virtual' ),
+			'cta'        => __( 'Inscripción / Compra', 'aula-virtual' ),
 		);
 	}
 
@@ -67,11 +67,11 @@ final class LandingData {
 	 */
 	public static function button_types(): array {
 		return array(
-			self::BUTTON_BUY      => __( 'Comprar (checkout de la edicion)', 'aula-virtual' ),
-			self::BUTTON_REGISTER => __( 'Inscribirse (enlace de inscripcion de la edicion)', 'aula-virtual' ),
+			self::BUTTON_BUY      => __( 'Comprar (checkout de la edición)', 'aula-virtual' ),
+			self::BUTTON_REGISTER => __( 'Inscribirse (enlace de inscripción de la edición)', 'aula-virtual' ),
 			self::BUTTON_WHATSAPP => __( 'WhatsApp', 'aula-virtual' ),
 			self::BUTTON_CUSTOM   => __( 'Enlace personalizado', 'aula-virtual' ),
-			self::BUTTON_NONE     => __( 'Sin boton', 'aula-virtual' ),
+			self::BUTTON_NONE     => __( 'Sin botón', 'aula-virtual' ),
 		);
 	}
 
@@ -105,7 +105,7 @@ final class LandingData {
 			),
 			'benefits'   => array(
 				'enabled'  => true,
-				'title'    => __( 'Que vas a lograr', 'aula-virtual' ),
+				'title'    => __( 'Qué vas a lograr', 'aula-virtual' ),
 				'items'    => $course_id > 0 ? self::list_meta( $meta( CourseMeta::LEARNING_OUTCOMES ), $meta( CourseMeta::BENEFITS ) ) : array(),
 				'image_id' => 0,
 			),
@@ -127,13 +127,13 @@ final class LandingData {
 			),
 			'info'       => array(
 				'enabled'       => true,
-				'title'         => __( 'Informacion del curso', 'aula-virtual' ),
+				'title'         => __( 'Información del curso', 'aula-virtual' ),
 				'from_editions' => true,
 				'items'         => array(),
 			),
 			'price'      => array(
 				'enabled'     => true,
-				'title'       => __( 'Inversion', 'aula-virtual' ),
+				'title'       => __( 'Inversión', 'aula-virtual' ),
 				'price'       => $course_id > 0 ? (string) $meta( CourseMeta::PRICE_DISPLAY ) : '',
 				'old_price'   => '',
 				'includes'    => $course_id > 0 ? self::list_meta( $meta( CourseMeta::INCLUDED_MATERIAL ) ) : array(),

@@ -74,7 +74,8 @@ final class AdminServiceProvider implements ServiceProvider {
 				$c->get( EnrollmentLinkRepository::class ),
 				$c->get( RegistrationService::class ),
 				$c->get( EditionDuplicator::class ),
-				$c->get( CourseDuplicator::class )
+				$c->get( CourseDuplicator::class ),
+				$c->get( RegistrationRequestRepository::class )
 			)
 		);
 
@@ -200,8 +201,8 @@ final class AdminServiceProvider implements ServiceProvider {
 				// Editor de sesion: pagina sin entrada de menu, se llega desde la edicion.
 				add_submenu_page(
 					'',
-					__( 'Sesion', 'aula-virtual' ),
-					__( 'Sesion', 'aula-virtual' ),
+					__( 'Sesión', 'aula-virtual' ),
+					__( 'Sesión', 'aula-virtual' ),
 					\SIQA\AulaVirtual\Permissions\Capabilities::MANAGE_CURRICULUM,
 					LessonScreen::SLUG,
 					static function () use ( $container ): void {
@@ -217,6 +218,7 @@ final class AdminServiceProvider implements ServiceProvider {
 			EditionsScreen::ACTION_ENROLL       => array( EditionsScreen::class, 'handle_enroll' ),
 			EditionsScreen::ACTION_CREATE_LINK  => array( EditionsScreen::class, 'handle_create_link' ),
 			EditionsScreen::ACTION_DUPLICATE    => array( EditionsScreen::class, 'handle_duplicate' ),
+			EditionsScreen::ACTION_TOGGLE_LINK  => array( EditionsScreen::class, 'handle_toggle_link' ),
 			EditionsScreen::ACTION_MOVE_LESSON  => array( EditionsScreen::class, 'handle_move_lesson' ),
 			EditionsScreen::ACTION_DUPLICATE_COURSE => array( EditionsScreen::class, 'handle_duplicate_course' ),
 			ImportScreen::ACTION_UPLOAD         => array( ImportScreen::class, 'handle_upload' ),
@@ -253,6 +255,22 @@ final class AdminServiceProvider implements ServiceProvider {
 				}
 			);
 		}
+
+		// Estilos y script propios, solo en las pantallas del plugin.
+		add_action(
+			'admin_enqueue_scripts',
+			static function (): void {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only reads the screen slug.
+				$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+
+				if ( ! str_starts_with( $page, 'aula-virtual' ) ) {
+					return;
+				}
+
+				wp_enqueue_style( 'av-admin', AV_URL . 'assets/css/admin.css', array(), AV_VERSION );
+				wp_enqueue_script( 'av-admin', AV_URL . 'assets/js/admin.js', array(), AV_VERSION, true );
+			}
+		);
 
 		// Accion "Duplicar" en la lista de cursos.
 		add_filter(

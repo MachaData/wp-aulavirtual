@@ -65,7 +65,7 @@ final class EditionService {
 		return array(
 			self::MODALITY_RECORDED => __( 'Grabado', 'aula-virtual' ),
 			self::MODALITY_LIVE     => __( 'En vivo', 'aula-virtual' ),
-			self::MODALITY_HYBRID   => __( 'Hibrido', 'aula-virtual' ),
+			self::MODALITY_HYBRID   => __( 'Híbrido', 'aula-virtual' ),
 		);
 	}
 
@@ -93,7 +93,7 @@ final class EditionService {
 		if ( 0 === $edition_id ) {
 			return new WP_Error(
 				'av_edition_not_created',
-				__( 'No se pudo guardar la edicion.', 'aula-virtual' )
+				__( 'No se pudo guardar la edición.', 'aula-virtual' )
 			);
 		}
 
@@ -123,7 +123,7 @@ final class EditionService {
 		if ( null === $existing ) {
 			return new WP_Error(
 				'av_edition_not_found',
-				__( 'La edicion no existe.', 'aula-virtual' ),
+				__( 'La edición no existe.', 'aula-virtual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -157,7 +157,7 @@ final class EditionService {
 		if ( ! $course instanceof \WP_Post || CoursePostType::POST_TYPE !== $course->post_type ) {
 			return new WP_Error(
 				'av_invalid_course',
-				__( 'Selecciona un curso valido para la edicion.', 'aula-virtual' ),
+				__( 'Selecciona un curso válido para la edición.', 'aula-virtual' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -167,7 +167,7 @@ final class EditionService {
 		if ( '' === $name ) {
 			return new WP_Error(
 				'av_missing_name',
-				__( 'La edicion necesita un nombre, por ejemplo "Julio 2027".', 'aula-virtual' ),
+				__( 'La edición necesita un nombre, por ejemplo "Julio 2027".', 'aula-virtual' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -180,7 +180,7 @@ final class EditionService {
 				'av_duplicate_code',
 				sprintf(
 					/* translators: %s: edition code. */
-					__( 'Ya existe una edicion con el codigo "%s".', 'aula-virtual' ),
+					__( 'Ya existe una edición con el código "%s".', 'aula-virtual' ),
 					$code
 				),
 				array( 'status' => 409 )

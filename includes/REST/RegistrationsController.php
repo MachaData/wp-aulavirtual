@@ -148,7 +148,7 @@ final class RegistrationsController extends AbstractController {
 			return true;
 		}
 
-		return $this->forbidden( __( 'Se requiere la clave de integracion o un usuario autorizado.', 'aula-virtual' ) );
+		return $this->forbidden( __( 'Se requiere la clave de integración o un usuario autorizado.', 'aula-virtual' ) );
 	}
 
 	/**
@@ -162,13 +162,13 @@ final class RegistrationsController extends AbstractController {
 		$edition    = $this->editions->find( $edition_id );
 
 		if ( null === $edition ) {
-			return $this->not_found( __( 'La edicion no existe.', 'aula-virtual' ) );
+			return $this->not_found( __( 'La edición no existe.', 'aula-virtual' ) );
 		}
 
 		if ( ! EditionStatus::accepts_enrollments( (string) $edition['status'] ) ) {
 			return new WP_Error(
 				'av_edition_closed',
-				__( 'Esta edicion ya no admite inscripciones.', 'aula-virtual' ),
+				__( 'Esta edición ya no admite inscripciones.', 'aula-virtual' ),
 				array( 'status' => 410 )
 			);
 		}
@@ -176,7 +176,7 @@ final class RegistrationsController extends AbstractController {
 		$email = Sanitizer::email( $request->get_param( 'email' ) );
 
 		if ( '' === $email ) {
-			return $this->invalid( __( 'Indica un correo electronico valido.', 'aula-virtual' ) );
+			return $this->invalid( __( 'Indica un correo electrónico válido.', 'aula-virtual' ) );
 		}
 
 		$exempt = is_user_logged_in() && current_user_can( Capabilities::ENROLL_STUDENTS );
@@ -252,7 +252,10 @@ final class RegistrationsController extends AbstractController {
 			}
 		}
 
-		$args = array( 'label' => self::LINK_LABEL );
+		$args = array(
+			'label'   => self::LINK_LABEL,
+			'private' => true,
+		);
 
 		/**
 		 * Filters the arguments of the link created for API registrations.
@@ -276,7 +279,7 @@ final class RegistrationsController extends AbstractController {
 		if ( null === $created ) {
 			return new WP_Error(
 				'av_link_not_created',
-				__( 'No se pudo preparar el enlace de inscripcion.', 'aula-virtual' ),
+				__( 'No se pudo preparar el enlace de inscripción.', 'aula-virtual' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -310,13 +313,13 @@ final class RegistrationsController extends AbstractController {
 	private function message_for( string $status ): string {
 		switch ( $status ) {
 			case RegistrationRequestRepository::STATUS_ENROLLED:
-				return __( 'Inscripcion completada. El alumno recibira la bienvenida por correo.', 'aula-virtual' );
+				return __( 'Inscripción completada. El alumno recibirá la bienvenida por correo.', 'aula-virtual' );
 			case RegistrationRequestRepository::STATUS_APPROVED:
-				return __( 'Solicitud aprobada. El alumno recibira por correo el enlace de pago.', 'aula-virtual' );
+				return __( 'Solicitud aprobada. El alumno recibirá por correo el enlace de pago.', 'aula-virtual' );
 			case RegistrationRequestRepository::STATUS_REJECTED:
 				return __( 'La solicitud fue rechazada.', 'aula-virtual' );
 			default:
-				return __( 'Solicitud recibida. Queda pendiente de revision.', 'aula-virtual' );
+				return __( 'Solicitud recibida. Queda pendiente de revisión.', 'aula-virtual' );
 		}
 	}
 
@@ -328,7 +331,7 @@ final class RegistrationsController extends AbstractController {
 	private function create_args(): array {
 		return array(
 			'edition_id' => array(
-				'description'       => __( 'Identificador de la edicion.', 'aula-virtual' ),
+				'description'       => __( 'Identificador de la edición.', 'aula-virtual' ),
 				'type'              => 'integer',
 				'required'          => true,
 				'minimum'           => 1,
@@ -349,7 +352,7 @@ final class RegistrationsController extends AbstractController {
 				'sanitize_callback' => 'sanitize_text_field',
 			),
 			'email'      => array(
-				'description'       => __( 'Correo electronico del alumno.', 'aula-virtual' ),
+				'description'       => __( 'Correo electrónico del alumno.', 'aula-virtual' ),
 				'type'              => 'string',
 				'format'            => 'email',
 				'required'          => true,
@@ -357,7 +360,7 @@ final class RegistrationsController extends AbstractController {
 				'validate_callback' => static fn( $value ): bool => is_string( $value ) && false !== is_email( $value ),
 			),
 			'phone'      => array(
-				'description'       => __( 'Telefono de contacto.', 'aula-virtual' ),
+				'description'       => __( 'Teléfono de contacto.', 'aula-virtual' ),
 				'type'              => 'string',
 				'default'           => '',
 				'maxLength'         => 40,

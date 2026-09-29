@@ -184,7 +184,7 @@ final class CoursesController extends AbstractController {
 		$params = parent::get_collection_params();
 
 		$params['category'] = array(
-			'description'       => __( 'Filtra por slug de categoria.', 'aula-virtual' ),
+			'description'       => __( 'Filtra por slug de categoría.', 'aula-virtual' ),
 			'type'              => 'string',
 			'default'           => '',
 			'sanitize_callback' => 'sanitize_title',

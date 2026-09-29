@@ -83,7 +83,7 @@ final class ReportsScreen {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::VIEW_REPORTS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para ver esta pagina.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'No tienes permisos para ver esta página.', 'aula-virtual' ) );
 		}
 
 		$notice = null;
@@ -125,7 +125,7 @@ final class ReportsScreen {
 	 */
 	public function handle_export(): void {
 		if ( ! current_user_can( Capabilities::VIEW_REPORTS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( self::ACTION_EXPORT );
@@ -135,7 +135,7 @@ final class ReportsScreen {
 		$edition    = $this->editions->find( $edition_id );
 
 		if ( null === $edition ) {
-			$this->finish( 'error', __( 'La edicion no existe.', 'aula-virtual' ) );
+			$this->finish( 'error', __( 'La edición no existe.', 'aula-virtual' ) );
 		}
 
 		if ( ! $this->access->can_manage_editions( (int) $edition['course_id'] ) ) {
@@ -200,7 +200,7 @@ final class ReportsScreen {
 		$edition = $this->editions->find( $edition_id );
 
 		if ( null === $edition ) {
-			$this->finish( 'error', __( 'La edicion no existe.', 'aula-virtual' ) );
+			$this->finish( 'error', __( 'La edición no existe.', 'aula-virtual' ) );
 		}
 
 		if ( ! $this->access->can_manage_editions( (int) $edition['course_id'] ) ) {

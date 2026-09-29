@@ -39,7 +39,7 @@ foreach ( $editions as $av_edition ) {
 				</thead>
 				<tbody>
 				<?php if ( empty( $items ) ) : ?>
-					<tr><td colspan="4"><?php esc_html_e( 'Todavia no hay anuncios.', 'aula-virtual' ); ?></td></tr>
+					<tr><td colspan="4"><?php esc_html_e( 'Todavía no hay anuncios.', 'aula-virtual' ); ?></td></tr>
 				<?php else : ?>
 					<?php foreach ( $items as $av_item ) : ?>
 						<tr>
@@ -50,7 +50,7 @@ foreach ( $editions as $av_edition ) {
 							</td>
 							<td>
 								<?php echo esc_html( get_the_title( (int) $av_item['course_id'] ) ); ?><br>
-								<small><?php echo esc_html( (int) $av_item['edition_id'] > 0 ? __( 'Solo una edicion', 'aula-virtual' ) : __( 'Todas las ediciones', 'aula-virtual' ) ); ?></small>
+								<small><?php echo esc_html( (int) $av_item['edition_id'] > 0 ? __( 'Solo una edición', 'aula-virtual' ) : __( 'Todas las ediciones', 'aula-virtual' ) ); ?></small>
 							</td>
 							<td><?php echo esc_html( mysql2date( (string) get_option( 'date_format' ), (string) $av_item['created_at'] ) ); ?></td>
 							<td>
@@ -87,9 +87,9 @@ foreach ( $editions as $av_edition ) {
 						<?php endforeach; ?>
 					</select>
 				</p>
-				<p><input type="text" name="title" class="widefat" required placeholder="<?php esc_attr_e( 'Titulo', 'aula-virtual' ); ?>"></p>
+				<p><input type="text" name="title" class="widefat" required placeholder="<?php esc_attr_e( 'Título', 'aula-virtual' ); ?>"></p>
 				<?php wp_editor( '', 'av-announcement-content', array( 'textarea_name' => 'content', 'textarea_rows' => 8, 'media_buttons' => false, 'teeny' => true ) ); ?>
-				<p style="margin-top:10px"><label><input type="checkbox" name="send_email" value="1" checked> <?php esc_html_e( 'Enviar tambien por correo a los alumnos matriculados', 'aula-virtual' ); ?></label></p>
+				<p style="margin-top:10px"><label><input type="checkbox" name="send_email" value="1" checked> <?php esc_html_e( 'Enviar también por correo a los alumnos matriculados', 'aula-virtual' ); ?></label></p>
 				<p class="description"><?php esc_html_e( 'El correo usa la plantilla "Nuevo anuncio" de Aula Virtual > Emails. El anuncio queda visible en el campus de cada alumno.', 'aula-virtual' ); ?></p>
 				<?php submit_button( __( 'Publicar', 'aula-virtual' ) ); ?>
 			</form>

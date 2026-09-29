@@ -86,7 +86,7 @@ final class RequestsScreen {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::APPROVE_REQUESTS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para ver esta pagina.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'No tienes permisos para ver esta página.', 'aula-virtual' ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter.
@@ -194,7 +194,7 @@ final class RequestsScreen {
 	 */
 	private function guard( string $action, string $capability = Capabilities::APPROVE_REQUESTS ): int {
 		if ( ! current_user_can( $capability ) ) {
-			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( $action );

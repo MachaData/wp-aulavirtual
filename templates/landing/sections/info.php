@@ -35,7 +35,7 @@ if ( array() === $av_editions && empty( $section['items'] ) ) {
 								<div><dt><?php esc_html_e( 'Fin', 'aula-virtual' ); ?></dt><dd><?php echo esc_html( $av_edition['end_date'] ); ?></dd></div>
 							<?php endif; ?>
 							<?php if ( '' !== $av_edition['schedule_days'] ) : ?>
-								<div><dt><?php esc_html_e( 'Dias', 'aula-virtual' ); ?></dt><dd><?php echo esc_html( $av_edition['schedule_days'] ); ?></dd></div>
+								<div><dt><?php esc_html_e( 'Días', 'aula-virtual' ); ?></dt><dd><?php echo esc_html( $av_edition['schedule_days'] ); ?></dd></div>
 							<?php endif; ?>
 							<?php if ( '' !== $av_edition['schedule_time'] ) : ?>
 								<div><dt><?php esc_html_e( 'Horario', 'aula-virtual' ); ?></dt><dd><?php echo esc_html( $av_edition['schedule_time'] ); ?><?php echo '' !== $av_edition['timezone'] ? ' <small>(' . esc_html( $av_edition['timezone'] ) . ')</small>' : ''; ?></dd></div>

@@ -85,7 +85,7 @@ final class ImportScreen {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::IMPORT_STUDENTS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para ver esta pagina.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'No tienes permisos para ver esta página.', 'aula-virtual' ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation.
@@ -166,7 +166,7 @@ final class ImportScreen {
 		}
 
 		if ( (int) ( $file['size'] ?? 0 ) > ImportParser::MAX_BYTES ) {
-			$this->finish( 'error', __( 'El archivo es demasiado grande (maximo 5 MB).', 'aula-virtual' ) );
+			$this->finish( 'error', __( 'El archivo es demasiado grande (máximo 5 MB).', 'aula-virtual' ) );
 		}
 
 		$filename = sanitize_file_name( (string) $file['name'] );
@@ -208,7 +208,7 @@ final class ImportScreen {
 		$stash = self::own_stash( get_transient( 'av_import_stash_' . $token ) );
 
 		if ( ! is_array( $stash ) ) {
-			$this->finish( 'error', __( 'La sesion de importacion caduco. Vuelve a subir el archivo.', 'aula-virtual' ) );
+			$this->finish( 'error', __( 'La sesión de importación caducó. Vuelve a subir el archivo.', 'aula-virtual' ) );
 		}
 
 		$this->assert_edition( (int) $stash['edition_id'] );
@@ -225,7 +225,7 @@ final class ImportScreen {
 		}
 
 		if ( ! isset( $mapping['email'] ) ) {
-			$this->finish( 'error', __( 'Indica que columna tiene el correo.', 'aula-virtual' ), array( 'token' => $token, 'step' => 'map' ) );
+			$this->finish( 'error', __( 'Indica qué columna tiene el correo.', 'aula-virtual' ), array( 'token' => $token, 'step' => 'map' ) );
 		}
 
 		$stash['mapping'] = $mapping;
@@ -248,7 +248,7 @@ final class ImportScreen {
 		$stash = self::own_stash( get_transient( 'av_import_stash_' . $token ) );
 
 		if ( ! is_array( $stash ) ) {
-			$this->finish( 'error', __( 'La sesion de importacion caduco. Vuelve a subir el archivo.', 'aula-virtual' ) );
+			$this->finish( 'error', __( 'La sesión de importación caducó. Vuelve a subir el archivo.', 'aula-virtual' ) );
 		}
 
 		$this->assert_edition( (int) $stash['edition_id'] );
@@ -284,7 +284,7 @@ final class ImportScreen {
 		$job    = $this->jobs->find( $job_id );
 
 		if ( null === $job ) {
-			$this->finish( 'error', __( 'La importacion no existe.', 'aula-virtual' ) );
+			$this->finish( 'error', __( 'La importación no existe.', 'aula-virtual' ) );
 		}
 
 		$this->assert_edition( (int) $job['edition_id'] );
@@ -321,7 +321,7 @@ final class ImportScreen {
 	 */
 	private function guard( string $action ): void {
 		if ( ! current_user_can( Capabilities::IMPORT_STUDENTS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( $action );
@@ -337,7 +337,7 @@ final class ImportScreen {
 		$edition = $this->editions->find( $edition_id );
 
 		if ( null === $edition || ! $this->access->can_manage_editions( (int) $edition['course_id'] ) ) {
-			wp_die( esc_html__( 'No tienes permisos sobre esta edicion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos sobre esta edición.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 	}
 

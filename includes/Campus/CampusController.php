@@ -428,7 +428,7 @@ final class CampusController {
 	 */
 	public function handle_comment(): void {
 		if ( ! is_user_logged_in() ) {
-			wp_die( esc_html__( 'Necesitas iniciar sesion.', 'aula-virtual' ), '', array( 'response' => 401 ) );
+			wp_die( esc_html__( 'Necesitas iniciar sesión.', 'aula-virtual' ), '', array( 'response' => 401 ) );
 		}
 
 		check_admin_referer( self::ACTION_COMMENT );
@@ -457,7 +457,7 @@ final class CampusController {
 	 */
 	public function handle_delete_comment(): void {
 		if ( ! is_user_logged_in() ) {
-			wp_die( esc_html__( 'Necesitas iniciar sesion.', 'aula-virtual' ), '', array( 'response' => 401 ) );
+			wp_die( esc_html__( 'Necesitas iniciar sesión.', 'aula-virtual' ), '', array( 'response' => 401 ) );
 		}
 
 		check_admin_referer( self::ACTION_DELETE_COMMENT );
@@ -520,7 +520,7 @@ final class CampusController {
 	 */
 	public function handle_profile(): void {
 		if ( ! is_user_logged_in() ) {
-			wp_die( esc_html__( 'Necesitas iniciar sesion.', 'aula-virtual' ), '', array( 'response' => 401 ) );
+			wp_die( esc_html__( 'Necesitas iniciar sesión.', 'aula-virtual' ), '', array( 'response' => 401 ) );
 		}
 
 		check_admin_referer( self::ACTION_PROFILE );
@@ -529,7 +529,7 @@ final class CampusController {
 		$user    = get_userdata( $user_id );
 
 		if ( false === $user ) {
-			wp_die( esc_html__( 'Usuario no valido.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'Usuario no válido.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
@@ -564,15 +564,15 @@ final class CampusController {
 			$current = (string) ( $input['current_password'] ?? '' );
 
 			if ( ! wp_check_password( $current, $user->user_pass, $user_id ) ) {
-				$this->redirect_profile( 'error', __( 'La contrasena actual no es correcta.', 'aula-virtual' ) );
+				$this->redirect_profile( 'error', __( 'La contraseña actual no es correcta.', 'aula-virtual' ) );
 			}
 
 			if ( strlen( $new_password ) < 8 ) {
-				$this->redirect_profile( 'error', __( 'La nueva contrasena debe tener al menos 8 caracteres.', 'aula-virtual' ) );
+				$this->redirect_profile( 'error', __( 'La nueva contraseña debe tener al menos 8 caracteres.', 'aula-virtual' ) );
 			}
 
 			if ( $new_password !== (string) ( $input['confirm_password'] ?? '' ) ) {
-				$this->redirect_profile( 'error', __( 'Las contrasenas no coinciden.', 'aula-virtual' ) );
+				$this->redirect_profile( 'error', __( 'Las contraseñas no coinciden.', 'aula-virtual' ) );
 			}
 
 			wp_set_password( $new_password, $user_id );
@@ -612,7 +612,7 @@ final class CampusController {
 	 */
 	public function handle_complete(): void {
 		if ( ! is_user_logged_in() ) {
-			wp_die( esc_html__( 'Necesitas iniciar sesion.', 'aula-virtual' ), '', array( 'response' => 401 ) );
+			wp_die( esc_html__( 'Necesitas iniciar sesión.', 'aula-virtual' ), '', array( 'response' => 401 ) );
 		}
 
 		check_admin_referer( self::ACTION_COMPLETE );
@@ -660,7 +660,7 @@ final class CampusController {
 	 */
 	public function handle_retake(): void {
 		if ( ! is_user_logged_in() ) {
-			wp_die( esc_html__( 'Necesitas iniciar sesion.', 'aula-virtual' ), '', array( 'response' => 401 ) );
+			wp_die( esc_html__( 'Necesitas iniciar sesión.', 'aula-virtual' ), '', array( 'response' => 401 ) );
 		}
 
 		check_admin_referer( self::ACTION_RETAKE );

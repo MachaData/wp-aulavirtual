@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		array(
 			'redirect'       => $redirect,
 			'label_username' => __( 'Correo o usuario', 'aula-virtual' ),
-			'label_password' => __( 'Contrasena', 'aula-virtual' ),
+			'label_password' => __( 'Contraseña', 'aula-virtual' ),
 			'label_log_in'   => __( 'Entrar', 'aula-virtual' ),
 			'remember'       => true,
 		)
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	?>
 	<p>
 		<a href="<?php echo esc_url( wp_lostpassword_url( $redirect ) ); ?>">
-			<?php esc_html_e( 'Olvide mi contrasena', 'aula-virtual' ); ?>
+			<?php esc_html_e( 'Olvidé mi contraseña', 'aula-virtual' ); ?>
 		</a>
 	</p>
 </div>

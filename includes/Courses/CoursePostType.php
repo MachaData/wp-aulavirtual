@@ -62,8 +62,8 @@ final class CoursePostType {
 		$labels = array(
 			'name'               => __( 'Cursos', 'aula-virtual' ),
 			'singular_name'      => __( 'Curso', 'aula-virtual' ),
-			'add_new'            => __( 'Anadir curso', 'aula-virtual' ),
-			'add_new_item'       => __( 'Anadir nuevo curso', 'aula-virtual' ),
+			'add_new'            => __( 'Añadir curso', 'aula-virtual' ),
+			'add_new_item'       => __( 'Añadir nuevo curso', 'aula-virtual' ),
 			'edit_item'          => __( 'Editar curso', 'aula-virtual' ),
 			'new_item'           => __( 'Nuevo curso', 'aula-virtual' ),
 			'view_item'          => __( 'Ver curso', 'aula-virtual' ),
@@ -116,8 +116,8 @@ final class CoursePostType {
 			self::POST_TYPE,
 			array(
 				'labels'            => array(
-					'name'          => __( 'Categorias de curso', 'aula-virtual' ),
-					'singular_name' => __( 'Categoria de curso', 'aula-virtual' ),
+					'name'          => __( 'Categorías de curso', 'aula-virtual' ),
+					'singular_name' => __( 'Categoría de curso', 'aula-virtual' ),
 				),
 				'public'            => true,
 				'hierarchical'      => true,

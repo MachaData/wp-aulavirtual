@@ -62,7 +62,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div style="flex:0 1 320px">
 			<h2><?php esc_html_e( 'Variables disponibles', 'aula-virtual' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Escribelas tal cual, con las llaves. Si un dato no aplica al evento queda vacio.', 'aula-virtual' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Escríbelas tal cual, con las llaves. Si un dato no aplica al evento queda vacío.', 'aula-virtual' ); ?></p>
 			<table class="widefat striped">
 				<tbody>
 				<?php foreach ( $variables as $av_name => $av_description ) : ?>
@@ -79,7 +79,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<input type="hidden" name="template_id" value="<?php echo esc_attr( (string) (int) $template['id'] ); ?>">
 				<?php wp_nonce_field( EmailsScreen::ACTION_TEST ); ?>
 				<?php submit_button( __( 'Enviarme una prueba', 'aula-virtual' ), 'secondary', 'submit', false ); ?>
-				<p class="description"><?php esc_html_e( 'Usa datos de ejemplo y la version guardada de la plantilla.', 'aula-virtual' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Usa datos de ejemplo y la versión guardada de la plantilla.', 'aula-virtual' ); ?></p>
 			</form>
 		</div>
 	</div>

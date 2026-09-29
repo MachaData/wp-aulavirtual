@@ -61,7 +61,7 @@ final class EmailsScreen {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::MANAGE_LMS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para ver esta pagina.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'No tienes permisos para ver esta página.', 'aula-virtual' ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation.
@@ -175,7 +175,7 @@ final class EmailsScreen {
 	 */
 	private function guard( string $action ): void {
 		if ( ! current_user_can( Capabilities::MANAGE_LMS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( $action );

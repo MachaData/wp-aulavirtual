@@ -20,6 +20,7 @@ use SIQA\AulaVirtual\Enrollments\EnrollmentLinkRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
 use SIQA\AulaVirtual\Enrollments\EnrollmentStatus;
+use SIQA\AulaVirtual\Enrollments\RegistrationRequestRepository;
 use SIQA\AulaVirtual\Enrollments\RegistrationService;
 use SIQA\AulaVirtual\Permissions\AccessControl;
 use SIQA\AulaVirtual\Permissions\Capabilities;
@@ -44,6 +45,7 @@ final class EditionsScreen {
 	public const ACTION_DUPLICATE    = 'av_duplicate_edition';
 	public const ACTION_MOVE_LESSON  = 'av_move_lesson';
 	public const ACTION_DUPLICATE_COURSE = 'av_duplicate_course';
+	public const ACTION_TOGGLE_LINK      = 'av_toggle_registration_link';
 
 	/**
 	 * Edition persistence.
@@ -130,6 +132,18 @@ final class EditionsScreen {
 	private CourseDuplicator $course_duplicator;
 
 	/**
+	 * Registration request persistence (pending counter).
+	 *
+	 * @var RegistrationRequestRepository
+	 */
+	private RegistrationRequestRepository $requests;
+
+	/**
+	 * Tabs of the edition detail.
+	 */
+	public const TABS = array( 'sesiones', 'alumnos', 'inscripcion', 'ajustes' );
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EditionRepository    $editions           Edition persistence.
@@ -144,6 +158,7 @@ final class EditionsScreen {
 	 * @param RegistrationService  $registration       Registration rules.
 	 * @param EditionDuplicator    $duplicator         Edition copies.
 	 * @param CourseDuplicator     $course_duplicator  Course copies.
+	 * @param RegistrationRequestRepository $requests  Registration requests.
 	 */
 	public function __construct(
 		EditionRepository $editions,
@@ -157,7 +172,8 @@ final class EditionsScreen {
 		EnrollmentLinkRepository $links,
 		RegistrationService $registration,
 		EditionDuplicator $duplicator,
-		CourseDuplicator $course_duplicator
+		CourseDuplicator $course_duplicator,
+		RegistrationRequestRepository $requests
 	) {
 		$this->editions           = $editions;
 		$this->edition_service    = $edition_service;
@@ -171,6 +187,7 @@ final class EditionsScreen {
 		$this->registration       = $registration;
 		$this->duplicator         = $duplicator;
 		$this->course_duplicator  = $course_duplicator;
+		$this->requests           = $requests;
 	}
 
 	/**
@@ -180,7 +197,7 @@ final class EditionsScreen {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::MANAGE_EDITIONS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para ver esta pagina.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'No tienes permisos para ver esta página.', 'aula-virtual' ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation between views.
@@ -221,10 +238,17 @@ final class EditionsScreen {
 			50
 		);
 
+		$seats = array();
+
+		foreach ( $editions['items'] as $row ) {
+			$seats[ (int) $row['id'] ] = $this->enrollments->count_seats_taken( (int) $row['id'] );
+		}
+
 		$this->view(
 			'editions-list',
 			array(
 				'editions' => $editions,
+				'seats'    => $seats,
 				'notice'   => $notice,
 				'screen'   => $this,
 			)
@@ -267,35 +291,47 @@ final class EditionsScreen {
 		$edition = $this->editions->find( $edition_id );
 
 		if ( null === $edition ) {
-			wp_die( esc_html__( 'La edicion no existe.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'La edición no existe.', 'aula-virtual' ) );
 		}
 
 		if ( ! $this->access->can_manage_editions( (int) $edition['course_id'] ) ) {
-			wp_die( esc_html__( 'No tienes permisos sobre esta edicion.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'No tienes permisos sobre esta edición.', 'aula-virtual' ) );
 		}
 
-		$students   = $this->enrollments->for_edition( $edition_id );
-		$user_cache = array();
+		$students = $this->enrollments->for_edition( $edition_id );
+		$lessons  = $this->lessons->for_edition( $edition_id, false );
+		$links    = $this->links->for_edition( $edition_id );
+		$people   = array();
 
 		foreach ( $students as $student ) {
 			$user_id = (int) $student['user_id'];
 			$user    = get_userdata( $user_id );
 
-			$user_cache[ $user_id ] = false === $user
-				? __( 'Usuario eliminado', 'aula-virtual' )
-				: $user->display_name . ' (' . $user->user_email . ')';
+			if ( false !== $user ) {
+				$people[ $user_id ] = array(
+					'name'  => (string) $user->display_name,
+					'email' => (string) $user->user_email,
+				);
+			}
 		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation.
+		$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
+		$tab = in_array( $tab, self::TABS, true ) ? $tab : 'sesiones';
 
 		$this->view(
 			'edition-detail',
 			array(
-				'edition'  => $edition,
-				'course'   => get_post( (int) $edition['course_id'] ),
-				'lessons'  => $this->lessons->for_edition( $edition_id, false ),
-				'students' => $students,
-				'names'    => $user_cache,
-				'links'    => $this->links->for_edition( $edition_id ),
-				'notice'   => $notice,
+				'edition'        => $edition,
+				'course'         => get_post( (int) $edition['course_id'] ),
+				'lessons'        => $lessons,
+				'students'       => $students,
+				'people'         => $people,
+				'links'          => $links,
+				'stats'          => self::stats( $students, $lessons, $this->requests->count( array( 'edition_id' => $edition_id, 'status' => RegistrationRequestRepository::STATUS_PENDING ) ) ),
+				'tab'            => $tab,
+				'suggested_slug' => self::suggest_slug( (string) $edition['code'], array_map( static fn( array $l ): string => (string) $l['token'], $links ) ),
+				'notice'         => $notice,
 			)
 		);
 	}
@@ -309,7 +345,25 @@ final class EditionsScreen {
 		$this->guard( self::ACTION_SAVE_EDITION, Capabilities::MANAGE_EDITIONS );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
-		$input     = wp_unslash( $_POST );
+		$input      = wp_unslash( $_POST );
+		$edition_id = isset( $input['edition_id'] ) ? absint( $input['edition_id'] ) : 0;
+
+		// Editar una edicion existente: el curso no cambia y debe ser del usuario.
+		if ( $edition_id > 0 ) {
+			$this->assert_edition_ownership( $edition_id );
+
+			$current             = $this->editions->find( $edition_id );
+			$input['course_id']  = (int) $current['course_id'];
+			$result              = $this->edition_service->update( $edition_id, $input );
+			$url                 = self::tab_url( $edition_id, 'ajustes' );
+
+			if ( $result instanceof WP_Error ) {
+				$this->redirect_with_notice( $url, 'error', $result->get_error_message() );
+			}
+
+			$this->redirect_with_notice( $url, 'success', __( 'Cambios guardados.', 'aula-virtual' ) );
+		}
+
 		$course_id = isset( $input['course_id'] ) ? absint( $input['course_id'] ) : 0;
 
 		// The capability alone is not enough: the course has to be theirs.
@@ -328,9 +382,9 @@ final class EditionsScreen {
 		}
 
 		$this->redirect_with_notice(
-			AdminMenu::editions_url( array( 'edition' => (int) $result ) ),
+			self::tab_url( (int) $result, 'sesiones' ),
 			'success',
-			__( 'Edicion creada.', 'aula-virtual' )
+			__( 'Edición creada. Ahora añade las sesiones del temario.', 'aula-virtual' )
 		);
 	}
 
@@ -349,13 +403,13 @@ final class EditionsScreen {
 		$this->assert_edition_ownership( $edition_id );
 
 		$result = $this->lesson_service->create( $input );
-		$url    = AdminMenu::editions_url( array( 'edition' => $edition_id ) );
+		$url    = self::tab_url( $edition_id, 'sesiones' );
 
 		if ( $result instanceof WP_Error ) {
 			$this->redirect_with_notice( $url, 'error', $result->get_error_message() );
 		}
 
-		$this->redirect_with_notice( $url, 'success', __( 'Sesion anadida.', 'aula-virtual' ) );
+		$this->redirect_with_notice( $url, 'success', __( 'Sesión añadida.', 'aula-virtual' ) );
 	}
 
 	/**
@@ -374,7 +428,7 @@ final class EditionsScreen {
 		$this->assert_edition_ownership( $edition_id );
 
 		$result = $this->enrollment_service->enroll( $user_id, $edition_id, EnrollmentStatus::SOURCE_MANUAL );
-		$url    = AdminMenu::editions_url( array( 'edition' => $edition_id ) );
+		$url    = self::tab_url( $edition_id, 'alumnos' );
 
 		if ( $result instanceof WP_Error ) {
 			$this->redirect_with_notice( $url, 'error', $result->get_error_message() );
@@ -398,13 +452,45 @@ final class EditionsScreen {
 		$this->assert_edition_ownership( $edition_id );
 
 		$result = $this->registration->create_link( $edition_id, $input );
-		$url    = AdminMenu::editions_url( array( 'edition' => $edition_id ) );
+		$url    = self::tab_url( $edition_id, 'inscripcion' );
 
 		if ( $result instanceof WP_Error ) {
 			$this->redirect_with_notice( $url, 'error', $result->get_error_message() );
 		}
 
-		$this->redirect_with_notice( $url, 'success', __( 'Enlace de inscripcion creado.', 'aula-virtual' ) );
+		$this->redirect_with_notice( $url, 'success', __( 'Enlace de inscripción creado. Ya puedes copiarlo y compartirlo.', 'aula-virtual' ) );
+	}
+
+	/**
+	 * Turns a registration link off (or back on).
+	 *
+	 * @return void
+	 */
+	public function handle_toggle_link(): void {
+		$this->guard( self::ACTION_TOGGLE_LINK, Capabilities::ENROLL_STUDENTS );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
+		$link_id = isset( $_POST['link_id'] ) ? absint( wp_unslash( $_POST['link_id'] ) ) : 0;
+		$link    = $this->links->find( $link_id );
+
+		if ( null === $link ) {
+			wp_die( esc_html__( 'El enlace no existe.', 'aula-virtual' ), '', array( 'response' => 404 ) );
+		}
+
+		$this->assert_edition_ownership( (int) $link['edition_id'] );
+
+		$active = \SIQA\AulaVirtual\Enrollments\EnrollmentLinkRepository::STATUS_ACTIVE === $link['status'];
+
+		$this->links->update(
+			$link_id,
+			array( 'status' => $active ? \SIQA\AulaVirtual\Enrollments\EnrollmentLinkRepository::STATUS_DISABLED : \SIQA\AulaVirtual\Enrollments\EnrollmentLinkRepository::STATUS_ACTIVE )
+		);
+
+		$this->redirect_with_notice(
+			self::tab_url( (int) $link['edition_id'], 'inscripcion' ),
+			'success',
+			$active ? __( 'Enlace desactivado: quien lo abra verá que ya no admite inscripciones.', 'aula-virtual' ) : __( 'Enlace activado de nuevo.', 'aula-virtual' )
+		);
 	}
 
 	/**
@@ -432,15 +518,15 @@ final class EditionsScreen {
 		);
 
 		if ( $result instanceof WP_Error ) {
-			$this->redirect_with_notice( AdminMenu::editions_url( array( 'edition' => $edition_id ) ), 'error', $result->get_error_message() );
+			$this->redirect_with_notice( self::tab_url( $edition_id, 'ajustes' ), 'error', $result->get_error_message() );
 		}
 
 		$this->redirect_with_notice(
-			AdminMenu::editions_url( array( 'edition' => (int) $result['edition_id'] ) ),
+			self::tab_url( (int) $result['edition_id'], 'ajustes' ),
 			'success',
 			sprintf(
 				/* translators: 1: lessons copied, 2: materials copied, 3: live classes copied. */
-				__( 'Edicion duplicada en borrador: %1$d sesiones, %2$d materiales y %3$d clases en vivo copiadas. Revisa fechas y estado antes de abrirla.', 'aula-virtual' ),
+				__( 'Edición duplicada en borrador: %1$d sesiones, %2$d materiales y %3$d clases en vivo copiadas. Revisa las fechas y el estado antes de abrirla.', 'aula-virtual' ),
 				(int) $result['lessons'],
 				(int) $result['materials'],
 				(int) $result['live_classes']
@@ -466,10 +552,10 @@ final class EditionsScreen {
 
 		$ids   = array_map( 'intval', wp_list_pluck( $this->lessons->for_edition( $edition_id, false ), 'id' ) );
 		$index = array_search( $lesson_id, $ids, true );
-		$url   = AdminMenu::editions_url( array( 'edition' => $edition_id ) );
+		$url   = self::tab_url( $edition_id, 'sesiones' );
 
 		if ( false === $index || ! isset( $ids[ $index + $direction ] ) ) {
-			$this->redirect_with_notice( $url, 'error', __( 'No se puede mover esa sesion.', 'aula-virtual' ) );
+			$this->redirect_with_notice( $url, 'error', __( 'No se puede mover esa sesión.', 'aula-virtual' ) );
 		}
 
 		$swap                     = $ids[ $index + $direction ];
@@ -527,6 +613,66 @@ final class EditionsScreen {
 	}
 
 	/**
+	 * Summary figures for the edition header.
+	 *
+	 * @param array<int, array<string, mixed>> $students Enrollment rows.
+	 * @param array<int, array<string, mixed>> $lessons  Lesson rows.
+	 * @param int                              $pending  Pending registration requests.
+	 * @return array{seats_taken: int, published_lessons: int, avg_progress: float, completed: int, pending_requests: int}
+	 */
+	public static function stats( array $students, array $lessons, int $pending ): array {
+		$counted = array_values(
+			array_filter(
+				$students,
+				static fn( array $e ): bool => in_array( (string) $e['status'], EnrollmentStatus::occupying_seat(), true )
+			)
+		);
+		$sum     = array_sum( array_map( static fn( array $e ): float => (float) $e['progress_percentage'], $counted ) );
+
+		return array(
+			'seats_taken'       => count( $counted ),
+			'published_lessons' => count( array_filter( $lessons, static fn( array $l ): bool => \SIQA\AulaVirtual\Curriculum\LessonType::STATUS_PUBLISH === $l['status'] ) ),
+			'avg_progress'      => array() === $counted ? 0.0 : round( $sum / count( $counted ), 1 ),
+			'completed'         => count( array_filter( $students, static fn( array $e ): bool => EnrollmentStatus::COMPLETED === $e['status'] ) ),
+			'pending_requests'  => $pending,
+		);
+	}
+
+	/**
+	 * Proposes a readable address for a new registration link.
+	 *
+	 * @param string             $code  Edition code.
+	 * @param array<int, string> $taken Tokens already used by this edition.
+	 * @return string
+	 */
+	public static function suggest_slug( string $code, array $taken ): string {
+		$base = sanitize_title( $code );
+
+		if ( '' === $base ) {
+			return '';
+		}
+
+		$slug = $base;
+
+		for ( $n = 2; in_array( $slug, $taken, true ); $n++ ) {
+			$slug = $base . '-' . $n;
+		}
+
+		return $slug;
+	}
+
+	/**
+	 * URL of an edition tab.
+	 *
+	 * @param int    $edition_id Edition id.
+	 * @param string $tab        Tab key.
+	 * @return string
+	 */
+	private static function tab_url( int $edition_id, string $tab ): string {
+		return AdminMenu::editions_url( array( 'edition' => $edition_id, 'tab' => $tab ) );
+	}
+
+	/**
 	 * Verifies nonce and capability, or stops the request.
 	 *
 	 * @param string $action     Action name, used as the nonce action.
@@ -535,7 +681,7 @@ final class EditionsScreen {
 	 */
 	private function guard( string $action, string $capability ): void {
 		if ( ! current_user_can( $capability ) ) {
-			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( $action );
@@ -551,7 +697,7 @@ final class EditionsScreen {
 		$edition = $this->editions->find( $edition_id );
 
 		if ( null === $edition || ! $this->access->can_manage_editions( (int) $edition['course_id'] ) ) {
-			wp_die( esc_html__( 'No tienes permisos sobre esta edicion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos sobre esta edición.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 	}
 

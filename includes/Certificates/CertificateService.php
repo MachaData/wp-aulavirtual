@@ -129,13 +129,13 @@ final class CertificateService {
 	 */
 	public function issue( int $user_id, int $edition_id, int $issued_by = 0, bool $silent = false ) {
 		if ( $user_id <= 0 || $edition_id <= 0 ) {
-			return new WP_Error( 'av_certificate_invalid_input', __( 'Selecciona un alumno y una edicion.', 'aula-virtual' ), array( 'status' => 400 ) );
+			return new WP_Error( 'av_certificate_invalid_input', __( 'Selecciona un alumno y una edición.', 'aula-virtual' ), array( 'status' => 400 ) );
 		}
 
 		$edition = $this->editions->find( $edition_id );
 
 		if ( null === $edition ) {
-			return new WP_Error( 'av_edition_not_found', __( 'La edicion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_edition_not_found', __( 'La edición no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
 		if ( false === get_userdata( $user_id ) ) {
@@ -145,17 +145,17 @@ final class CertificateService {
 		$enrollment = $this->enrollments->find_for_student( $user_id, $edition_id );
 
 		if ( null === $enrollment ) {
-			return new WP_Error( 'av_enrollment_not_found', __( 'El alumno no esta matriculado en esa edicion.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_enrollment_not_found', __( 'El alumno no está matriculado en esa edición.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
 		$status = (string) $enrollment['status'];
 
 		if ( $issued_by > 0 ) {
 			if ( ! EnrollmentStatus::grants_access( $status ) ) {
-				return new WP_Error( 'av_enrollment_without_access', __( 'La matricula no esta activa; no se puede emitir el certificado.', 'aula-virtual' ), array( 'status' => 409 ) );
+				return new WP_Error( 'av_enrollment_without_access', __( 'La matrícula no está activa; no se puede emitir el certificado.', 'aula-virtual' ), array( 'status' => 409 ) );
 			}
 		} elseif ( EnrollmentStatus::COMPLETED !== $status ) {
-			return new WP_Error( 'av_enrollment_not_completed', __( 'El alumno todavia no ha completado el curso.', 'aula-virtual' ), array( 'status' => 409 ) );
+			return new WP_Error( 'av_enrollment_not_completed', __( 'El alumno todavía no ha completado el curso.', 'aula-virtual' ), array( 'status' => 409 ) );
 		}
 
 		$existing = $this->certificates->find_issued_for( $user_id, $edition_id );
@@ -167,7 +167,7 @@ final class CertificateService {
 		$code = $this->generate_code();
 
 		if ( '' === $code ) {
-			return new WP_Error( 'av_certificate_code_failed', __( 'No se pudo generar un codigo de certificado unico.', 'aula-virtual' ) );
+			return new WP_Error( 'av_certificate_code_failed', __( 'No se pudo generar un código de certificado único.', 'aula-virtual' ) );
 		}
 
 		$course_id = (int) $edition['course_id'];

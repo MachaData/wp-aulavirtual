@@ -31,7 +31,7 @@ final class Schema {
 	/**
 	 * Schema version stored in the options table.
 	 */
-	public const VERSION = '1.3.0';
+	public const VERSION = '1.3.1';
 
 	/**
 	 * Option key holding the installed schema version.

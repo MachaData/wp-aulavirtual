@@ -84,7 +84,7 @@ final class CertificatesScreen {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::ISSUE_CERTIFICATES ) ) {
-			wp_die( esc_html__( 'No tienes permisos para ver esta pagina.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'No tienes permisos para ver esta página.', 'aula-virtual' ) );
 		}
 
 		$notice = null;
@@ -151,7 +151,7 @@ final class CertificatesScreen {
 		$edition = $edition_id > 0 ? $this->editions->find( $edition_id ) : null;
 
 		if ( null === $edition ) {
-			$this->finish( 'error', __( 'Selecciona una edicion.', 'aula-virtual' ) );
+			$this->finish( 'error', __( 'Selecciona una edición.', 'aula-virtual' ) );
 		}
 
 		if ( ! $this->access->can_manage_editions( (int) $edition['course_id'] ) ) {
@@ -170,7 +170,7 @@ final class CertificatesScreen {
 			'success',
 			null !== $certificate
 				/* translators: %s: certificate code. */
-				? sprintf( __( 'Certificado emitido con el codigo %s.', 'aula-virtual' ), (string) $certificate['certificate_code'] )
+				? sprintf( __( 'Certificado emitido con el código %s.', 'aula-virtual' ), (string) $certificate['certificate_code'] )
 				: __( 'Certificado emitido.', 'aula-virtual' ),
 			$edition_id
 		);
@@ -198,7 +198,7 @@ final class CertificatesScreen {
 			$this->finish( 'error', $result->get_error_message(), (int) $item['edition_id'] );
 		}
 
-		$this->finish( 'success', __( 'Certificado anulado. Su pagina publica ya no valida.', 'aula-virtual' ), (int) $item['edition_id'] );
+		$this->finish( 'success', __( 'Certificado anulado. Su página pública ya no valida.', 'aula-virtual' ), (int) $item['edition_id'] );
 	}
 
 	/**
@@ -209,7 +209,7 @@ final class CertificatesScreen {
 	 */
 	private function guard( string $action ): void {
 		if ( ! current_user_can( Capabilities::ISSUE_CERTIFICATES ) ) {
-			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( $action );

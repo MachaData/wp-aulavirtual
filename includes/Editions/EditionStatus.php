@@ -46,8 +46,8 @@ final class EditionStatus {
 	public static function labels(): array {
 		return array(
 			self::DRAFT    => __( 'Borrador', 'aula-virtual' ),
-			self::UPCOMING => __( 'Proxima', 'aula-virtual' ),
-			self::OPEN     => __( 'Matricula abierta', 'aula-virtual' ),
+			self::UPCOMING => __( 'Próxima', 'aula-virtual' ),
+			self::OPEN     => __( 'Matrícula abierta', 'aula-virtual' ),
 			self::RUNNING  => __( 'En curso', 'aula-virtual' ),
 			self::FINISHED => __( 'Finalizada', 'aula-virtual' ),
 			self::ARCHIVED => __( 'Archivada', 'aula-virtual' ),

@@ -225,8 +225,8 @@ final class AdminMenu {
 
 		add_submenu_page(
 			self::EDITIONS_SLUG,
-			__( 'Configuracion', 'aula-virtual' ),
-			__( 'Configuracion', 'aula-virtual' ),
+			__( 'Configuración', 'aula-virtual' ),
+			__( 'Configuración', 'aula-virtual' ),
 			Capabilities::MANAGE_LMS,
 			SettingsScreen::SLUG,
 			array( $this->settings, 'render' )

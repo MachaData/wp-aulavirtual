@@ -48,7 +48,7 @@ final class ImportParser {
 		}
 
 		if ( (int) filesize( $path ) > self::MAX_BYTES ) {
-			return new WP_Error( 'av_import_too_large', __( 'El archivo es demasiado grande (maximo 5 MB).', 'aula-virtual' ) );
+			return new WP_Error( 'av_import_too_large', __( 'El archivo es demasiado grande (máximo 5 MB).', 'aula-virtual' ) );
 		}
 
 		switch ( $extension ) {
@@ -68,7 +68,7 @@ final class ImportParser {
 		}
 
 		if ( array() === $table ) {
-			return new WP_Error( 'av_import_empty', __( 'El archivo esta vacio.', 'aula-virtual' ) );
+			return new WP_Error( 'av_import_empty', __( 'El archivo está vacío.', 'aula-virtual' ) );
 		}
 
 		$headers = array_map( static fn( $h ): string => trim( (string) $h ), array_shift( $table ) );

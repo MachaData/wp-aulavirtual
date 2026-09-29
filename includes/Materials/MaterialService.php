@@ -117,7 +117,7 @@ final class MaterialService {
 			$lesson = $this->lessons->find( $lesson_id );
 
 			if ( null === $lesson ) {
-				return new WP_Error( 'av_lesson_not_found', __( 'La sesion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+				return new WP_Error( 'av_lesson_not_found', __( 'La sesión no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 			}
 
 			$edition_id = (int) $lesson['edition_id'];
@@ -126,7 +126,7 @@ final class MaterialService {
 			$edition = $this->editions->find( $edition_id );
 
 			if ( null === $edition ) {
-				return new WP_Error( 'av_edition_not_found', __( 'La edicion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+				return new WP_Error( 'av_edition_not_found', __( 'La edición no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 			}
 
 			$course_id = (int) $edition['course_id'];
@@ -241,7 +241,7 @@ final class MaterialService {
 
 		foreach ( $existing as $material ) {
 			if ( (int) $material['course_id'] !== $course_id ) {
-				return new WP_Error( 'av_attachment_in_use', __( 'Ese archivo ya es material de otro curso. Subelo de nuevo para este curso.', 'aula-virtual' ), array( 'status' => 409 ) );
+				return new WP_Error( 'av_attachment_in_use', __( 'Ese archivo ya es material de otro curso. Súbelo de nuevo para este curso.', 'aula-virtual' ), array( 'status' => 409 ) );
 			}
 		}
 

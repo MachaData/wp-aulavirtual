@@ -68,7 +68,7 @@ final class MigrationScreen {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::MANAGE_LMS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para ver esta pagina.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'No tienes permisos para ver esta página.', 'aula-virtual' ) );
 		}
 
 		$notice = null;
@@ -112,7 +112,7 @@ final class MigrationScreen {
 	 */
 	public function handle_migrate(): void {
 		if ( ! current_user_can( Capabilities::MANAGE_LMS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( self::ACTION_MIGRATE );
@@ -134,7 +134,7 @@ final class MigrationScreen {
 		set_transient( 'av_tutor_report_' . get_current_user_id(), $result, MINUTE_IN_SECONDS * 10 );
 
 		$message = (int) $result['remaining'] > 0
-			? __( 'Lote migrado. Quedan alumnos por procesar: vuelve a pulsar el boton del curso.', 'aula-virtual' )
+			? __( 'Lote migrado. Quedan alumnos por procesar: vuelve a pulsar el botón del curso.', 'aula-virtual' )
 			: __( 'Curso migrado por completo.', 'aula-virtual' );
 
 		wp_safe_redirect( add_query_arg( array( 'av_notice' => 'success', 'av_message' => rawurlencode( $message ), 'av_report' => 1 ), $base ) );

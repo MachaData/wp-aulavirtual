@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<table class="wp-list-table widefat fixed striped">
 		<thead>
 			<tr>
-				<th scope="col"><?php esc_html_e( 'Cuando se envia', 'aula-virtual' ); ?></th>
+				<th scope="col"><?php esc_html_e( 'Cuándo se envía', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:130px"><?php esc_html_e( 'Destinatario', 'aula-virtual' ); ?></th>
 				<th scope="col"><?php esc_html_e( 'Asunto', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:100px"><?php esc_html_e( 'Estado', 'aula-virtual' ); ?></th>

@@ -120,7 +120,7 @@ final class EditionDuplicator {
 		$source = $this->editions->find( $source_id );
 
 		if ( null === $source ) {
-			return new WP_Error( 'av_edition_not_found', __( 'La edicion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_edition_not_found', __( 'La edición no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
 		$course_id = Sanitizer::int( $options['course_id'] ?? $source['course_id'] );

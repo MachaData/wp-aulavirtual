@@ -43,7 +43,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 	<p>
 		<a href="<?php echo esc_url( add_query_arg( 'page', ReportsScreen::SLUG, admin_url( 'admin.php' ) ) ); ?>">&larr; <?php esc_html_e( 'Todos los reportes', 'aula-virtual' ); ?></a>
 		&nbsp;|&nbsp;
-		<a href="<?php echo esc_url( AdminMenu::editions_url( array( 'edition' => $av_edition_id ) ) ); ?>"><?php esc_html_e( 'Ver edicion', 'aula-virtual' ); ?></a>
+		<a href="<?php echo esc_url( AdminMenu::editions_url( array( 'edition' => $av_edition_id ) ) ); ?>"><?php esc_html_e( 'Ver edición', 'aula-virtual' ); ?></a>
 	</p>
 
 	<p class="description">
@@ -54,7 +54,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 
 	<div style="<?php echo esc_attr( $av_card_grid ); ?>">
 		<div style="<?php echo esc_attr( $av_card_style ); ?>">
-			<span class="description"><?php esc_html_e( 'Matriculas', 'aula-virtual' ); ?></span>
+			<span class="description"><?php esc_html_e( 'Matrículas', 'aula-virtual' ); ?></span>
 			<span style="<?php echo esc_attr( $av_card_value ); ?>"><?php echo esc_html( number_format_i18n( (int) $summary['enrollments_total'] ) ); ?></span>
 		</div>
 		<div style="<?php echo esc_attr( $av_card_style ); ?>">
@@ -62,7 +62,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 			<span style="<?php echo esc_attr( $av_card_value ); ?>"><?php echo esc_html( number_format_i18n( (int) $summary['completed'] ) ); ?></span>
 		</div>
 		<div style="<?php echo esc_attr( $av_card_style ); ?>">
-			<span class="description"><?php esc_html_e( 'Tasa de finalizacion', 'aula-virtual' ); ?></span>
+			<span class="description"><?php esc_html_e( 'Tasa de finalización', 'aula-virtual' ); ?></span>
 			<span style="<?php echo esc_attr( $av_card_value ); ?>"><?php echo esc_html( number_format_i18n( (float) $summary['completion_rate'], 1 ) ); ?>%</span>
 		</div>
 		<div style="<?php echo esc_attr( $av_card_style ); ?>">
@@ -70,7 +70,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 			<span style="<?php echo esc_attr( $av_card_value ); ?>"><?php echo esc_html( number_format_i18n( (float) $summary['avg_progress'], 1 ) ); ?>%</span>
 		</div>
 		<div style="<?php echo esc_attr( $av_card_style ); ?>">
-			<span class="description"><?php esc_html_e( 'Activos ultimos 7 dias', 'aula-virtual' ); ?></span>
+			<span class="description"><?php esc_html_e( 'Activos últimos 7 días', 'aula-virtual' ); ?></span>
 			<span style="<?php echo esc_attr( $av_card_value ); ?>"><?php echo esc_html( number_format_i18n( (int) $summary['active_last_7_days'] ) ); ?></span>
 		</div>
 		<div style="<?php echo esc_attr( $av_card_style ); ?>">
@@ -81,7 +81,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 
 	<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,360px));gap:28px;align-items:start;margin-bottom:24px">
 		<div>
-			<h2><?php esc_html_e( 'Matriculas por estado', 'aula-virtual' ); ?></h2>
+			<h2><?php esc_html_e( 'Matrículas por estado', 'aula-virtual' ); ?></h2>
 			<table class="widefat striped">
 				<thead>
 					<tr>
@@ -91,7 +91,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 				</thead>
 				<tbody>
 				<?php if ( empty( $summary['by_status'] ) ) : ?>
-					<tr><td colspan="2"><?php esc_html_e( 'Sin matriculas.', 'aula-virtual' ); ?></td></tr>
+					<tr><td colspan="2"><?php esc_html_e( 'Sin matrículas.', 'aula-virtual' ); ?></td></tr>
 				<?php else : ?>
 					<?php foreach ( $summary['by_status'] as $av_status => $av_count ) : ?>
 						<tr>
@@ -105,7 +105,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 		</div>
 
 		<div>
-			<h2><?php esc_html_e( 'Matriculas por origen', 'aula-virtual' ); ?></h2>
+			<h2><?php esc_html_e( 'Matrículas por origen', 'aula-virtual' ); ?></h2>
 			<table class="widefat striped">
 				<thead>
 					<tr>
@@ -115,7 +115,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 				</thead>
 				<tbody>
 				<?php if ( empty( $summary['by_source'] ) ) : ?>
-					<tr><td colspan="2"><?php esc_html_e( 'Sin matriculas.', 'aula-virtual' ); ?></td></tr>
+					<tr><td colspan="2"><?php esc_html_e( 'Sin matrículas.', 'aula-virtual' ); ?></td></tr>
 				<?php else : ?>
 					<?php foreach ( $summary['by_source'] as $av_source => $av_count ) : ?>
 						<tr>
@@ -129,20 +129,20 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 		</div>
 	</div>
 
-	<h2><?php esc_html_e( 'Avance por sesion', 'aula-virtual' ); ?></h2>
+	<h2><?php esc_html_e( 'Avance por sesión', 'aula-virtual' ); ?></h2>
 	<table class="widefat striped">
 		<thead>
 			<tr>
 				<th scope="col" style="width:50px">#</th>
-				<th scope="col"><?php esc_html_e( 'Sesion', 'aula-virtual' ); ?></th>
+				<th scope="col"><?php esc_html_e( 'Sesión', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:100px;text-align:right"><?php esc_html_e( 'Iniciaron', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:100px;text-align:right"><?php esc_html_e( 'Completaron', 'aula-virtual' ); ?></th>
-				<th scope="col" style="width:260px"><?php esc_html_e( 'Finalizacion', 'aula-virtual' ); ?></th>
+				<th scope="col" style="width:260px"><?php esc_html_e( 'Finalización', 'aula-virtual' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 		<?php if ( empty( $lessons ) ) : ?>
-			<tr><td colspan="5"><?php esc_html_e( 'La edicion no tiene sesiones publicadas.', 'aula-virtual' ); ?></td></tr>
+			<tr><td colspan="5"><?php esc_html_e( 'La edición no tiene sesiones publicadas.', 'aula-virtual' ); ?></td></tr>
 		<?php else : ?>
 			<?php foreach ( $lessons as $av_index => $av_lesson ) : ?>
 				<?php $av_rate = max( 0, min( 100, (float) $av_lesson['rate'] ) ); ?>
@@ -164,7 +164,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 		<?php endif; ?>
 		</tbody>
 	</table>
-	<p class="description"><?php esc_html_e( 'El porcentaje de finalizacion se calcula sobre el total de matriculas de la edicion.', 'aula-virtual' ); ?></p>
+	<p class="description"><?php esc_html_e( 'El porcentaje de finalización se calcula sobre el total de matrículas de la edición.', 'aula-virtual' ); ?></p>
 
 <?php else : ?>
 	<h1><?php esc_html_e( 'Reportes', 'aula-virtual' ); ?></h1>
@@ -181,7 +181,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 			<span style="<?php echo esc_attr( $av_card_value ); ?>"><?php echo esc_html( number_format_i18n( $av_editions_total ) ); ?></span>
 		</div>
 		<div style="<?php echo esc_attr( $av_card_style ); ?>">
-			<span class="description"><?php esc_html_e( 'Matriculas', 'aula-virtual' ); ?></span>
+			<span class="description"><?php esc_html_e( 'Matrículas', 'aula-virtual' ); ?></span>
 			<span style="<?php echo esc_attr( $av_card_value ); ?>"><?php echo esc_html( number_format_i18n( $av_enrollments_total ) ); ?></span>
 		</div>
 		<div style="<?php echo esc_attr( $av_card_style ); ?>">
@@ -206,7 +206,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 				</thead>
 				<tbody>
 				<?php if ( empty( $overview['editions_by_status'] ) ) : ?>
-					<tr><td colspan="2"><?php esc_html_e( 'Todavia no hay ediciones.', 'aula-virtual' ); ?></td></tr>
+					<tr><td colspan="2"><?php esc_html_e( 'Todavía no hay ediciones.', 'aula-virtual' ); ?></td></tr>
 				<?php else : ?>
 					<?php foreach ( $overview['editions_by_status'] as $av_status => $av_count ) : ?>
 						<tr>
@@ -220,7 +220,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 		</div>
 
 		<div>
-			<h2><?php esc_html_e( 'Matriculas por estado', 'aula-virtual' ); ?></h2>
+			<h2><?php esc_html_e( 'Matrículas por estado', 'aula-virtual' ); ?></h2>
 			<table class="widefat striped">
 				<thead>
 					<tr>
@@ -230,7 +230,7 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 				</thead>
 				<tbody>
 				<?php if ( empty( $overview['enrollments_by_status'] ) ) : ?>
-					<tr><td colspan="2"><?php esc_html_e( 'Todavia no hay matriculas.', 'aula-virtual' ); ?></td></tr>
+					<tr><td colspan="2"><?php esc_html_e( 'Todavía no hay matrículas.', 'aula-virtual' ); ?></td></tr>
 				<?php else : ?>
 					<?php foreach ( $overview['enrollments_by_status'] as $av_status => $av_count ) : ?>
 						<tr>
@@ -244,20 +244,20 @@ $av_card_value = 'display:block;font-size:26px;font-weight:600;line-height:1.2;m
 		</div>
 	</div>
 
-	<h2><?php esc_html_e( 'Ediciones con mas matriculas', 'aula-virtual' ); ?></h2>
+	<h2><?php esc_html_e( 'Ediciones con más matrículas', 'aula-virtual' ); ?></h2>
 	<table class="widefat striped">
 		<thead>
 			<tr>
-				<th scope="col"><?php esc_html_e( 'Edicion', 'aula-virtual' ); ?></th>
+				<th scope="col"><?php esc_html_e( 'Edición', 'aula-virtual' ); ?></th>
 				<th scope="col"><?php esc_html_e( 'Curso', 'aula-virtual' ); ?></th>
-				<th scope="col" style="width:110px;text-align:right"><?php esc_html_e( 'Matriculas', 'aula-virtual' ); ?></th>
+				<th scope="col" style="width:110px;text-align:right"><?php esc_html_e( 'Matrículas', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:150px;text-align:right"><?php esc_html_e( 'Progreso promedio', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:90px"></th>
 			</tr>
 		</thead>
 		<tbody>
 		<?php if ( empty( $overview['top_editions'] ) ) : ?>
-			<tr><td colspan="5"><?php esc_html_e( 'Todavia no hay ediciones con matriculas.', 'aula-virtual' ); ?></td></tr>
+			<tr><td colspan="5"><?php esc_html_e( 'Todavía no hay ediciones con matrículas.', 'aula-virtual' ); ?></td></tr>
 		<?php else : ?>
 			<?php foreach ( $overview['top_editions'] as $av_top ) : ?>
 				<tr>

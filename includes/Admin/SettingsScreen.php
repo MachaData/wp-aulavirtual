@@ -87,7 +87,7 @@ final class SettingsScreen {
 						'label'   => __( 'Correo de avisos al administrador', 'aula-virtual' ),
 						'type'    => 'email',
 						'default' => '',
-						'help'    => __( 'A donde llegan las solicitudes nuevas. Vacio: el correo del sitio.', 'aula-virtual' ),
+						'help'    => __( 'A donde llegan las solicitudes nuevas. Vacío: el correo del sitio.', 'aula-virtual' ),
 					),
 					'av_email_from_name'           => array(
 						'label'   => __( 'Nombre del remitente', 'aula-virtual' ),
@@ -109,13 +109,13 @@ final class SettingsScreen {
 				),
 			),
 			'enrollments' => array(
-				'label'  => __( 'Matriculas', 'aula-virtual' ),
+				'label'  => __( 'Matrículas', 'aula-virtual' ),
 				'fields' => array(
 					'av_enrollment_auto_approve' => array(
-						'label'   => __( 'Aprobar solicitudes automaticamente', 'aula-virtual' ),
+						'label'   => __( 'Aprobar solicitudes automáticamente', 'aula-virtual' ),
 						'type'    => 'bool',
 						'default' => false,
-						'help'    => __( 'Si esta activo, una inscripcion por enlace queda aprobada sin revision. La edicion de pago igual espera el pago.', 'aula-virtual' ),
+						'help'    => __( 'Si está activo, una inscripción por enlace queda aprobada sin revisión. La edición de pago igual espera el pago.', 'aula-virtual' ),
 					),
 					'av_block_wp_admin'          => array(
 						'label'   => __( 'Bloquear wp-admin a los alumnos', 'aula-virtual' ),
@@ -126,19 +126,19 @@ final class SettingsScreen {
 						'label'   => __( 'Permitir repetir el curso', 'aula-virtual' ),
 						'type'    => 'bool',
 						'default' => true,
-						'help'    => __( 'El alumno puede reiniciar su progreso en una edicion y volver a hacerla desde la primera sesion.', 'aula-virtual' ),
+						'help'    => __( 'El alumno puede reiniciar su progreso en una edición y volver a hacerla desde la primera sesión.', 'aula-virtual' ),
 					),
 					CommentService::OPTION_ENABLED => array(
 						'label'   => __( 'Comentarios en las sesiones', 'aula-virtual' ),
 						'type'    => 'bool',
 						'default' => true,
-						'help'    => __( 'Los alumnos pueden preguntar debajo de cada sesion; el instructor responde y modera desde el editor de la sesion.', 'aula-virtual' ),
+						'help'    => __( 'Los alumnos pueden preguntar debajo de cada sesión; el instructor responde y modera desde el editor de la sesión.', 'aula-virtual' ),
 					),
 					'av_campus_focus_mode'       => array(
 						'label'   => __( 'Modo enfoque en las sesiones', 'aula-virtual' ),
 						'type'    => 'bool',
 						'default' => false,
-						'help'    => __( 'Muestra cada sesion sin la cabecera ni el pie del tema, a pantalla limpia.', 'aula-virtual' ),
+						'help'    => __( 'Muestra cada sesión sin la cabecera ni el pie del tema, a pantalla limpia.', 'aula-virtual' ),
 					),
 				),
 			),
@@ -149,7 +149,7 @@ final class SettingsScreen {
 						'label'   => __( 'Proteger los archivos de materiales', 'aula-virtual' ),
 						'type'    => 'bool',
 						'default' => true,
-						'help'    => __( 'Al anadir un material, su archivo se mueve a uploads/aula-virtual/private/, donde el servidor web niega el acceso directo; solo se descarga por el enlace del campus tras comprobar la matricula. En Nginx hace falta la regla de la guia tecnica.', 'aula-virtual' ),
+						'help'    => __( 'Al añadir un material, su archivo se mueve a uploads/aula-virtual/private/, donde el servidor web niega el acceso directo; solo se descarga por el enlace del campus tras comprobar la matrícula. En Nginx hace falta la regla de la guía técnica.', 'aula-virtual' ),
 					),
 					'av_protect_existing'           => array(
 						'label'   => __( 'Materiales ya existentes', 'aula-virtual' ),
@@ -165,10 +165,10 @@ final class SettingsScreen {
 				'label'  => __( 'Certificados', 'aula-virtual' ),
 				'fields' => array(
 					CertificateService::OPTION_AUTO_ISSUE      => array(
-						'label'   => __( 'Emitir certificado automaticamente', 'aula-virtual' ),
+						'label'   => __( 'Emitir certificado automáticamente', 'aula-virtual' ),
 						'type'    => 'bool',
 						'default' => true,
-						'help'    => __( 'Al completar todas las sesiones, el alumno recibe su certificado y el enlace publico de verificacion. Desactivado: se emite a mano desde Aula Virtual > Certificados.', 'aula-virtual' ),
+						'help'    => __( 'Al completar todas las sesiones, el alumno recibe su certificado y el enlace público de verificación. Desactivado: se emite a mano desde Aula Virtual > Certificados.', 'aula-virtual' ),
 					),
 					CertificateService::OPTION_SIGNATURE_NAME  => array(
 						'label'   => __( 'Nombre de quien firma', 'aula-virtual' ),
@@ -185,7 +185,7 @@ final class SettingsScreen {
 						'type'    => 'int',
 						'default' => 0,
 						'min'     => 0,
-						'help'    => __( 'ID de una imagen de la biblioteca de medios. Vacio o 0: se muestra el nombre del sitio.', 'aula-virtual' ),
+						'help'    => __( 'ID de una imagen de la biblioteca de medios. Vacío o 0: se muestra el nombre del sitio.', 'aula-virtual' ),
 					),
 				),
 			),
@@ -208,7 +208,7 @@ final class SettingsScreen {
 						'label'   => __( 'Bunny CDN: clave de token de la pull zone', 'aula-virtual' ),
 						'type'    => 'secret',
 						'default' => '',
-						'help'    => __( 'Solo para reproduccion HLS directa sin biblioteca configurada.', 'aula-virtual' ),
+						'help'    => __( 'Solo para reproducción HLS directa sin biblioteca configurada.', 'aula-virtual' ),
 					),
 					VideoEmbed::OPTION_BUNNY_TOKEN_TTL => array(
 						'label'   => __( 'Validez del token (segundos)', 'aula-virtual' ),
@@ -231,13 +231,13 @@ final class SettingsScreen {
 						),
 					),
 					WooSettings::OPTION_REFUND_ACTION => array(
-						'label'   => __( 'Ante reembolso o cancelacion', 'aula-virtual' ),
+						'label'   => __( 'Ante reembolso o cancelación', 'aula-virtual' ),
 						'type'    => 'select',
 						'default' => WooSettings::REFUND_SUSPEND,
 						'options' => array(
 							WooSettings::REFUND_NONE    => __( 'No hacer nada', 'aula-virtual' ),
-							WooSettings::REFUND_SUSPEND => __( 'Suspender la matricula', 'aula-virtual' ),
-							WooSettings::REFUND_CANCEL  => __( 'Cancelar la matricula', 'aula-virtual' ),
+							WooSettings::REFUND_SUSPEND => __( 'Suspender la matrícula', 'aula-virtual' ),
+							WooSettings::REFUND_CANCEL  => __( 'Cancelar la matrícula', 'aula-virtual' ),
 						),
 					),
 				),
@@ -258,16 +258,16 @@ final class SettingsScreen {
 						),
 					),
 					AbstractController::OPTION_INTEGRATION_KEY => array(
-						'label'   => __( 'Clave de integracion (API REST)', 'aula-virtual' ),
+						'label'   => __( 'Clave de integración (API REST)', 'aula-virtual' ),
 						'type'    => 'secret',
 						'default' => '',
-						'help'    => __( 'Clave que el sitio externo envia en la cabecera X-AV-Key al llamar a POST /wp-json/aula-virtual/v1/registrations. Vacia = acceso por clave desactivado. Usa 32 o mas caracteres aleatorios.', 'aula-virtual' ),
+						'help'    => __( 'Clave que el sitio externo envía en la cabecera X-AV-Key al llamar a POST /wp-json/aula-virtual/v1/registrations. Vacía = acceso por clave desactivado. Usa 32 o más caracteres aleatorios.', 'aula-virtual' ),
 					),
 					'av_delete_data_on_uninstall' => array(
 						'label'   => __( 'Eliminar todos los datos al desinstalar', 'aula-virtual' ),
 						'type'    => 'bool',
 						'default' => false,
-						'help'    => __( 'Apagado por defecto. Solo al desinstalar el plugin (no al desactivarlo) y solo si esta activo.', 'aula-virtual' ),
+						'help'    => __( 'Apagado por defecto. Solo al desinstalar el plugin (no al desactivarlo) y solo si está activo.', 'aula-virtual' ),
 					),
 				),
 			),
@@ -281,7 +281,7 @@ final class SettingsScreen {
 	 */
 	public function handle_protect(): void {
 		if ( ! current_user_can( Capabilities::MANAGE_LMS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( self::ACTION_PROTECT );
@@ -350,7 +350,7 @@ final class SettingsScreen {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::MANAGE_LMS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para ver esta pagina.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'No tienes permisos para ver esta página.', 'aula-virtual' ) );
 		}
 
 		$tabs = self::tabs();
@@ -401,7 +401,7 @@ final class SettingsScreen {
 	 */
 	public function handle_save(): void {
 		if ( ! current_user_can( Capabilities::MANAGE_LMS ) ) {
-			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( self::ACTION_SAVE );
@@ -411,7 +411,7 @@ final class SettingsScreen {
 		$tab = isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( $_POST['tab'] ) ) : 'general';
 
 		if ( ! isset( $tabs[ $tab ] ) ) {
-			wp_die( esc_html__( 'Pestana no valida.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'Pestaña no válida.', 'aula-virtual' ) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
@@ -453,7 +453,7 @@ final class SettingsScreen {
 					'page'       => self::SLUG,
 					'tab'        => $tab,
 					'av_notice'  => 'success',
-					'av_message' => rawurlencode( __( 'Configuracion guardada.', 'aula-virtual' ) ),
+					'av_message' => rawurlencode( __( 'Configuración guardada.', 'aula-virtual' ) ),
 				),
 				admin_url( 'admin.php' )
 			)

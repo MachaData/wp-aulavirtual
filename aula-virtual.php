@@ -3,7 +3,7 @@
  * Plugin Name:       Aula Virtual SIQA
  * Plugin URI:        https://siqafree.pe/
  * Description:       Sistema de gestion academica para WordPress basado en el modelo Curso -> Ediciones -> Matriculas.
- * Version:           0.12.3
+ * Version:           0.13.0
  * Requires at least: 6.4
  * Requires PHP:      8.1
  * Author:            FARGIL S.A.C.
@@ -27,7 +27,7 @@ if ( defined( 'AV_VERSION' ) ) {
 	return;
 }
 
-define( 'AV_VERSION', '0.12.3' );
+define( 'AV_VERSION', '0.13.0' );
 define( 'AV_MIN_PHP', '8.1' );
 define( 'AV_MIN_WP', '6.4' );
 define( 'AV_FILE', __FILE__ );
@@ -46,7 +46,7 @@ function environment_error(): string {
 	if ( version_compare( PHP_VERSION, AV_MIN_PHP, '<' ) ) {
 		return sprintf(
 			/* translators: 1: required PHP version, 2: current PHP version. */
-			__( 'Aula Virtual requiere PHP %1$s o superior. Esta instalacion usa PHP %2$s.', 'aula-virtual' ),
+			__( 'Aula Virtual requiere PHP %1$s o superior. Esta instalación usa PHP %2$s.', 'aula-virtual' ),
 			AV_MIN_PHP,
 			PHP_VERSION
 		);
@@ -55,7 +55,7 @@ function environment_error(): string {
 	if ( isset( $wp_version ) && version_compare( $wp_version, AV_MIN_WP, '<' ) ) {
 		return sprintf(
 			/* translators: 1: required WordPress version, 2: current WordPress version. */
-			__( 'Aula Virtual requiere WordPress %1$s o superior. Esta instalacion usa WordPress %2$s.', 'aula-virtual' ),
+			__( 'Aula Virtual requiere WordPress %1$s o superior. Esta instalación usa WordPress %2$s.', 'aula-virtual' ),
 			AV_MIN_WP,
 			$wp_version
 		);

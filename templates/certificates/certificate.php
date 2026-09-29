@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $av_title = $valid
 	/* translators: 1: course title, 2: student name. */
 	? sprintf( __( 'Certificado: %1$s - %2$s', 'aula-virtual' ), $course_title, $student_name )
-	: __( 'Certificado no valido', 'aula-virtual' );
+	: __( 'Certificado no válido', 'aula-virtual' );
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -137,10 +137,10 @@ $av_title = $valid
 <body>
 <?php if ( ! $valid ) : ?>
 	<div class="av-invalid" role="alert">
-		<h1><?php esc_html_e( 'Este certificado no es valido', 'aula-virtual' ); ?></h1>
+		<h1><?php esc_html_e( 'Este certificado no es válido', 'aula-virtual' ); ?></h1>
 		<p><?php echo esc_html( $message ); ?></p>
 		<?php if ( '' !== $code ) : ?>
-			<p><?php esc_html_e( 'Codigo consultado:', 'aula-virtual' ); ?> <code><?php echo esc_html( $code ); ?></code></p>
+			<p><?php esc_html_e( 'Código consultado:', 'aula-virtual' ); ?> <code><?php echo esc_html( $code ); ?></code></p>
 		<?php endif; ?>
 		<p><?php echo esc_html( $site_name ); ?></p>
 	</div>
@@ -164,7 +164,7 @@ $av_title = $valid
 			</div>
 
 			<p class="av-kicker"><?php esc_html_e( 'Certificado', 'aula-virtual' ); ?></p>
-			<h1 class="av-heading"><?php esc_html_e( 'Certificado de finalizacion', 'aula-virtual' ); ?></h1>
+			<h1 class="av-heading"><?php esc_html_e( 'Certificado de finalización', 'aula-virtual' ); ?></h1>
 
 			<p class="av-lead"><?php esc_html_e( 'Se otorga el presente certificado a', 'aula-virtual' ); ?></p>
 			<div><span class="av-student"><?php echo esc_html( $student_name ); ?></span></div>
@@ -180,7 +180,7 @@ $av_title = $valid
 			<div class="av-foot">
 				<div>
 					<?php if ( '' !== $issued_date ) : ?>
-						<div><?php esc_html_e( 'Fecha de emision:', 'aula-virtual' ); ?> <strong><?php echo esc_html( $issued_date ); ?></strong></div>
+						<div><?php esc_html_e( 'Fecha de emisión:', 'aula-virtual' ); ?> <strong><?php echo esc_html( $issued_date ); ?></strong></div>
 					<?php endif; ?>
 					<div><?php echo esc_html( $site_name ); ?></div>
 				</div>
@@ -200,7 +200,7 @@ $av_title = $valid
 						<?php
 						printf(
 							/* translators: 1: certificate code, 2: issue date. */
-							esc_html__( 'Verificado: codigo %1$s emitido el %2$s', 'aula-virtual' ),
+							esc_html__( 'Verificado: código %1$s emitido el %2$s', 'aula-virtual' ),
 							'<code>' . esc_html( $code ) . '</code>',
 							esc_html( $issued_date )
 						);

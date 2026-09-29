@@ -39,7 +39,7 @@ if ( null === $av_button && '' === $section['whatsapp'] ) {
 				<a class="av-btn av-btn--primary av-btn--lg" href="<?php echo esc_url( $av_button['url'] ); ?>"><?php echo esc_html( $av_button['text'] ); ?></a>
 			<?php endif; ?>
 			<?php if ( '' !== $section['whatsapp'] && ( null === $av_button || ! str_starts_with( $av_button['url'], 'https://wa.me/' ) ) ) : ?>
-				<a class="av-btn av-btn--whatsapp" href="<?php echo esc_url( 'https://wa.me/' . ltrim( $section['whatsapp'], '+' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Escribenos por WhatsApp', 'aula-virtual' ); ?></a>
+				<a class="av-btn av-btn--whatsapp" href="<?php echo esc_url( 'https://wa.me/' . ltrim( $section['whatsapp'], '+' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Escríbenos por WhatsApp', 'aula-virtual' ); ?></a>
 			<?php endif; ?>
 		</p>
 	</div>

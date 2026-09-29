@@ -158,7 +158,7 @@ final class EditionsController extends AbstractController {
 		$edition = $this->editions->find( (int) $request->get_param( 'id' ) );
 
 		if ( null === $edition ) {
-			return $this->not_found( __( 'La edicion no existe.', 'aula-virtual' ) );
+			return $this->not_found( __( 'La edición no existe.', 'aula-virtual' ) );
 		}
 
 		return $this->access->can_manage_editions( (int) $edition['course_id'] ) ? true : $this->forbidden();
@@ -244,7 +244,7 @@ final class EditionsController extends AbstractController {
 		$edition = $this->editions->find( (int) $request->get_param( 'id' ) );
 
 		if ( null === $edition || ! $this->edition_visible( $edition ) ) {
-			return $this->not_found( __( 'La edicion no existe.', 'aula-virtual' ) );
+			return $this->not_found( __( 'La edición no existe.', 'aula-virtual' ) );
 		}
 
 		return rest_ensure_response( $this->prepare_edition( $edition ) );
@@ -261,7 +261,7 @@ final class EditionsController extends AbstractController {
 		$edition    = $this->editions->find( $edition_id );
 
 		if ( null === $edition ) {
-			return $this->not_found( __( 'La edicion no existe.', 'aula-virtual' ) );
+			return $this->not_found( __( 'La edición no existe.', 'aula-virtual' ) );
 		}
 
 		$where  = array( 'edition_id' => $edition_id );
@@ -434,7 +434,7 @@ final class EditionsController extends AbstractController {
 	 */
 	private function id_arg(): array {
 		return array(
-			'description'       => __( 'Identificador de la edicion.', 'aula-virtual' ),
+			'description'       => __( 'Identificador de la edición.', 'aula-virtual' ),
 			'type'              => 'integer',
 			'required'          => true,
 			'minimum'           => 1,
@@ -453,7 +453,7 @@ final class EditionsController extends AbstractController {
 		unset( $params['search'] );
 
 		$params['status'] = array(
-			'description'       => __( 'Filtra por estado de matricula.', 'aula-virtual' ),
+			'description'       => __( 'Filtra por estado de matrícula.', 'aula-virtual' ),
 			'type'              => 'string',
 			'default'           => '',
 			'enum'              => array_merge( array( '' ), EnrollmentStatus::all() ),
@@ -482,7 +482,7 @@ final class EditionsController extends AbstractController {
 		);
 
 		$params['status'] = array(
-			'description'       => __( 'Filtra por estado de la edicion.', 'aula-virtual' ),
+			'description'       => __( 'Filtra por estado de la edición.', 'aula-virtual' ),
 			'type'              => 'string',
 			'default'           => '',
 			'enum'              => array_merge( array( '' ), EditionStatus::all() ),
@@ -490,7 +490,7 @@ final class EditionsController extends AbstractController {
 		);
 
 		$params['open_only'] = array(
-			'description'       => __( 'Solo ediciones que admiten matricula (proxima, abierta o en curso).', 'aula-virtual' ),
+			'description'       => __( 'Solo ediciones que admiten matrícula (próxima, abierta o en curso).', 'aula-virtual' ),
 			'type'              => 'boolean',
 			'default'           => false,
 			'sanitize_callback' => 'rest_sanitize_boolean',

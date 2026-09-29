@@ -189,6 +189,21 @@ retirarlo para conservar las URLs antiguas.
       pendiente; sin clave devuelve 401/403; el intento 21 en una hora devuelve 429.
 - [ ] Con un Application Password, `POST /enrollments` matricula y `PATCH` cambia el estado.
 
+## 8f. Pantalla de edición y enlaces legibles
+
+- [ ] La edición se abre con cabecera, cuatro tarjetas y las pestañas Sesiones, Alumnos,
+      Inscripción y Ajustes. Tras añadir una sesión, matricular o crear un enlace, se vuelve a
+      la pestaña correspondiente.
+- [ ] *Ajustes*: cambiar el horario y guardar; el cambio se ve en la cabecera y en la landing.
+- [ ] *Inscripción*: la dirección propuesta es el código de la edición. Crear el enlace, abrir
+      `/inscripcion/{código}/` y enviar el formulario.
+- [ ] Crear otro con la dirección `numerologia-setiembre`; intentar repetirla: aviso de que ya
+      está en uso.
+- [ ] Desactivar el enlace antiguo con dirección aleatoria: al abrirlo dice que ya no admite
+      inscripciones. Activarlo de nuevo funciona.
+- [ ] El formulario público se ve en dos columnas en escritorio y en una en el móvil, con el
+      color de marca de *Configuración → General*.
+
 ## 8e. Seguridad
 
 Recorrer la lista de la sección 9 de [`SEGURIDAD.md`](SEGURIDAD.md).

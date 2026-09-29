@@ -36,15 +36,30 @@ landing* la abre en el sitio.
 | Inicio y fin | Fechas de la cohorte |
 | Ventana de acceso | Desde y hasta cuándo el alumno puede entrar al contenido. Vacío = sin límite |
 | Días y horario | Texto libre: "Martes y jueves", "19:00 - 21:00". Va a la landing y a la bienvenida |
+| Zona horaria | En la que se programan y se muestran las clases en vivo |
 | Precio y producto | Precio informativo y el ID del producto de WooCommerce. **Con producto la edición es de pago; sin producto es gratuita** |
 | Cupo | 0 = sin límite |
 
-Al guardar se abre el detalle de la edición con cinco bloques: enlace de inscripción,
-sesiones, alumnos, matrícula manual y duplicar edición.
+Al guardar se abre la pantalla de la edición, organizada así:
+
+- **Cabecera:** curso, nombre, estado en color, código, modalidad, fechas, horario y precio.
+  Botones *Ver landing* y *Reporte*.
+- **Tarjetas de resumen:** alumnos y plazas, sesiones publicadas, avance medio y solicitudes
+  pendientes. Esta última se resalta en amarillo cuando hay algo que aprobar.
+- **Pestañas:**
+  - *Sesiones:* el temario en orden, con flechas para reordenar, estado y liberación
+    programada. Debajo, el formulario para añadir una sesión.
+  - *Alumnos:* cada matrícula con correo, origen, estado, barra de avance y fecha. Exportar
+    a CSV, matricular a una persona o ir a la importación por Excel.
+  - *Inscripción:* los enlaces de inscripción con su dirección, botón *Copiar*, si piden
+    aprobación, los usos y *Desactivar*. Debajo, el formulario para crear otro enlace.
+  - *Ajustes:* todos los datos de la edición para editarlos, y *Duplicar edición*.
+
+Después de cada acción vuelves a la misma pestaña.
 
 ### Duplicar una edición
 
-Al final del detalle, **Duplicar edición** crea una nueva edición en borrador del mismo curso
+En la pestaña *Ajustes*, **Duplicar edición** crea una nueva edición en borrador del mismo curso
 con las mismas sesiones (título, tipo, video, descripción, contenido, duración). Opciones:
 
 - **Nombre**: si se deja vacío, "Copia de …".
@@ -149,8 +164,14 @@ token en la biblioteca de Stream.
 
 ### Inscripción con aprobación
 
-1. En el detalle de la edición, **Generar enlace**. Copiar el enlace
-   (`/inscripcion/xxxxxxxx/`) a la landing, WhatsApp o correo.
+1. En la pestaña *Inscripción* de la edición, **Crear enlace**. La dirección se propone a
+   partir del código de la edición, por ejemplo `/inscripcion/numbasica-set2026/`, y se puede
+   cambiar por otra fácil de dictar, como `/inscripcion/numerologia-setiembre/` (minúsculas,
+   números y guiones). Marca *Enlace privado* si prefieres una dirección aleatoria que no se
+   pueda adivinar. Elige también si revisas cada solicitud o si se aprueba sola.
+   Copia el enlace con el botón *Copiar* y pégalo en la landing, WhatsApp o correo.
+   Puedes crear varios (landing, WhatsApp, Instagram) para ver cuántas personas llegan por
+   cada uno, y **Desactivar** los que ya no quieras usar.
 2. Quien lo abre llena nombre, apellido, correo, teléfono y documento. Recibe un correo de
    "solicitud recibida" y tú un aviso.
 3. En *Aula Virtual → Solicitudes*: **Aprobar**. Si la edición es gratuita, queda matriculado.

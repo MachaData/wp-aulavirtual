@@ -22,7 +22,7 @@ $av_labels = RegistrationRequestRepository::labels();
 $av_base   = add_query_arg( 'page', RequestsScreen::SLUG, admin_url( 'admin.php' ) );
 ?>
 <div class="wrap">
-	<h1 class="wp-heading-inline"><?php esc_html_e( 'Solicitudes de inscripcion', 'aula-virtual' ); ?></h1>
+	<h1 class="wp-heading-inline"><?php esc_html_e( 'Solicitudes de inscripción', 'aula-virtual' ); ?></h1>
 	<hr class="wp-header-end">
 
 	<?php require AV_PATH . 'admin/views/notice.php'; ?>
@@ -40,7 +40,7 @@ $av_base   = add_query_arg( 'page', RequestsScreen::SLUG, admin_url( 'admin.php'
 		<thead>
 			<tr>
 				<th scope="col"><?php esc_html_e( 'Solicitante', 'aula-virtual' ); ?></th>
-				<th scope="col"><?php esc_html_e( 'Curso / edicion', 'aula-virtual' ); ?></th>
+				<th scope="col"><?php esc_html_e( 'Curso / edición', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:150px"><?php esc_html_e( 'Fecha', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:170px"><?php esc_html_e( 'Estado', 'aula-virtual' ); ?></th>
 				<th scope="col" style="width:280px"><?php esc_html_e( 'Acciones', 'aula-virtual' ); ?></th>
@@ -82,7 +82,7 @@ $av_base   = add_query_arg( 'page', RequestsScreen::SLUG, admin_url( 'admin.php'
 								<input type="hidden" name="request_id" value="<?php echo esc_attr( (string) (int) $av_request['id'] ); ?>">
 								<input type="hidden" name="reason" value="">
 								<?php wp_nonce_field( RequestsScreen::ACTION_REJECT ); ?>
-								<button type="submit" class="button button-small" onclick="var r=prompt('<?php echo esc_js( __( 'Motivo del rechazo (se envia al solicitante):', 'aula-virtual' ) ); ?>'); if(r===null){return false;} this.form.reason.value=r;">
+								<button type="submit" class="button button-small" onclick="var r=prompt('<?php echo esc_js( __( 'Motivo del rechazo (se envía al solicitante):', 'aula-virtual' ) ); ?>'); if(r===null){return false;} this.form.reason.value=r;">
 									<?php esc_html_e( 'Rechazar', 'aula-virtual' ); ?>
 								</button>
 							</form>

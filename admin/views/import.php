@@ -27,7 +27,7 @@ $av_fields = array(
 	'email'      => __( 'Correo (obligatorio)', 'aula-virtual' ),
 	'first_name' => __( 'Nombre', 'aula-virtual' ),
 	'last_name'  => __( 'Apellido', 'aula-virtual' ),
-	'phone'      => __( 'Telefono', 'aula-virtual' ),
+	'phone'      => __( 'Teléfono', 'aula-virtual' ),
 	'document'   => __( 'Documento', 'aula-virtual' ),
 );
 ?>
@@ -38,7 +38,7 @@ $av_fields = array(
 
 	<p class="description">
 		<?php
-		$av_steps = array( 'upload' => __( '1. Archivo', 'aula-virtual' ), 'map' => __( '2. Columnas', 'aula-virtual' ), 'review' => __( '3. Revision', 'aula-virtual' ), 'run' => __( '4. Importar', 'aula-virtual' ) );
+		$av_steps = array( 'upload' => __( '1. Archivo', 'aula-virtual' ), 'map' => __( '2. Columnas', 'aula-virtual' ), 'review' => __( '3. Revisión', 'aula-virtual' ), 'run' => __( '4. Importar', 'aula-virtual' ) );
 		foreach ( $av_steps as $av_key => $av_label ) {
 			echo $av_key === $step ? '<strong>' . esc_html( $av_label ) . '</strong>' : esc_html( $av_label );
 			echo 'run' === $av_key ? '' : ' &rarr; ';
@@ -52,10 +52,10 @@ $av_fields = array(
 			<?php wp_nonce_field( ImportScreen::ACTION_UPLOAD ); ?>
 			<table class="form-table" role="presentation">
 				<tr>
-					<th scope="row"><label for="av-edition"><?php esc_html_e( 'Edicion destino', 'aula-virtual' ); ?></label></th>
+					<th scope="row"><label for="av-edition"><?php esc_html_e( 'Edición destino', 'aula-virtual' ); ?></label></th>
 					<td>
 						<select name="edition_id" id="av-edition" required>
-							<option value=""><?php esc_html_e( 'Elige una edicion', 'aula-virtual' ); ?></option>
+							<option value=""><?php esc_html_e( 'Elige una edición', 'aula-virtual' ); ?></option>
 							<?php foreach ( $editions as $av_edition ) : ?>
 								<option value="<?php echo esc_attr( (string) (int) $av_edition['id'] ); ?>"><?php echo esc_html( get_the_title( (int) $av_edition['course_id'] ) . ' — ' . $av_edition['name'] ); ?></option>
 							<?php endforeach; ?>
@@ -66,7 +66,7 @@ $av_fields = array(
 					<th scope="row"><label for="av-file"><?php esc_html_e( 'Archivo', 'aula-virtual' ); ?></label></th>
 					<td>
 						<input type="file" name="import_file" id="av-file" accept=".csv,.xlsx,.txt" required>
-						<p class="description"><?php esc_html_e( 'CSV o XLSX con una fila de cabecera. Columnas sugeridas: email, nombre, apellido, telefono, documento. Maximo 5000 filas.', 'aula-virtual' ); ?></p>
+						<p class="description"><?php esc_html_e( 'CSV o XLSX con una fila de cabecera. Columnas sugeridas: email, nombre, apellido, teléfono, documento. Máximo 5000 filas.', 'aula-virtual' ); ?></p>
 					</td>
 				</tr>
 			</table>
@@ -102,19 +102,19 @@ $av_fields = array(
 		<h2><?php echo esc_html( null === $edition ? '' : get_the_title( (int) $edition['course_id'] ) . ' — ' . $edition['name'] ); ?></h2>
 		<table class="widefat striped" style="max-width:560px">
 			<tbody>
-				<tr><td><?php esc_html_e( 'Filas validas', 'aula-virtual' ); ?></td><td><strong><?php echo esc_html( (string) count( $review['valid'] ) ); ?></strong></td></tr>
-				<tr><td><?php esc_html_e( 'Usuarios nuevos (se creara la cuenta)', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $review['new_users'] ); ?></td></tr>
+				<tr><td><?php esc_html_e( 'Filas válidas', 'aula-virtual' ); ?></td><td><strong><?php echo esc_html( (string) count( $review['valid'] ) ); ?></strong></td></tr>
+				<tr><td><?php esc_html_e( 'Usuarios nuevos (se creará la cuenta)', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $review['new_users'] ); ?></td></tr>
 				<tr><td><?php esc_html_e( 'Usuarios existentes', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $review['existing_users'] ); ?></td></tr>
-				<tr><td><?php esc_html_e( 'Ya matriculados en esta edicion (se omiten)', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $review['already_enrolled'] ); ?></td></tr>
+				<tr><td><?php esc_html_e( 'Ya matriculados en esta edición (se omiten)', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $review['already_enrolled'] ); ?></td></tr>
 				<tr><td><?php esc_html_e( 'Repetidos en el archivo (se omiten)', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) count( $review['duplicates'] ) ); ?></td></tr>
-				<tr><td><?php esc_html_e( 'Filas invalidas (se omiten)', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) count( $review['invalid'] ) ); ?></td></tr>
+				<tr><td><?php esc_html_e( 'Filas inválidas (se omiten)', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) count( $review['invalid'] ) ); ?></td></tr>
 			</tbody>
 		</table>
 
 		<?php if ( ! empty( $review['invalid'] ) ) : ?>
-			<h3><?php esc_html_e( 'Filas invalidas', 'aula-virtual' ); ?></h3>
+			<h3><?php esc_html_e( 'Filas inválidas', 'aula-virtual' ); ?></h3>
 			<table class="widefat striped" style="max-width:760px">
-				<thead><tr><th><?php esc_html_e( 'Linea', 'aula-virtual' ); ?></th><th><?php esc_html_e( 'Correo', 'aula-virtual' ); ?></th><th><?php esc_html_e( 'Motivo', 'aula-virtual' ); ?></th></tr></thead>
+				<thead><tr><th><?php esc_html_e( 'Línea', 'aula-virtual' ); ?></th><th><?php esc_html_e( 'Correo', 'aula-virtual' ); ?></th><th><?php esc_html_e( 'Motivo', 'aula-virtual' ); ?></th></tr></thead>
 				<tbody>
 				<?php foreach ( array_slice( $review['invalid'], 0, 50 ) as $av_row ) : ?>
 					<tr><td><?php echo esc_html( (string) $av_row['line'] ); ?></td><td><?php echo esc_html( (string) $av_row['email'] ); ?></td><td><?php echo esc_html( (string) $av_row['reason'] ); ?></td></tr>
@@ -127,8 +127,8 @@ $av_fields = array(
 			<input type="hidden" name="action" value="<?php echo esc_attr( ImportScreen::ACTION_CONFIRM ); ?>">
 			<input type="hidden" name="token" value="<?php echo esc_attr( $token ); ?>">
 			<?php wp_nonce_field( ImportScreen::ACTION_CONFIRM ); ?>
-			<p><label><input type="checkbox" name="send_welcome" value="1"> <?php esc_html_e( 'Enviar el correo de bienvenida a cada alumno importado (con el enlace para crear su contrasena)', 'aula-virtual' ); ?></label></p>
-			<p class="description"><?php esc_html_e( 'Hasta ahora no se ha escrito nada ni se ha enviado ningun correo. Al confirmar, se procesan 200 alumnos por pulsacion.', 'aula-virtual' ); ?></p>
+			<p><label><input type="checkbox" name="send_welcome" value="1"> <?php esc_html_e( 'Enviar el correo de bienvenida a cada alumno importado (con el enlace para crear su contraseña)', 'aula-virtual' ); ?></label></p>
+			<p class="description"><?php esc_html_e( 'Hasta ahora no se ha escrito nada ni se ha enviado ningún correo. Al confirmar, se procesan 200 alumnos por pulsación.', 'aula-virtual' ); ?></p>
 			<?php submit_button( sprintf( /* translators: %d: rows. */ __( 'Importar %d alumnos', 'aula-virtual' ), count( $review['valid'] ) ), 'primary', 'submit', true, array() === $review['valid'] ? array( 'disabled' => 'disabled' ) : array() ); ?>
 		</form>
 
@@ -154,14 +154,14 @@ $av_fields = array(
 				<?php submit_button( 0 === (int) $job['processed_rows'] ? __( 'Comenzar', 'aula-virtual' ) : __( 'Continuar con el siguiente lote', 'aula-virtual' ) ); ?>
 			</form>
 		<?php else : ?>
-			<p><a class="button" href="<?php echo esc_url( AdminMenu::editions_url( array( 'edition' => (int) $job['edition_id'] ) ) ); ?>"><?php esc_html_e( 'Ver la edicion', 'aula-virtual' ); ?></a>
-			<a class="button" href="<?php echo esc_url( add_query_arg( 'page', ImportScreen::SLUG, admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Nueva importacion', 'aula-virtual' ); ?></a></p>
+			<p><a class="button" href="<?php echo esc_url( AdminMenu::editions_url( array( 'edition' => (int) $job['edition_id'] ) ) ); ?>"><?php esc_html_e( 'Ver la edición', 'aula-virtual' ); ?></a>
+			<a class="button" href="<?php echo esc_url( add_query_arg( 'page', ImportScreen::SLUG, admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Nueva importación', 'aula-virtual' ); ?></a></p>
 		<?php endif; ?>
 
 		<?php if ( ! empty( $errors ) ) : ?>
 			<h3><?php esc_html_e( 'Errores', 'aula-virtual' ); ?></h3>
 			<table class="widefat striped" style="max-width:760px">
-				<thead><tr><th><?php esc_html_e( 'Linea', 'aula-virtual' ); ?></th><th><?php esc_html_e( 'Correo', 'aula-virtual' ); ?></th><th><?php esc_html_e( 'Error', 'aula-virtual' ); ?></th></tr></thead>
+				<thead><tr><th><?php esc_html_e( 'Línea', 'aula-virtual' ); ?></th><th><?php esc_html_e( 'Correo', 'aula-virtual' ); ?></th><th><?php esc_html_e( 'Error', 'aula-virtual' ); ?></th></tr></thead>
 				<tbody>
 				<?php foreach ( $errors as $av_err ) : ?>
 					<tr><td><?php echo esc_html( (string) ( $av_err['line'] ?? '' ) ); ?></td><td><?php echo esc_html( (string) ( $av_err['email'] ?? '' ) ); ?></td><td><?php echo esc_html( (string) ( $av_err['error'] ?? '' ) ); ?></td></tr>

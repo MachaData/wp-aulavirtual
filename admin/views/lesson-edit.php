@@ -38,17 +38,17 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 	<?php require AV_PATH . 'admin/views/notice.php'; ?>
 
 	<p>
-		<a href="<?php echo esc_url( AdminMenu::editions_url( array( 'edition' => (int) $lesson['edition_id'] ) ) ); ?>">&larr; <?php echo esc_html( null === $edition ? __( 'Volver a la edicion', 'aula-virtual' ) : $edition['name'] ); ?></a>
+		<a href="<?php echo esc_url( AdminMenu::editions_url( array( 'edition' => (int) $lesson['edition_id'] ) ) ); ?>">&larr; <?php echo esc_html( null === $edition ? __( 'Volver a la edición', 'aula-virtual' ) : $edition['name'] ); ?></a>
 	</p>
 
 	<div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(320px,1fr);gap:28px;align-items:start">
 		<div>
-			<h2><?php esc_html_e( 'Contenido de la sesion', 'aula-virtual' ); ?></h2>
+			<h2><?php esc_html_e( 'Contenido de la sesión', 'aula-virtual' ); ?></h2>
 			<form method="post" action="<?php echo esc_url( $av_admin_post ); ?>">
 				<?php $av_hidden( LessonScreen::ACTION_SAVE ); ?>
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row"><label for="av-title"><?php esc_html_e( 'Titulo', 'aula-virtual' ); ?></label></th>
+						<th scope="row"><label for="av-title"><?php esc_html_e( 'Título', 'aula-virtual' ); ?></label></th>
 						<td><input type="text" id="av-title" name="title" class="large-text" required value="<?php echo esc_attr( (string) $lesson['title'] ); ?>"></td>
 					</tr>
 					<tr>
@@ -67,7 +67,7 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="av-description"><?php esc_html_e( 'Descripcion corta', 'aula-virtual' ); ?></label></th>
+						<th scope="row"><label for="av-description"><?php esc_html_e( 'Descripción corta', 'aula-virtual' ); ?></label></th>
 						<td><textarea id="av-description" name="description" class="large-text" rows="2"><?php echo esc_textarea( (string) $lesson['description'] ); ?></textarea></td>
 					</tr>
 					<tr>
@@ -79,8 +79,8 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 								<?php endforeach; ?>
 							</select>
 							<textarea id="av-video" name="video_url" class="large-text" rows="2" placeholder="https://youtu.be/...  |  https://iframe.mediadelivery.net/embed/123/guid  |  <iframe ...>"><?php echo esc_textarea( (string) $lesson['video_url'] ); ?></textarea>
-							<p class="description"><?php esc_html_e( 'YouTube, Vimeo, Bunny Stream (URL de embed, de reproduccion o el GUID del video), un MP4, un codigo incrustado o un shortcode. Con "Detectar automaticamente" basta pegar la URL.', 'aula-virtual' ); ?></p>
-							<label><?php esc_html_e( 'Duracion (min)', 'aula-virtual' ); ?> <input type="number" name="duration" min="0" class="small-text" value="<?php echo esc_attr( (string) (int) $lesson['duration'] ); ?>"></label>
+							<p class="description"><?php esc_html_e( 'YouTube, Vimeo, Bunny Stream (URL de embed, de reproducción o el GUID del video), un MP4, un código incrustado o un shortcode. Con "Detectar automáticamente" basta pegar la URL.', 'aula-virtual' ); ?></p>
+							<label><?php esc_html_e( 'Duración (min)', 'aula-virtual' ); ?> <input type="number" name="duration" min="0" class="small-text" value="<?php echo esc_attr( (string) (int) $lesson['duration'] ); ?>"></label>
 						</td>
 					</tr>
 					<tr>
@@ -100,25 +100,25 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Liberacion', 'aula-virtual' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Liberación', 'aula-virtual' ); ?></th>
 						<td>
 							<select name="release_type">
 								<option value="immediate" <?php selected( $lesson['release_type'], 'immediate' ); ?>><?php esc_html_e( 'Disponible de inmediato', 'aula-virtual' ); ?></option>
 								<option value="date" <?php selected( $lesson['release_type'], 'date' ); ?>><?php esc_html_e( 'A partir de una fecha', 'aula-virtual' ); ?></option>
-								<option value="offset" <?php selected( $lesson['release_type'], 'offset' ); ?>><?php esc_html_e( 'X dias despues de la matricula', 'aula-virtual' ); ?></option>
+								<option value="offset" <?php selected( $lesson['release_type'], 'offset' ); ?>><?php esc_html_e( 'X días después de la matrícula', 'aula-virtual' ); ?></option>
 							</select>
 							<input type="date" name="release_date" value="<?php echo esc_attr( empty( $lesson['release_date'] ) ? '' : substr( (string) $lesson['release_date'], 0, 10 ) ); ?>">
-							<input type="number" name="release_offset" min="0" class="small-text" value="<?php echo esc_attr( (string) (int) $lesson['release_offset'] ); ?>"> <?php esc_html_e( 'dias', 'aula-virtual' ); ?>
-							<p class="description"><?php esc_html_e( 'La liberacion programada se aplica en el campus en la siguiente fase (content drip). Los datos ya se guardan.', 'aula-virtual' ); ?></p>
+							<input type="number" name="release_offset" min="0" class="small-text" value="<?php echo esc_attr( (string) (int) $lesson['release_offset'] ); ?>"> <?php esc_html_e( 'días', 'aula-virtual' ); ?>
+							<p class="description"><?php esc_html_e( 'La liberación programada se aplica en el campus en la siguiente fase (content drip). Los datos ya se guardan.', 'aula-virtual' ); ?></p>
 						</td>
 					</tr>
 				</table>
-				<?php submit_button( __( 'Guardar sesion', 'aula-virtual' ) ); ?>
+				<?php submit_button( __( 'Guardar sesión', 'aula-virtual' ) ); ?>
 			</form>
 
-			<form method="post" action="<?php echo esc_url( $av_admin_post ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Eliminar esta sesion y su progreso asociado?', 'aula-virtual' ) ); ?>');">
+			<form method="post" action="<?php echo esc_url( $av_admin_post ); ?>" onsubmit="return confirm('<?php echo esc_js( __( '¿Eliminar esta sesión y su progreso asociado?', 'aula-virtual' ) ); ?>');">
 				<?php $av_hidden( LessonScreen::ACTION_DELETE ); ?>
-				<button type="submit" class="button-link-delete"><?php esc_html_e( 'Eliminar sesion', 'aula-virtual' ); ?></button>
+				<button type="submit" class="button-link-delete"><?php esc_html_e( 'Eliminar sesión', 'aula-virtual' ); ?></button>
 			</form>
 		</div>
 
@@ -127,7 +127,7 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 			<form method="post" action="<?php echo esc_url( $av_admin_post ); ?>" class="av-live-form">
 				<?php $av_hidden( LessonScreen::ACTION_SAVE_LIVE ); ?>
 				<input type="hidden" name="timezone" value="<?php echo esc_attr( $timezone ); ?>">
-				<p class="description"><?php printf( /* translators: %s: time zone. */ esc_html__( 'Horas en la zona de la edicion: %s', 'aula-virtual' ), esc_html( $timezone ) ); ?></p>
+				<p class="description"><?php printf( /* translators: %s: time zone. */ esc_html__( 'Horas en la zona de la edición: %s', 'aula-virtual' ), esc_html( $timezone ) ); ?></p>
 				<p>
 					<label><?php esc_html_e( 'Plataforma', 'aula-virtual' ); ?><br>
 						<select name="provider">
@@ -138,18 +138,18 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 					</label>
 				</p>
 				<p><label><?php esc_html_e( 'Inicio', 'aula-virtual' ); ?><br><input type="datetime-local" name="start_local" required value="<?php echo esc_attr( null === $live ? '' : LiveClassService::to_local( (string) $live['start_datetime'], $timezone, 'Y-m-d\TH:i' ) ); ?>"></label></p>
-				<p><label><?php esc_html_e( 'Fin', 'aula-virtual' ); ?><br><input type="datetime-local" name="end_local" value="<?php echo esc_attr( null === $live ? '' : LiveClassService::to_local( (string) $live['end_datetime'], $timezone, 'Y-m-d\TH:i' ) ); ?>"></label> <span class="description"><?php esc_html_e( 'o duracion', 'aula-virtual' ); ?> <input type="number" name="duration" min="15" class="small-text" value="90"> min</span></p>
-				<p><label><?php esc_html_e( 'Enlace de la reunion', 'aula-virtual' ); ?><br><input type="url" name="meeting_url" class="widefat" value="<?php echo esc_attr( (string) ( $live['meeting_url'] ?? '' ) ); ?>"></label></p>
+				<p><label><?php esc_html_e( 'Fin', 'aula-virtual' ); ?><br><input type="datetime-local" name="end_local" value="<?php echo esc_attr( null === $live ? '' : LiveClassService::to_local( (string) $live['end_datetime'], $timezone, 'Y-m-d\TH:i' ) ); ?>"></label> <span class="description"><?php esc_html_e( 'o duración', 'aula-virtual' ); ?> <input type="number" name="duration" min="15" class="small-text" value="90"> min</span></p>
+				<p><label><?php esc_html_e( 'Enlace de la reunión', 'aula-virtual' ); ?><br><input type="url" name="meeting_url" class="widefat" value="<?php echo esc_attr( (string) ( $live['meeting_url'] ?? '' ) ); ?>"></label></p>
 				<p>
 					<label><?php esc_html_e( 'ID', 'aula-virtual' ); ?> <input type="text" name="meeting_id" value="<?php echo esc_attr( (string) ( $live['meeting_id'] ?? '' ) ); ?>"></label>
-					<label><?php esc_html_e( 'Codigo', 'aula-virtual' ); ?> <input type="text" name="access_code" value="<?php echo esc_attr( (string) ( $live['access_code'] ?? '' ) ); ?>"></label>
+					<label><?php esc_html_e( 'Código', 'aula-virtual' ); ?> <input type="text" name="access_code" value="<?php echo esc_attr( (string) ( $live['access_code'] ?? '' ) ); ?>"></label>
 				</p>
 				<p>
-					<label><?php esc_html_e( 'Mostrar boton desde', 'aula-virtual' ); ?> <input type="number" name="open_before" min="0" class="small-text" value="<?php echo esc_attr( (string) (int) ( $live['open_before'] ?? 15 ) ); ?>"> <?php esc_html_e( 'min antes', 'aula-virtual' ); ?></label><br>
-					<label><?php esc_html_e( 'Ocultar boton', 'aula-virtual' ); ?> <input type="number" name="close_after" min="0" class="small-text" value="<?php echo esc_attr( (string) (int) ( $live['close_after'] ?? 30 ) ); ?>"> <?php esc_html_e( 'min despues del fin', 'aula-virtual' ); ?></label>
+					<label><?php esc_html_e( 'Mostrar botón desde', 'aula-virtual' ); ?> <input type="number" name="open_before" min="0" class="small-text" value="<?php echo esc_attr( (string) (int) ( $live['open_before'] ?? 15 ) ); ?>"> <?php esc_html_e( 'min antes', 'aula-virtual' ); ?></label><br>
+					<label><?php esc_html_e( 'Ocultar botón', 'aula-virtual' ); ?> <input type="number" name="close_after" min="0" class="small-text" value="<?php echo esc_attr( (string) (int) ( $live['close_after'] ?? 30 ) ); ?>"> <?php esc_html_e( 'min después del fin', 'aula-virtual' ); ?></label>
 				</p>
 				<p><label><?php esc_html_e( 'Mensaje para el alumno', 'aula-virtual' ); ?><br><textarea name="message" class="widefat" rows="2"><?php echo esc_textarea( (string) ( $live['message'] ?? '' ) ); ?></textarea></label></p>
-				<p><label><?php esc_html_e( 'Grabacion (URL, despues de la clase)', 'aula-virtual' ); ?><br><input type="url" name="recording_url" class="widefat" value="<?php echo esc_attr( (string) ( $live['recording_url'] ?? '' ) ); ?>"></label></p>
+				<p><label><?php esc_html_e( 'Grabación (URL, después de la clase)', 'aula-virtual' ); ?><br><input type="url" name="recording_url" class="widefat" value="<?php echo esc_attr( (string) ( $live['recording_url'] ?? '' ) ); ?>"></label></p>
 				<p>
 					<label><?php esc_html_e( 'Estado', 'aula-virtual' ); ?>
 						<select name="status">
@@ -170,7 +170,7 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 
 			<h2 style="margin-top:32px"><?php esc_html_e( 'Materiales', 'aula-virtual' ); ?></h2>
 			<?php if ( empty( $materials ) ) : ?>
-				<p class="description"><?php esc_html_e( 'Sin materiales todavia.', 'aula-virtual' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Sin materiales todavía.', 'aula-virtual' ); ?></p>
 			<?php else : ?>
 				<table class="widefat striped">
 					<tbody>
@@ -195,7 +195,7 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 
 			<form method="post" action="<?php echo esc_url( $av_admin_post ); ?>" style="margin-top:12px" id="av-material-form">
 				<?php $av_hidden( LessonScreen::ACTION_ADD_MATERIAL ); ?>
-				<p><input type="text" name="title" class="widefat" placeholder="<?php esc_attr_e( 'Titulo (opcional, se toma del archivo)', 'aula-virtual' ); ?>"></p>
+				<p><input type="text" name="title" class="widefat" placeholder="<?php esc_attr_e( 'Título (opcional, se toma del archivo)', 'aula-virtual' ); ?>"></p>
 				<p>
 					<input type="hidden" name="attachment_id" id="av-material-attachment" value="0">
 					<button type="button" class="button" id="av-material-choose"><?php esc_html_e( 'Elegir archivo de la biblioteca', 'aula-virtual' ); ?></button>
@@ -203,13 +203,13 @@ $av_hidden = static function ( string $action ) use ( $av_lesson_id ): void {
 				</p>
 				<p><input type="url" name="external_url" class="widefat" placeholder="<?php esc_attr_e( 'o enlace externo (Drive, Notion, web)', 'aula-virtual' ); ?>"></p>
 				<p><label><input type="hidden" name="downloadable" value="0"><input type="checkbox" name="downloadable" value="1" checked> <?php esc_html_e( 'Permitir descarga', 'aula-virtual' ); ?></label></p>
-				<?php submit_button( __( 'Anadir material', 'aula-virtual' ), 'secondary', 'submit', false ); ?>
+				<?php submit_button( __( 'Añadir material', 'aula-virtual' ), 'secondary', 'submit', false ); ?>
 				<p class="description"><?php printf( /* translators: %s: extensions. */ esc_html__( 'Formatos: %s.', 'aula-virtual' ), esc_html( implode( ', ', MaterialService::allowed_extensions() ) ) ); ?></p>
 			</form>
 			<?php if ( isset( $comments ) && is_array( $comments ) ) : ?>
 				<h2 style="margin-top:32px"><?php esc_html_e( 'Comentarios de los alumnos', 'aula-virtual' ); ?></h2>
 				<?php if ( empty( $comments ) ) : ?>
-					<p class="description"><?php esc_html_e( 'Sin comentarios todavia. Puedes responder desde la misma sesion en el campus.', 'aula-virtual' ); ?></p>
+					<p class="description"><?php esc_html_e( 'Sin comentarios todavía. Puedes responder desde la misma sesión en el campus.', 'aula-virtual' ); ?></p>
 				<?php else : ?>
 					<table class="widefat striped">
 						<tbody>

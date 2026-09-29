@@ -74,8 +74,8 @@ $av_image = static function ( string $section, string $key, string $label ) use 
 $av_button = static function ( string $section ) use ( $landing, $av_name, $button_types ): void {
 	?>
 	<div class="av-field av-button-field">
-		<span class="av-field__label"><?php esc_html_e( 'Boton', 'aula-virtual' ); ?></span>
-		<input type="text" name="<?php echo esc_attr( $av_name( $section, 'button_text' ) ); ?>" value="<?php echo esc_attr( (string) $landing[ $section ]['button_text'] ); ?>" placeholder="<?php esc_attr_e( 'Texto del boton', 'aula-virtual' ); ?>">
+		<span class="av-field__label"><?php esc_html_e( 'Botón', 'aula-virtual' ); ?></span>
+		<input type="text" name="<?php echo esc_attr( $av_name( $section, 'button_text' ) ); ?>" value="<?php echo esc_attr( (string) $landing[ $section ]['button_text'] ); ?>" placeholder="<?php esc_attr_e( 'Texto del botón', 'aula-virtual' ); ?>">
 		<select name="<?php echo esc_attr( $av_name( $section, 'button_type' ) ); ?>" class="av-button-field__type">
 			<?php foreach ( $button_types as $value => $label ) : ?>
 				<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $landing[ $section ]['button_type'], $value ); ?>><?php echo esc_html( $label ); ?></option>
@@ -104,7 +104,7 @@ $av_rows = static function ( string $section, string $key, string $label, string
 				</div>
 			<?php endforeach; ?>
 		</div>
-		<button type="button" class="button av-repeater__add" data-first-label="<?php echo esc_attr( $first_label ); ?>" data-second-label="<?php echo esc_attr( $second_label ); ?>"><?php esc_html_e( 'Anadir', 'aula-virtual' ); ?></button>
+		<button type="button" class="button av-repeater__add" data-first-label="<?php echo esc_attr( $first_label ); ?>" data-second-label="<?php echo esc_attr( $second_label ); ?>"><?php esc_html_e( 'Añadir', 'aula-virtual' ); ?></button>
 	</div>
 	<?php
 };
@@ -132,15 +132,15 @@ $av_close = static function (): void {
 ?>
 <div class="av-landing-editor">
 	<p class="description">
-		<?php esc_html_e( 'La landing se compone de estas secciones, en este orden. Apaga las que no necesites. Las fechas, horarios y botones de compra e inscripcion salen de las ediciones abiertas del curso.', 'aula-virtual' ); ?>
+		<?php esc_html_e( 'La landing se compone de estas secciones, en este orden. Apaga las que no necesites. Las fechas, horarios y botones de compra e inscripción salen de las ediciones abiertas del curso.', 'aula-virtual' ); ?>
 		<a href="<?php echo esc_url( get_permalink( $course_id ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Ver landing', 'aula-virtual' ); ?></a>
 	</p>
 
 	<?php $av_open( 'hero', true ); ?>
-		<?php $av_text( 'hero', 'kicker', __( 'Antetitulo', 'aula-virtual' ), __( 'Certificacion oficial', 'aula-virtual' ) ); ?>
-		<?php $av_text( 'hero', 'title', __( 'Titulo', 'aula-virtual' ) ); ?>
-		<?php $av_text( 'hero', 'subtitle', __( 'Subtitulo', 'aula-virtual' ) ); ?>
-		<?php $av_area( 'hero', 'text', __( 'Texto', 'aula-virtual' ), __( 'Admite HTML basico.', 'aula-virtual' ) ); ?>
+		<?php $av_text( 'hero', 'kicker', __( 'Antetítulo', 'aula-virtual' ), __( 'Certificación oficial', 'aula-virtual' ) ); ?>
+		<?php $av_text( 'hero', 'title', __( 'Título', 'aula-virtual' ) ); ?>
+		<?php $av_text( 'hero', 'subtitle', __( 'Subtítulo', 'aula-virtual' ) ); ?>
+		<?php $av_area( 'hero', 'text', __( 'Texto', 'aula-virtual' ), __( 'Admite HTML básico.', 'aula-virtual' ) ); ?>
 		<?php $av_text( 'hero', 'video_url', __( 'Video (YouTube, Vimeo o MP4)', 'aula-virtual' ), 'https://' ); ?>
 		<div class="av-grid-2">
 			<?php $av_image( 'hero', 'image_id', __( 'Imagen principal (si no hay video)', 'aula-virtual' ) ); ?>
@@ -151,54 +151,54 @@ $av_close = static function (): void {
 	<?php $av_close(); ?>
 
 	<?php $av_open( 'benefits' ); ?>
-		<?php $av_text( 'benefits', 'title', __( 'Titulo', 'aula-virtual' ) ); ?>
-		<?php $av_area( 'benefits', 'items', __( 'Beneficios', 'aula-virtual' ), __( 'Uno por linea.', 'aula-virtual' ), 6 ); ?>
+		<?php $av_text( 'benefits', 'title', __( 'Título', 'aula-virtual' ) ); ?>
+		<?php $av_area( 'benefits', 'items', __( 'Beneficios', 'aula-virtual' ), __( 'Uno por línea.', 'aula-virtual' ), 6 ); ?>
 		<?php $av_image( 'benefits', 'image_id', __( 'Imagen lateral', 'aula-virtual' ) ); ?>
 	<?php $av_close(); ?>
 
 	<?php $av_open( 'content' ); ?>
-		<?php $av_text( 'content', 'title', __( 'Titulo', 'aula-virtual' ) ); ?>
-		<?php $av_area( 'content', 'text', __( 'Texto introductorio', 'aula-virtual' ), __( 'Admite HTML basico.', 'aula-virtual' ) ); ?>
+		<?php $av_text( 'content', 'title', __( 'Título', 'aula-virtual' ) ); ?>
+		<?php $av_area( 'content', 'text', __( 'Texto introductorio', 'aula-virtual' ), __( 'Admite HTML básico.', 'aula-virtual' ) ); ?>
 		<?php $av_text( 'content', 'video_url', __( 'Video (opcional)', 'aula-virtual' ), 'https://' ); ?>
-		<p class="av-field"><label><input type="hidden" name="<?php echo esc_attr( $av_name( 'content', 'from_curriculum' ) ); ?>" value="0"><input type="checkbox" name="<?php echo esc_attr( $av_name( 'content', 'from_curriculum' ) ); ?>" value="1" <?php checked( ! empty( $landing['content']['from_curriculum'] ) ); ?>> <?php esc_html_e( 'Mostrar el temario de la proxima edicion (modulos y sesiones)', 'aula-virtual' ); ?></label></p>
-		<?php $av_area( 'content', 'items', __( 'Temario manual', 'aula-virtual' ), __( 'Uno por linea. Se usa si no hay temario en la edicion o si desactivas la opcion anterior.', 'aula-virtual' ), 6 ); ?>
+		<p class="av-field"><label><input type="hidden" name="<?php echo esc_attr( $av_name( 'content', 'from_curriculum' ) ); ?>" value="0"><input type="checkbox" name="<?php echo esc_attr( $av_name( 'content', 'from_curriculum' ) ); ?>" value="1" <?php checked( ! empty( $landing['content']['from_curriculum'] ) ); ?>> <?php esc_html_e( 'Mostrar el temario de la próxima edición (módulos y sesiones)', 'aula-virtual' ); ?></label></p>
+		<?php $av_area( 'content', 'items', __( 'Temario manual', 'aula-virtual' ), __( 'Uno por línea. Se usa si no hay temario en la edición o si desactivas la opción anterior.', 'aula-virtual' ), 6 ); ?>
 	<?php $av_close(); ?>
 
 	<?php $av_open( 'instructor' ); ?>
-		<?php $av_text( 'instructor', 'title', __( 'Titulo', 'aula-virtual' ) ); ?>
+		<?php $av_text( 'instructor', 'title', __( 'Título', 'aula-virtual' ) ); ?>
 		<?php $av_text( 'instructor', 'name', __( 'Nombre', 'aula-virtual' ) ); ?>
-		<?php $av_area( 'instructor', 'bio', __( 'Biografia', 'aula-virtual' ), __( 'Admite HTML basico.', 'aula-virtual' ), 5 ); ?>
+		<?php $av_area( 'instructor', 'bio', __( 'Biografía', 'aula-virtual' ), __( 'Admite HTML básico.', 'aula-virtual' ), 5 ); ?>
 		<?php $av_image( 'instructor', 'image_id', __( 'Foto', 'aula-virtual' ) ); ?>
 		<?php $av_rows( 'instructor', 'links', __( 'Redes y enlaces', 'aula-virtual' ), 'label', __( 'Etiqueta', 'aula-virtual' ), 'url', 'https://' ); ?>
 	<?php $av_close(); ?>
 
 	<?php $av_open( 'info' ); ?>
-		<?php $av_text( 'info', 'title', __( 'Titulo', 'aula-virtual' ) ); ?>
-		<p class="av-field"><label><input type="hidden" name="<?php echo esc_attr( $av_name( 'info', 'from_editions' ) ); ?>" value="0"><input type="checkbox" name="<?php echo esc_attr( $av_name( 'info', 'from_editions' ) ); ?>" value="1" <?php checked( ! empty( $landing['info']['from_editions'] ) ); ?>> <?php esc_html_e( 'Mostrar una tarjeta por cada edicion abierta, con fechas, horario y botones', 'aula-virtual' ); ?></label></p>
-		<?php $av_rows( 'info', 'items', __( 'Datos adicionales', 'aula-virtual' ), 'label', __( 'Dato (Plataforma, Duracion...)', 'aula-virtual' ), 'value', __( 'Valor', 'aula-virtual' ) ); ?>
+		<?php $av_text( 'info', 'title', __( 'Título', 'aula-virtual' ) ); ?>
+		<p class="av-field"><label><input type="hidden" name="<?php echo esc_attr( $av_name( 'info', 'from_editions' ) ); ?>" value="0"><input type="checkbox" name="<?php echo esc_attr( $av_name( 'info', 'from_editions' ) ); ?>" value="1" <?php checked( ! empty( $landing['info']['from_editions'] ) ); ?>> <?php esc_html_e( 'Mostrar una tarjeta por cada edición abierta, con fechas, horario y botones', 'aula-virtual' ); ?></label></p>
+		<?php $av_rows( 'info', 'items', __( 'Datos adicionales', 'aula-virtual' ), 'label', __( 'Dato (Plataforma, Duración...)', 'aula-virtual' ), 'value', __( 'Valor', 'aula-virtual' ) ); ?>
 	<?php $av_close(); ?>
 
 	<?php $av_open( 'price' ); ?>
-		<?php $av_text( 'price', 'title', __( 'Titulo', 'aula-virtual' ) ); ?>
+		<?php $av_text( 'price', 'title', __( 'Título', 'aula-virtual' ) ); ?>
 		<div class="av-grid-2">
-			<?php $av_text( 'price', 'price', __( 'Precio', 'aula-virtual' ), __( 'S/ 250 (vacio: usa el de la edicion)', 'aula-virtual' ) ); ?>
+			<?php $av_text( 'price', 'price', __( 'Precio', 'aula-virtual' ), __( 'S/ 250 (vacío: usa el de la edición)', 'aula-virtual' ) ); ?>
 			<?php $av_text( 'price', 'old_price', __( 'Precio tachado', 'aula-virtual' ), 'S/ 350' ); ?>
 		</div>
-		<?php $av_area( 'price', 'includes', __( 'Que incluye', 'aula-virtual' ), __( 'Uno por linea.', 'aula-virtual' ), 5 ); ?>
-		<?php $av_area( 'price', 'note', __( 'Nota', 'aula-virtual' ), __( 'Cuotas, garantia, medios de pago. Admite HTML basico.', 'aula-virtual' ), 2 ); ?>
+		<?php $av_area( 'price', 'includes', __( 'Qué incluye', 'aula-virtual' ), __( 'Uno por línea.', 'aula-virtual' ), 5 ); ?>
+		<?php $av_area( 'price', 'note', __( 'Nota', 'aula-virtual' ), __( 'Cuotas, garantía, medios de pago. Admite HTML básico.', 'aula-virtual' ), 2 ); ?>
 		<?php $av_button( 'price' ); ?>
 	<?php $av_close(); ?>
 
 	<?php $av_open( 'faq' ); ?>
-		<?php $av_text( 'faq', 'title', __( 'Titulo', 'aula-virtual' ) ); ?>
+		<?php $av_text( 'faq', 'title', __( 'Título', 'aula-virtual' ) ); ?>
 		<?php $av_rows( 'faq', 'items', __( 'Preguntas', 'aula-virtual' ), 'question', __( 'Pregunta', 'aula-virtual' ), 'answer', __( 'Respuesta', 'aula-virtual' ) ); ?>
 	<?php $av_close(); ?>
 
 	<?php $av_open( 'cta' ); ?>
-		<?php $av_text( 'cta', 'title', __( 'Titulo', 'aula-virtual' ) ); ?>
-		<?php $av_area( 'cta', 'text', __( 'Texto', 'aula-virtual' ), __( 'Admite HTML basico.', 'aula-virtual' ), 3 ); ?>
+		<?php $av_text( 'cta', 'title', __( 'Título', 'aula-virtual' ) ); ?>
+		<?php $av_area( 'cta', 'text', __( 'Texto', 'aula-virtual' ), __( 'Admite HTML básico.', 'aula-virtual' ), 3 ); ?>
 		<?php $av_button( 'cta' ); ?>
-		<?php $av_text( 'cta', 'whatsapp', __( 'WhatsApp (numero con codigo de pais)', 'aula-virtual' ), '51999999999' ); ?>
+		<?php $av_text( 'cta', 'whatsapp', __( 'WhatsApp (número con código de país)', 'aula-virtual' ), '51999999999' ); ?>
 		<?php $av_image( 'cta', 'background_id', __( 'Imagen de fondo', 'aula-virtual' ) ); ?>
 		<?php $av_text( 'cta', 'bg_color', __( 'Color de fondo (hex)', 'aula-virtual' ), '#1d4ed8' ); ?>
 	<?php $av_close(); ?>

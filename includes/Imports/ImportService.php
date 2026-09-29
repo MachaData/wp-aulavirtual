@@ -155,7 +155,7 @@ final class ImportService {
 
 		foreach ( $rows as $row ) {
 			if ( '' === $row['email'] ) {
-				$row['reason']       = __( 'Correo vacio o invalido', 'aula-virtual' );
+				$row['reason']       = __( 'Correo vacío o inválido', 'aula-virtual' );
 				$result['invalid'][] = $row;
 				continue;
 			}
@@ -201,7 +201,7 @@ final class ImportService {
 		$edition = $this->editions->find( $edition_id );
 
 		if ( null === $edition ) {
-			return new WP_Error( 'av_edition_not_found', __( 'La edicion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_edition_not_found', __( 'La edición no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
 		$now = current_time( 'mysql', true );
@@ -224,7 +224,7 @@ final class ImportService {
 		);
 
 		if ( 0 === $job_id ) {
-			return new WP_Error( 'av_import_job', __( 'No se pudo registrar la importacion.', 'aula-virtual' ) );
+			return new WP_Error( 'av_import_job', __( 'No se pudo registrar la importación.', 'aula-virtual' ) );
 		}
 
 		set_transient( 'av_import_rows_' . $job_id, $rows, DAY_IN_SECONDS );
@@ -242,7 +242,7 @@ final class ImportService {
 		$job = $this->jobs->find( $job_id );
 
 		if ( null === $job ) {
-			return new WP_Error( 'av_import_not_found', __( 'La importacion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_import_not_found', __( 'La importación no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
 		if ( 'completed' === $job['status'] ) {
@@ -254,7 +254,7 @@ final class ImportService {
 		if ( ! is_array( $rows ) ) {
 			$this->jobs->update( $job_id, array( 'status' => 'failed', 'updated_at' => current_time( 'mysql', true ) ) );
 
-			return new WP_Error( 'av_import_expired', __( 'Los datos de la importacion caducaron. Vuelve a subir el archivo.', 'aula-virtual' ) );
+			return new WP_Error( 'av_import_expired', __( 'Los datos de la importación caducaron. Vuelve a subir el archivo.', 'aula-virtual' ) );
 		}
 
 		$offset   = (int) $job['processed_rows'];

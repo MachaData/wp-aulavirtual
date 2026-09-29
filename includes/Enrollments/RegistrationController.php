@@ -51,8 +51,8 @@ final class RegistrationController {
 	 * @return void
 	 */
 	public static function register_rewrite(): void {
-		add_rewrite_tag( '%' . self::QUERY_VAR . '%', '([A-Za-z0-9]+)' );
-		add_rewrite_rule( '^inscripcion/([A-Za-z0-9]+)/?$', 'index.php?' . self::QUERY_VAR . '=$matches[1]', 'top' );
+		add_rewrite_tag( '%' . self::QUERY_VAR . '%', '([A-Za-z0-9-]+)' );
+		add_rewrite_rule( '^inscripcion/([A-Za-z0-9-]+)/?$', 'index.php?' . self::QUERY_VAR . '=$matches[1]', 'top' );
 	}
 
 	/**
@@ -78,6 +78,13 @@ final class RegistrationController {
 		$link = $this->registration->usable_link( $token );
 
 		status_header( 200 );
+
+		// Estilos propios con el color de marca configurado.
+		$brand = (string) get_option( 'av_brand_color', '#1d4ed8' );
+		$brand = 1 === preg_match( '/^#[0-9a-fA-F]{6}$/', $brand ) ? $brand : '#1d4ed8';
+		wp_enqueue_style( 'av-registration', AV_URL . 'assets/css/registration.css', array(), AV_VERSION );
+		wp_add_inline_style( 'av-registration', '.av-reg-page{--av-brand:' . $brand . '}' );
+
 		get_header();
 
 		if ( 'ok' === $result ) {
@@ -110,7 +117,7 @@ final class RegistrationController {
 	public function handle_submit(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified right below.
 		$token = isset( $_POST['token'] ) ? sanitize_text_field( wp_unslash( $_POST['token'] ) ) : '';
-		$token = preg_replace( '/[^A-Za-z0-9]/', '', $token );
+		$token = RegistrationService::clean_token( $token );
 
 		check_admin_referer( self::ACTION_SUBMIT . '_' . $token );
 

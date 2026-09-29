@@ -3,6 +3,36 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.13.0] - 2026-09-29
+
+Pantalla de edición reorganizada, direcciones de inscripción legibles y textos con tildes.
+
+### Anadido
+
+- Pantalla de la edicion con cabecera (curso, estado en color, codigo, modalidad, fechas,
+  horario, precio), tarjetas de resumen (alumnos y plazas, sesiones publicadas, avance medio,
+  solicitudes pendientes) y pestanas nativas: Sesiones, Alumnos, Inscripcion y Ajustes. Cada
+  accion vuelve a su pestana. Estados vacios con indicaciones.
+- Editar una edicion existente (pestana Ajustes), incluida la zona horaria. El formulario de
+  datos se comparte con "Nueva edicion" y se agrupa en Identificacion, Fechas y horario, y
+  Venta y cupo.
+- Enlaces de inscripcion con direccion legible: por defecto el codigo de la edicion
+  (`/inscripcion/numbasica-set2026/`), editable, o aleatoria si se marca "privado". Al crear
+  se elige si se revisa cada solicitud o se aprueba sola. Boton Copiar, activar y desactivar.
+  Los enlaces de la API siguen siendo aleatorios. Esquema 1.3.1 regenera las reglas.
+- Lista de ediciones con etiquetas de estado, alumnos y accesos directos a cada pestana.
+- Formulario publico de inscripcion rediseñado: tarjeta en dos columnas (datos del curso con
+  su imagen y precio; formulario), color de marca, una columna en movil. Paginas de "recibido"
+  y "no disponible" a juego.
+- `assets/css/admin.css` y `assets/js/admin.js` (copiar al portapapeles, confirmaciones),
+  cargados solo en las pantallas del plugin.
+
+### Cambiado
+
+- Tildes, eñes y signos de apertura en todos los textos visibles (301 textos en 66 archivos) y
+  en las plantillas de correo por defecto. Las plantillas ya guardadas en un sitio no cambian.
+- Smoke test: 270 comprobaciones.
+
 ## [0.12.3] - 2026-09-28
 
 Correcciones de la segunda revision de seguridad (API, formularios, archivos, importacion y

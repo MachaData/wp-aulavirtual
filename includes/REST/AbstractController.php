@@ -58,7 +58,7 @@ abstract class AbstractController extends WP_REST_Controller {
 	protected function forbidden( string $message = '' ): WP_Error {
 		return new WP_Error(
 			'av_forbidden',
-			'' === $message ? __( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ) : $message,
+			'' === $message ? __( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ) : $message,
 			array( 'status' => is_user_logged_in() ? 403 : 401 )
 		);
 	}
@@ -166,7 +166,7 @@ abstract class AbstractController extends WP_REST_Controller {
 	protected function too_many_requests( string $message = '' ): WP_Error {
 		return new WP_Error(
 			'av_rate_limited',
-			'' === $message ? __( 'Demasiadas solicitudes. Intenta de nuevo mas tarde.', 'aula-virtual' ) : $message,
+			'' === $message ? __( 'Demasiadas solicitudes. Intenta de nuevo más tarde.', 'aula-virtual' ) : $message,
 			array( 'status' => 429 )
 		);
 	}
@@ -179,14 +179,14 @@ abstract class AbstractController extends WP_REST_Controller {
 	public function get_collection_params() {
 		return array(
 			'page'     => array(
-				'description'       => __( 'Pagina solicitada.', 'aula-virtual' ),
+				'description'       => __( 'Página solicitada.', 'aula-virtual' ),
 				'type'              => 'integer',
 				'default'           => 1,
 				'minimum'           => 1,
 				'sanitize_callback' => 'absint',
 			),
 			'per_page' => array(
-				'description'       => __( 'Elementos por pagina.', 'aula-virtual' ),
+				'description'       => __( 'Elementos por página.', 'aula-virtual' ),
 				'type'              => 'integer',
 				'default'           => 20,
 				'minimum'           => 1,
@@ -194,7 +194,7 @@ abstract class AbstractController extends WP_REST_Controller {
 				'sanitize_callback' => 'absint',
 			),
 			'search'   => array(
-				'description'       => __( 'Texto de busqueda.', 'aula-virtual' ),
+				'description'       => __( 'Texto de búsqueda.', 'aula-virtual' ),
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),

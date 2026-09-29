@@ -159,7 +159,7 @@ final class OrderHandler {
 				$order->add_order_note(
 					sprintf(
 						/* translators: 1: edition id, 2: error message. */
-						__( 'Aula Virtual: no se pudo matricular en la edicion %1$d. %2$s', 'aula-virtual' ),
+						__( 'Aula Virtual: no se pudo matricular en la edición %1$d. %2$s', 'aula-virtual' ),
 						$edition_id,
 						$result->get_error_message()
 					)
@@ -176,7 +176,7 @@ final class OrderHandler {
 			$order->add_order_note(
 				sprintf(
 					/* translators: %d: edition id. */
-					__( 'Aula Virtual: alumno matriculado en la edicion %d.', 'aula-virtual' ),
+					__( 'Aula Virtual: alumno matriculado en la edición %d.', 'aula-virtual' ),
 					$edition_id
 				)
 			);
@@ -236,7 +236,7 @@ final class OrderHandler {
 			$order->add_order_note(
 				sprintf(
 					/* translators: %s: enrollment status label. */
-					__( 'Aula Virtual: matriculas del pedido pasadas a "%s".', 'aula-virtual' ),
+					__( 'Aula Virtual: matrículas del pedido pasadas a "%s".', 'aula-virtual' ),
 					EnrollmentStatus::label( $status )
 				)
 			);
@@ -262,7 +262,7 @@ final class OrderHandler {
 		?>
 		<section class="av-thankyou" style="margin:24px 0;padding:20px;border:1px solid #e5e7eb;border-radius:8px;">
 			<h2><?php esc_html_e( 'Tu acceso al curso', 'aula-virtual' ); ?></h2>
-			<p><?php esc_html_e( 'Apenas se confirme el pago recibiras un correo con el enlace para crear tu contrasena y entrar al campus.', 'aula-virtual' ); ?></p>
+			<p><?php esc_html_e( 'Apenas se confirme el pago recibirás un correo con el enlace para crear tu contraseña y entrar al campus.', 'aula-virtual' ); ?></p>
 			<p><a class="button" href="<?php echo esc_url( $campus ); ?>"><?php esc_html_e( 'Ir al campus', 'aula-virtual' ); ?></a></p>
 		</section>
 		<?php
@@ -313,7 +313,7 @@ final class OrderHandler {
 		$email = sanitize_email( $order->get_billing_email() );
 
 		if ( ! is_email( $email ) ) {
-			return new WP_Error( 'av_missing_email', __( 'El pedido no tiene un correo valido.', 'aula-virtual' ) );
+			return new WP_Error( 'av_missing_email', __( 'El pedido no tiene un correo válido.', 'aula-virtual' ) );
 		}
 
 		$existing = get_user_by( 'email', $email );

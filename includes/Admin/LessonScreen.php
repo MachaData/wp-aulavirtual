@@ -165,11 +165,11 @@ final class LessonScreen {
 		$lesson    = $this->lessons->find( $lesson_id );
 
 		if ( null === $lesson ) {
-			wp_die( esc_html__( 'La sesion no existe.', 'aula-virtual' ) );
+			wp_die( esc_html__( 'La sesión no existe.', 'aula-virtual' ) );
 		}
 
 		if ( ! current_user_can( Capabilities::MANAGE_CURRICULUM ) || ! $this->access->can_manage_editions( (int) $lesson['course_id'] ) ) {
-			wp_die( esc_html__( 'No tienes permisos sobre esta sesion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos sobre esta sesión.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		$edition = $this->editions->find( (int) $lesson['edition_id'] );
@@ -212,7 +212,7 @@ final class LessonScreen {
 		$lesson_id = $this->guard( self::ACTION_SAVE );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
-		$this->finish( $lesson_id, $this->lesson_service->update( $lesson_id, wp_unslash( $_POST ) ), __( 'Sesion guardada.', 'aula-virtual' ) );
+		$this->finish( $lesson_id, $this->lesson_service->update( $lesson_id, wp_unslash( $_POST ) ), __( 'Sesión guardada.', 'aula-virtual' ) );
 	}
 
 	/**
@@ -231,7 +231,7 @@ final class LessonScreen {
 			add_query_arg(
 				array(
 					'av_notice'  => 'success',
-					'av_message' => rawurlencode( __( 'Sesion eliminada.', 'aula-virtual' ) ),
+					'av_message' => rawurlencode( __( 'Sesión eliminada.', 'aula-virtual' ) ),
 				),
 				AdminMenu::editions_url( array( 'edition' => (int) ( $lesson['edition_id'] ?? 0 ) ) )
 			)
@@ -279,7 +279,7 @@ final class LessonScreen {
 
 		$result = $this->material_service->add( $input );
 
-		$this->finish( $lesson_id, $result instanceof WP_Error ? $result : true, __( 'Material anadido.', 'aula-virtual' ) );
+		$this->finish( $lesson_id, $result instanceof WP_Error ? $result : true, __( 'Material añadido.', 'aula-virtual' ) );
 	}
 
 	/**
@@ -295,7 +295,7 @@ final class LessonScreen {
 		$material    = $this->materials->find( $material_id );
 
 		if ( null === $material || (int) $material['lesson_id'] !== $lesson_id ) {
-			$this->finish( $lesson_id, new WP_Error( 'av_material_not_found', __( 'El material no pertenece a esta sesion.', 'aula-virtual' ) ), '' );
+			$this->finish( $lesson_id, new WP_Error( 'av_material_not_found', __( 'El material no pertenece a esta sesión.', 'aula-virtual' ) ), '' );
 		}
 
 		$this->material_service->delete( $material_id );
@@ -325,7 +325,7 @@ final class LessonScreen {
 	 */
 	private function guard( string $action, string $capability = Capabilities::MANAGE_CURRICULUM ): int {
 		if ( ! current_user_can( $capability ) ) {
-			wp_die( esc_html__( 'No tienes permisos para realizar esta accion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos para realizar esta acción.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( $action );
@@ -335,7 +335,7 @@ final class LessonScreen {
 		$lesson    = $this->lessons->find( $lesson_id );
 
 		if ( null === $lesson || ! $this->access->can_manage_editions( (int) $lesson['course_id'] ) ) {
-			wp_die( esc_html__( 'No tienes permisos sobre esta sesion.', 'aula-virtual' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'No tienes permisos sobre esta sesión.', 'aula-virtual' ), '', array( 'response' => 403 ) );
 		}
 
 		return $lesson_id;

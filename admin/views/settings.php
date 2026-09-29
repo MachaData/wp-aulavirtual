@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap">
-	<h1><?php esc_html_e( 'Configuracion de Aula Virtual', 'aula-virtual' ); ?></h1>
+	<h1><?php esc_html_e( 'Configuración de Aula Virtual', 'aula-virtual' ); ?></h1>
 
 	<?php require AV_PATH . 'admin/views/notice.php'; ?>
 
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<?php if ( 'general' === $current && '' !== $campus_url ) : ?>
 		<p class="description" style="margin-top:12px">
-			<?php esc_html_e( 'Pagina del campus:', 'aula-virtual' ); ?>
+			<?php esc_html_e( 'Página del campus:', 'aula-virtual' ); ?>
 			<a href="<?php echo esc_url( $campus_url ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $campus_url ); ?></a>
 			<?php if ( '' !== $campus_edit ) : ?>
 				&middot; <a href="<?php echo esc_url( $campus_edit ); ?>"><?php esc_html_e( 'cambiar su slug o contenido', 'aula-virtual' ); ?></a>

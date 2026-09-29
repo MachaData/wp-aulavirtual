@@ -108,7 +108,7 @@ final class DownloadController {
 			}
 
 			if ( ! in_array( wp_parse_url( $url, PHP_URL_SCHEME ), array( 'http', 'https' ), true ) ) {
-				wp_die( esc_html__( 'Enlace no valido.', 'aula-virtual' ), '', array( 'response' => 400 ) );
+				wp_die( esc_html__( 'Enlace no válido.', 'aula-virtual' ), '', array( 'response' => 400 ) );
 			}
 
 			wp_redirect( esc_url_raw( $url ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- external link chosen by the instructor.
@@ -118,7 +118,7 @@ final class DownloadController {
 		$path = get_attached_file( (int) $material['attachment_id'] );
 
 		if ( ! is_string( $path ) || ! is_readable( $path ) ) {
-			wp_die( esc_html__( 'El archivo ya no esta disponible.', 'aula-virtual' ), '', array( 'response' => 404 ) );
+			wp_die( esc_html__( 'El archivo ya no está disponible.', 'aula-virtual' ), '', array( 'response' => 404 ) );
 		}
 
 		$this->stream( $path, (bool) $material['downloadable'], (string) $material['title'] );

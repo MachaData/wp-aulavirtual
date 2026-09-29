@@ -64,7 +64,7 @@ final class LessonService {
 		if ( null === $edition ) {
 			return new WP_Error(
 				'av_edition_not_found',
-				__( 'La edicion no existe.', 'aula-virtual' ),
+				__( 'La edición no existe.', 'aula-virtual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -74,7 +74,7 @@ final class LessonService {
 		if ( '' === $title ) {
 			return new WP_Error(
 				'av_missing_title',
-				__( 'La sesion necesita un titulo.', 'aula-virtual' ),
+				__( 'La sesión necesita un título.', 'aula-virtual' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -104,7 +104,7 @@ final class LessonService {
 		if ( 0 === $lesson_id ) {
 			return new WP_Error(
 				'av_lesson_not_created',
-				__( 'No se pudo guardar la sesion.', 'aula-virtual' )
+				__( 'No se pudo guardar la sesión.', 'aula-virtual' )
 			);
 		}
 
@@ -130,13 +130,13 @@ final class LessonService {
 		$lesson = $this->lessons->find( $lesson_id );
 
 		if ( null === $lesson ) {
-			return new WP_Error( 'av_lesson_not_found', __( 'La sesion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_lesson_not_found', __( 'La sesión no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
 		$title = Sanitizer::text( $input['title'] ?? $lesson['title'] );
 
 		if ( '' === $title ) {
-			return new WP_Error( 'av_missing_title', __( 'La sesion necesita un titulo.', 'aula-virtual' ), array( 'status' => 400 ) );
+			return new WP_Error( 'av_missing_title', __( 'La sesión necesita un título.', 'aula-virtual' ), array( 'status' => 400 ) );
 		}
 
 		$data = array(

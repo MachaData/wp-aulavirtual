@@ -91,7 +91,7 @@ final class AnnouncementService {
 			$edition = $this->editions->find( $edition_id );
 
 			if ( null === $edition ) {
-				return new WP_Error( 'av_edition_not_found', __( 'La edicion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+				return new WP_Error( 'av_edition_not_found', __( 'La edición no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 			}
 
 			$course_id = (int) $edition['course_id'];
@@ -100,14 +100,14 @@ final class AnnouncementService {
 		$course = get_post( $course_id );
 
 		if ( ! $course instanceof \WP_Post || CoursePostType::POST_TYPE !== $course->post_type ) {
-			return new WP_Error( 'av_invalid_course', __( 'Selecciona un curso o una edicion.', 'aula-virtual' ), array( 'status' => 400 ) );
+			return new WP_Error( 'av_invalid_course', __( 'Selecciona un curso o una edición.', 'aula-virtual' ), array( 'status' => 400 ) );
 		}
 
 		$title   = Sanitizer::text( $input['title'] ?? '' );
 		$content = Sanitizer::html( $input['content'] ?? '' );
 
 		if ( '' === $title || '' === $content ) {
-			return new WP_Error( 'av_announcement_empty', __( 'El anuncio necesita titulo y contenido.', 'aula-virtual' ), array( 'status' => 400 ) );
+			return new WP_Error( 'av_announcement_empty', __( 'El anuncio necesita título y contenido.', 'aula-virtual' ), array( 'status' => 400 ) );
 		}
 
 		$send_email = Sanitizer::bool( $input['send_email'] ?? false );

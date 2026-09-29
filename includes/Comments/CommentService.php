@@ -117,19 +117,19 @@ final class CommentService {
 	 */
 	public function post( int $user_id, int $lesson_id, mixed $content, int $parent_id = 0 ) {
 		if ( ! self::enabled() ) {
-			return new WP_Error( 'av_comments_disabled', __( 'Los comentarios estan desactivados.', 'aula-virtual' ), array( 'status' => 403 ) );
+			return new WP_Error( 'av_comments_disabled', __( 'Los comentarios están desactivados.', 'aula-virtual' ), array( 'status' => 403 ) );
 		}
 
 		$lesson = $this->lessons->find( $lesson_id );
 
 		if ( null === $lesson || LessonType::STATUS_PUBLISH !== $lesson['status'] ) {
-			return new WP_Error( 'av_lesson_not_found', __( 'La sesion no existe o no esta publicada.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_lesson_not_found', __( 'La sesión no existe o no está publicada.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
 		$is_staff = $this->access->can_manage_editions( (int) $lesson['course_id'] );
 
 		if ( ! $is_staff && ! $this->enrollments->has_access( $user_id, (int) $lesson['edition_id'] ) ) {
-			return new WP_Error( 'av_no_access', __( 'No tienes acceso a esta sesion.', 'aula-virtual' ), array( 'status' => 403 ) );
+			return new WP_Error( 'av_no_access', __( 'No tienes acceso a esta sesión.', 'aula-virtual' ), array( 'status' => 403 ) );
 		}
 
 		$text = self::sanitize_content( $content );

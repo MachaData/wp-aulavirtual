@@ -111,17 +111,21 @@ final class RegistrationService {
 		$edition = $this->editions->find( $edition_id );
 
 		if ( null === $edition ) {
-			return new WP_Error( 'av_edition_not_found', __( 'La edicion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_edition_not_found', __( 'La edición no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
-		$token = $this->unique_token();
+		$token = $this->link_token( $edition, $args );
+
+		if ( $token instanceof WP_Error ) {
+			return $token;
+		}
 
 		$link_id = $this->links->insert(
 			array(
 				'course_id'         => (int) $edition['course_id'],
 				'edition_id'        => $edition_id,
 				'token'             => $token,
-				'label'             => Sanitizer::text( $args['label'] ?? __( 'Enlace de inscripcion', 'aula-virtual' ) ),
+				'label'             => Sanitizer::text( $args['label'] ?? __( 'Enlace de inscripción', 'aula-virtual' ) ),
 				'status'            => EnrollmentLinkRepository::STATUS_ACTIVE,
 				'requires_approval' => isset( $args['requires_approval'] ) && ! Sanitizer::bool( $args['requires_approval'] ) ? 0 : 1,
 				'max_uses'          => max( 0, Sanitizer::int( $args['max_uses'] ?? 0 ) ),
@@ -156,25 +160,25 @@ final class RegistrationService {
 	 * @return array<string, mixed>|WP_Error
 	 */
 	public function usable_link( string $token ) {
-		$token = preg_replace( '/[^A-Za-z0-9]/', '', $token );
+		$token = self::clean_token( $token );
 		$link  = '' === $token ? null : $this->links->find_by_token( (string) $token );
 
 		if ( null === $link || EnrollmentLinkRepository::STATUS_ACTIVE !== $link['status'] ) {
-			return new WP_Error( 'av_link_invalid', __( 'Este enlace de inscripcion no es valido.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_link_invalid', __( 'Este enlace de inscripción no es válido.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
 		if ( ! empty( $link['expires_at'] ) && current_time( 'mysql', true ) > $link['expires_at'] ) {
-			return new WP_Error( 'av_link_expired', __( 'Este enlace de inscripcion ya vencio.', 'aula-virtual' ), array( 'status' => 410 ) );
+			return new WP_Error( 'av_link_expired', __( 'Este enlace de inscripción ya venció.', 'aula-virtual' ), array( 'status' => 410 ) );
 		}
 
 		if ( (int) $link['max_uses'] > 0 && (int) $link['uses'] >= (int) $link['max_uses'] ) {
-			return new WP_Error( 'av_link_exhausted', __( 'Este enlace de inscripcion alcanzo su limite de usos.', 'aula-virtual' ), array( 'status' => 410 ) );
+			return new WP_Error( 'av_link_exhausted', __( 'Este enlace de inscripción alcanzó su límite de usos.', 'aula-virtual' ), array( 'status' => 410 ) );
 		}
 
 		$edition = $this->editions->find( (int) $link['edition_id'] );
 
 		if ( null === $edition || ! EditionStatus::accepts_enrollments( (string) $edition['status'] ) ) {
-			return new WP_Error( 'av_edition_closed', __( 'Esta edicion ya no admite inscripciones.', 'aula-virtual' ), array( 'status' => 410 ) );
+			return new WP_Error( 'av_edition_closed', __( 'Esta edición ya no admite inscripciones.', 'aula-virtual' ), array( 'status' => 410 ) );
 		}
 
 		$link['edition'] = $edition;
@@ -203,16 +207,16 @@ final class RegistrationService {
 	public static function error_message( string $code ): string {
 		$messages = array(
 			'av_missing_name'        => __( 'Indica tu nombre y apellido.', 'aula-virtual' ),
-			'av_invalid_email'       => __( 'Indica un correo electronico valido.', 'aula-virtual' ),
-			'av_link_invalid'        => __( 'Este enlace de inscripcion no es valido.', 'aula-virtual' ),
-			'av_link_expired'        => __( 'Este enlace de inscripcion ya vencio.', 'aula-virtual' ),
-			'av_link_exhausted'      => __( 'Este enlace de inscripcion alcanzo su limite de usos.', 'aula-virtual' ),
-			'av_edition_closed'      => __( 'Esta edicion ya no admite inscripciones.', 'aula-virtual' ),
-			'av_edition_full'        => __( 'La edicion alcanzo su cupo maximo.', 'aula-virtual' ),
-			'av_rate_limited'        => __( 'Recibimos demasiadas solicitudes. Intentalo de nuevo en una hora.', 'aula-virtual' ),
+			'av_invalid_email'       => __( 'Indica un correo electrónico válido.', 'aula-virtual' ),
+			'av_link_invalid'        => __( 'Este enlace de inscripción no es válido.', 'aula-virtual' ),
+			'av_link_expired'        => __( 'Este enlace de inscripción ya venció.', 'aula-virtual' ),
+			'av_link_exhausted'      => __( 'Este enlace de inscripción alcanzó su límite de usos.', 'aula-virtual' ),
+			'av_edition_closed'      => __( 'Esta edición ya no admite inscripciones.', 'aula-virtual' ),
+			'av_edition_full'        => __( 'La edición alcanzó su cupo máximo.', 'aula-virtual' ),
+			'av_rate_limited'        => __( 'Recibimos demasiadas solicitudes. Inténtalo de nuevo en una hora.', 'aula-virtual' ),
 		);
 
-		return $messages[ $code ] ?? __( 'No se pudo registrar la solicitud. Revisa los datos e intentalo de nuevo.', 'aula-virtual' );
+		return $messages[ $code ] ?? __( 'No se pudo registrar la solicitud. Revisa los datos e inténtalo de nuevo.', 'aula-virtual' );
 	}
 
 	/**
@@ -238,7 +242,7 @@ final class RegistrationService {
 		}
 
 		if ( '' === $email ) {
-			return new WP_Error( 'av_invalid_email', __( 'Indica un correo electronico valido.', 'aula-virtual' ), array( 'status' => 400 ) );
+			return new WP_Error( 'av_invalid_email', __( 'Indica un correo electrónico válido.', 'aula-virtual' ), array( 'status' => 400 ) );
 		}
 
 		$edition_id = (int) $link['edition_id'];
@@ -324,7 +328,7 @@ final class RegistrationService {
 		$edition = $this->editions->find( (int) $request['edition_id'] );
 
 		if ( null === $edition ) {
-			return new WP_Error( 'av_edition_not_found', __( 'La edicion no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'av_edition_not_found', __( 'La edición no existe.', 'aula-virtual' ), array( 'status' => 404 ) );
 		}
 
 		$now = current_time( 'mysql', true );
@@ -431,7 +435,7 @@ final class RegistrationService {
 		}
 
 		if ( RegistrationRequestRepository::STATUS_ENROLLED === $request['status'] ) {
-			return new WP_Error( 'av_request_enrolled', __( 'La solicitud ya se convirtio en matricula.', 'aula-virtual' ), array( 'status' => 409 ) );
+			return new WP_Error( 'av_request_enrolled', __( 'La solicitud ya se convirtió en matrícula.', 'aula-virtual' ), array( 'status' => 409 ) );
 		}
 
 		$reason = Sanitizer::textarea( $reason );
@@ -540,7 +544,81 @@ final class RegistrationService {
 	}
 
 	/**
-	 * Generates a token no other link uses.
+	 * Chooses the address of a new link: random when private, the requested
+	 * readable slug, or the edition code (with a numeric suffix if taken).
+	 *
+	 * @param array<string, mixed> $edition Edition row.
+	 * @param array<string, mixed> $args    Link arguments (slug, private).
+	 * @return string|WP_Error
+	 */
+	private function link_token( array $edition, array $args ) {
+		if ( ! empty( $args['private'] ) && Sanitizer::bool( $args['private'] ) ) {
+			return $this->unique_token();
+		}
+
+		$requested = self::normalize_slug( (string) ( $args['slug'] ?? '' ) );
+
+		if ( '' !== $requested ) {
+			if ( ! self::is_valid_slug( $requested ) ) {
+				return new WP_Error( 'av_invalid_slug', __( 'La dirección solo puede tener minúsculas, números y guiones, de 3 a 60 caracteres.', 'aula-virtual' ), array( 'status' => 400 ) );
+			}
+
+			if ( null !== $this->links->find_by_token( $requested ) ) {
+				return new WP_Error( 'av_slug_taken', __( 'Esa dirección ya la usa otro enlace. Elige otra.', 'aula-virtual' ), array( 'status' => 409 ) );
+			}
+
+			return $requested;
+		}
+
+		// Sin direccion indicada: el codigo de la edicion, con sufijo si ya existe.
+		$base = self::normalize_slug( (string) $edition['code'] );
+
+		if ( ! self::is_valid_slug( $base ) ) {
+			return $this->unique_token();
+		}
+
+		$slug = $base;
+
+		for ( $n = 2; null !== $this->links->find_by_token( $slug ); $n++ ) {
+			$slug = $base . '-' . $n;
+		}
+
+		return $slug;
+	}
+
+	/**
+	 * Lower-case, hyphenated form of a requested address.
+	 *
+	 * @param string $slug Raw value.
+	 * @return string
+	 */
+	public static function normalize_slug( string $slug ): string {
+		return substr( sanitize_title( $slug ), 0, 60 );
+	}
+
+	/**
+	 * Whether a readable address is acceptable.
+	 *
+	 * @param string $slug Normalised slug.
+	 * @return bool
+	 */
+	public static function is_valid_slug( string $slug ): bool {
+		return 1 === preg_match( '/^[a-z0-9](?:[a-z0-9-]{1,58})[a-z0-9]$/', $slug );
+	}
+
+	/**
+	 * Keeps only the characters a link token can contain (random tokens and
+	 * readable addresses).
+	 *
+	 * @param string $token Raw token from the URL or a form.
+	 * @return string
+	 */
+	public static function clean_token( string $token ): string {
+		return (string) preg_replace( '/[^A-Za-z0-9-]/', '', $token );
+	}
+
+	/**
+	 * Builds a random token that no link uses yet.
 	 *
 	 * @return string
 	 */

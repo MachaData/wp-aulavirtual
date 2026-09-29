@@ -47,17 +47,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php if ( '' !== $live['meeting_id'] || '' !== $live['access_code'] ) : ?>
 					<p class="av-live__credentials">
 						<?php if ( '' !== $live['meeting_id'] ) : ?><span><?php esc_html_e( 'ID:', 'aula-virtual' ); ?> <code><?php echo esc_html( $live['meeting_id'] ); ?></code></span><?php endif; ?>
-						<?php if ( '' !== $live['access_code'] ) : ?><span><?php esc_html_e( 'Codigo:', 'aula-virtual' ); ?> <code><?php echo esc_html( $live['access_code'] ); ?></code></span><?php endif; ?>
+						<?php if ( '' !== $live['access_code'] ) : ?><span><?php esc_html_e( 'Código:', 'aula-virtual' ); ?> <code><?php echo esc_html( $live['access_code'] ); ?></code></span><?php endif; ?>
 					</p>
 				<?php endif; ?>
 			<?php elseif ( LiveClassService::WINDOW_BEFORE === $live['state'] ) : ?>
-				<p class="av-live__state"><?php esc_html_e( 'El boton para entrar aparecera aqui poco antes de la hora de inicio.', 'aula-virtual' ); ?></p>
+				<p class="av-live__state"><?php esc_html_e( 'El botón para entrar aparecerá aquí poco antes de la hora de inicio.', 'aula-virtual' ); ?></p>
 			<?php else : ?>
-				<p class="av-live__state"><?php esc_html_e( 'La clase ya termino.', 'aula-virtual' ); ?></p>
+				<p class="av-live__state"><?php esc_html_e( 'La clase ya terminó.', 'aula-virtual' ); ?></p>
 			<?php endif; ?>
 			<?php if ( '' !== $live['recording'] ) : ?>
 				<div class="av-live__recording">
-					<h4><?php esc_html_e( 'Grabacion', 'aula-virtual' ); ?></h4>
+					<h4><?php esc_html_e( 'Grabación', 'aula-virtual' ); ?></h4>
 					<?php
 					echo '<div class="av-video">' . VideoEmbed::render( '', $live['recording'] ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- VideoEmbed escapes.
 					?>
@@ -107,7 +107,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<h3><?php esc_html_e( 'Preguntas y comentarios', 'aula-virtual' ); ?></h3>
 
 			<?php if ( empty( $comments ) ) : ?>
-				<p class="av-comments__empty"><?php esc_html_e( 'Todavia no hay comentarios. Escribe el primero.', 'aula-virtual' ); ?></p>
+				<p class="av-comments__empty"><?php esc_html_e( 'Todavía no hay comentarios. Escribe el primero.', 'aula-virtual' ); ?></p>
 			<?php else : ?>
 				<ul class="av-comments__list">
 					<?php foreach ( $comments as $av_comment ) : ?>
@@ -120,7 +120,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								</p>
 								<div class="av-comment__body"><?php echo wp_kses_post( wpautop( esc_html( (string) $c['content'] ) ) ); ?></div>
 								<?php if ( $can_moderate || (int) $c['user_id'] === $current_user_id ) : ?>
-									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="av-comment__delete" onsubmit="return confirm('<?php echo esc_js( __( 'Eliminar este comentario?', 'aula-virtual' ) ); ?>');">
+									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="av-comment__delete" onsubmit="return confirm('<?php echo esc_js( __( '¿Eliminar este comentario?', 'aula-virtual' ) ); ?>');">
 										<input type="hidden" name="action" value="<?php echo esc_attr( CampusController::ACTION_DELETE_COMMENT ); ?>">
 										<input type="hidden" name="comment_id" value="<?php echo esc_attr( (string) (int) $c['id'] ); ?>">
 										<input type="hidden" name="lesson_id" value="<?php echo esc_attr( (string) (int) $lesson['id'] ); ?>">
@@ -167,7 +167,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php endif; ?>
 
 	<?php if ( $completed ) : ?>
-		<p class="av-lesson__done"><?php esc_html_e( 'Ya marcaste esta sesion como completada.', 'aula-virtual' ); ?></p>
+		<p class="av-lesson__done"><?php esc_html_e( 'Ya marcaste esta sesión como completada.', 'aula-virtual' ); ?></p>
 	<?php else : ?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<input type="hidden" name="action" value="<?php echo esc_attr( CampusController::ACTION_COMPLETE ); ?>">

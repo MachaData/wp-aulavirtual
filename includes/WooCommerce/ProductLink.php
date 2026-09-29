@@ -134,7 +134,7 @@ final class ProductLink {
 		<div id="<?php echo esc_attr( self::PANEL_ID ); ?>" class="panel woocommerce_options_panel">
 			<div class="options_group">
 				<p class="form-field">
-					<label for="av-edition-select"><?php esc_html_e( 'Edicion que vende este producto', 'aula-virtual' ); ?></label>
+					<label for="av-edition-select"><?php esc_html_e( 'Edición que vende este producto', 'aula-virtual' ); ?></label>
 					<select name="<?php echo esc_attr( self::META_EDITION ); ?>" id="av-edition-select" class="select short">
 						<option value="0"><?php esc_html_e( 'Ninguna (producto normal)', 'aula-virtual' ); ?></option>
 						<?php foreach ( $editions as $edition ) : ?>
@@ -144,7 +144,7 @@ final class ProductLink {
 						<?php endforeach; ?>
 					</select>
 					<span class="description" style="display:block;margin-top:6px">
-						<?php esc_html_e( 'Al confirmarse el pago, el comprador queda matriculado en esta edicion y recibe la bienvenida. Un producto vende una sola edicion; para la siguiente cohorte duplica el producto.', 'aula-virtual' ); ?>
+						<?php esc_html_e( 'Al confirmarse el pago, el comprador queda matriculado en esta edición y recibe la bienvenida. Un producto vende una sola edición; para la siguiente cohorte duplica el producto.', 'aula-virtual' ); ?>
 					</span>
 				</p>
 			</div>

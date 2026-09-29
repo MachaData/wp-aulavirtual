@@ -39,8 +39,8 @@ foreach ( $editions as $av_edition ) {
 		<?php
 		echo esc_html(
 			$auto_enabled
-				? __( 'La emision automatica esta activa: cada alumno recibe su certificado al completar el curso.', 'aula-virtual' )
-				: __( 'La emision automatica esta desactivada: los certificados se emiten desde esta pantalla.', 'aula-virtual' )
+				? __( 'La emisión automática está activa: cada alumno recibe su certificado al completar el curso.', 'aula-virtual' )
+				: __( 'La emisión automática está desactivada: los certificados se emiten desde esta pantalla.', 'aula-virtual' )
 		);
 		?>
 		<a href="<?php echo esc_url( add_query_arg( array( 'page' => SettingsScreen::SLUG, 'tab' => 'certificates' ), admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Configurar', 'aula-virtual' ); ?></a>
@@ -50,9 +50,9 @@ foreach ( $editions as $av_edition ) {
 		<div>
 			<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" style="margin-bottom:12px">
 				<input type="hidden" name="page" value="<?php echo esc_attr( CertificatesScreen::SLUG ); ?>">
-				<label for="av-edition-filter" class="screen-reader-text"><?php esc_html_e( 'Filtrar por edicion', 'aula-virtual' ); ?></label>
+				<label for="av-edition-filter" class="screen-reader-text"><?php esc_html_e( 'Filtrar por edición', 'aula-virtual' ); ?></label>
 				<select name="edition" id="av-edition-filter">
-					<option value="0"><?php esc_html_e( 'Todas las ediciones (ultimos 100)', 'aula-virtual' ); ?></option>
+					<option value="0"><?php esc_html_e( 'Todas las ediciones (últimas 100)', 'aula-virtual' ); ?></option>
 					<?php foreach ( $av_courses as $av_course_id => $av_course_title ) : ?>
 						<optgroup label="<?php echo esc_attr( $av_course_title ); ?>">
 							<?php foreach ( $editions as $av_edition ) : ?>
@@ -69,8 +69,8 @@ foreach ( $editions as $av_edition ) {
 				<thead>
 					<tr>
 						<th scope="col"><?php esc_html_e( 'Alumno', 'aula-virtual' ); ?></th>
-						<th scope="col"><?php esc_html_e( 'Curso / edicion', 'aula-virtual' ); ?></th>
-						<th scope="col" style="width:150px"><?php esc_html_e( 'Codigo', 'aula-virtual' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Curso / edición', 'aula-virtual' ); ?></th>
+						<th scope="col" style="width:150px"><?php esc_html_e( 'Código', 'aula-virtual' ); ?></th>
 						<th scope="col" style="width:110px"><?php esc_html_e( 'Emitido', 'aula-virtual' ); ?></th>
 						<th scope="col" style="width:90px"><?php esc_html_e( 'Estado', 'aula-virtual' ); ?></th>
 						<th scope="col" style="width:150px"></th>
@@ -78,7 +78,7 @@ foreach ( $editions as $av_edition ) {
 				</thead>
 				<tbody>
 				<?php if ( empty( $items ) ) : ?>
-					<tr><td colspan="6"><?php esc_html_e( 'Todavia no hay certificados.', 'aula-virtual' ); ?></td></tr>
+					<tr><td colspan="6"><?php esc_html_e( 'Todavía no hay certificados.', 'aula-virtual' ); ?></td></tr>
 				<?php else : ?>
 					<?php foreach ( $items as $av_item ) : ?>
 						<?php
@@ -111,7 +111,7 @@ foreach ( $editions as $av_edition ) {
 							<td>
 								<a href="<?php echo esc_url( $av_url ); ?>" target="_blank" rel="noopener" class="button button-small"><?php esc_html_e( 'Ver', 'aula-virtual' ); ?></a>
 								<?php if ( ! $av_revoked ) : ?>
-									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline" onsubmit="return confirm('<?php echo esc_js( __( 'Anular este certificado? Su enlace publico dejara de validar.', 'aula-virtual' ) ); ?>');">
+									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline" onsubmit="return confirm('<?php echo esc_js( __( '¿Anular este certificado? Su enlace público dejará de validar.', 'aula-virtual' ) ); ?>');">
 										<input type="hidden" name="action" value="<?php echo esc_attr( CertificatesScreen::ACTION_REVOKE ); ?>">
 										<input type="hidden" name="certificate_id" value="<?php echo esc_attr( (string) (int) $av_item['id'] ); ?>">
 										<?php wp_nonce_field( CertificatesScreen::ACTION_REVOKE ); ?>
@@ -132,9 +132,9 @@ foreach ( $editions as $av_edition ) {
 				<input type="hidden" name="action" value="<?php echo esc_attr( CertificatesScreen::ACTION_ISSUE ); ?>">
 				<?php wp_nonce_field( CertificatesScreen::ACTION_ISSUE ); ?>
 				<p>
-					<label for="av-issue-edition"><?php esc_html_e( 'Edicion', 'aula-virtual' ); ?></label><br>
+					<label for="av-issue-edition"><?php esc_html_e( 'Edición', 'aula-virtual' ); ?></label><br>
 					<select name="edition_id" id="av-issue-edition" class="widefat" required>
-						<option value=""><?php esc_html_e( 'Selecciona una edicion', 'aula-virtual' ); ?></option>
+						<option value=""><?php esc_html_e( 'Selecciona una edición', 'aula-virtual' ); ?></option>
 						<?php foreach ( $av_courses as $av_course_id => $av_course_title ) : ?>
 							<optgroup label="<?php echo esc_attr( $av_course_title ); ?>">
 								<?php foreach ( $editions as $av_edition ) : ?>
@@ -161,7 +161,7 @@ foreach ( $editions as $av_edition ) {
 					);
 					?>
 				</p>
-				<p class="description"><?php esc_html_e( 'El alumno debe estar matriculado en la edicion con una matricula aprobada, activa o completada. Si ya tiene un certificado vigente, se conserva el existente.', 'aula-virtual' ); ?></p>
+				<p class="description"><?php esc_html_e( 'El alumno debe estar matriculado en la edición con una matrícula aprobada, activa o completada. Si ya tiene un certificado vigente, se conserva el existente.', 'aula-virtual' ); ?></p>
 				<?php submit_button( __( 'Emitir certificado', 'aula-virtual' ) ); ?>
 			</form>
 		</div>

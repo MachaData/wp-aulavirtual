@@ -595,6 +595,24 @@ check( 'el limitador corta al superar el limite', RateLimiter::hit( 't1', 2 ) &&
 check( 'el alias con + no multiplica el limite por correo', 'ana@example.test' === RateLimiter::email_bucket( 'Ana+spam7@Example.test' ) );
 check( 'un codigo de certificado mal formado no llega a la base de datos', null === $cert_service->verify( "AV-2026-K7Q2ZM' OR 1=1" ) );
 
+echo "\nDirecciones de inscripcion y pantalla de edicion\n";
+check( 'una direccion legible valida se acepta', RegistrationService::is_valid_slug( 'numbasica-set2026' ) );
+check( 'direcciones demasiado cortas, con mayusculas o guion al borde se rechazan', ! RegistrationService::is_valid_slug( 'ab' ) && ! RegistrationService::is_valid_slug( 'Numbasica' ) && ! RegistrationService::is_valid_slug( '-set2026' ) && ! RegistrationService::is_valid_slug( 'set2026-' ) );
+check( 'la direccion se normaliza a minusculas con guiones', 'numerologia-setiembre' === RegistrationService::normalize_slug( 'Numerologia Setiembre' ) );
+check( 'el token limpio conserva guiones y tokens aleatorios', 'numbasica-set2026' === RegistrationService::clean_token( 'numbasica-set2026/' ) && '9mVtDFbNYlkTiMENrpMx' === RegistrationService::clean_token( '9mVtDFbNYlkTiMENrpMx' ) );
+check( 'la sugerencia usa el codigo y numera si ya existe', 'numbasica-set2026' === EditionsScreen::suggest_slug( 'numbasica-set2026', array( 'abc' ) ) && 'numbasica-set2026-3' === EditionsScreen::suggest_slug( 'numbasica-set2026', array( 'numbasica-set2026', 'numbasica-set2026-2' ) ) );
+$av_stats = EditionsScreen::stats(
+	array(
+		array( 'status' => 'active', 'progress_percentage' => 50 ),
+		array( 'status' => 'completed', 'progress_percentage' => 100 ),
+		array( 'status' => 'cancelled', 'progress_percentage' => 10 ),
+	),
+	array( array( 'status' => 'publish' ), array( 'status' => 'draft' ) ),
+	4
+);
+check( 'las cifras de la edicion excluyen matriculas canceladas', 2 === $av_stats['seats_taken'] && 75.0 === $av_stats['avg_progress'] && 1 === $av_stats['completed'] && 1 === $av_stats['published_lessons'] && 4 === $av_stats['pending_requests'] );
+check( 'la pantalla conoce sus cuatro pestanas', array( 'sesiones', 'alumnos', 'inscripcion', 'ajustes' ) === EditionsScreen::TABS );
+
 echo "\nClases en vivo\n";
 check( 'antes de la ventana el boton no aparece', LiveClassService::WINDOW_BEFORE === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:44:59' ) );
 check( '15 minutos antes ya se puede entrar', LiveClassService::WINDOW_OPEN === LiveClassService::window_state( '2027-07-01 19:00:00', '2027-07-01 21:00:00', 15, 30, '2027-07-01 18:45:00' ) );

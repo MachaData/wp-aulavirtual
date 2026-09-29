@@ -97,7 +97,7 @@ final class CertificateController {
 
 		if ( \SIQA\AulaVirtual\Security\RateLimiter::exceeded( $bucket, 30 ) ) {
 			status_header( 429 );
-			wp_die( esc_html__( 'Demasiadas consultas. Intentalo de nuevo en una hora.', 'aula-virtual' ), '', array( 'response' => 429 ) );
+			wp_die( esc_html__( 'Demasiadas consultas. Inténtalo de nuevo en una hora.', 'aula-virtual' ), '', array( 'response' => 429 ) );
 		}
 
 		$certificate = $this->certificates->verify( $code );
@@ -168,7 +168,7 @@ final class CertificateController {
 				'edition_name'     => '',
 				'issued_date'      => '',
 				'verification_url' => home_url( '/certificado/' . rawurlencode( $code ) . '/' ),
-				'message'          => __( 'Este certificado no es valido. El codigo no existe o fue anulado por la institucion.', 'aula-virtual' ),
+				'message'          => __( 'Este certificado no es válido. El código no existe o fue anulado por la institución.', 'aula-virtual' ),
 			)
 		);
 	}

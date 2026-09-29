@@ -25,30 +25,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php require AV_PATH . 'admin/views/notice.php'; ?>
 
 	<?php if ( ! $available ) : ?>
-		<p><?php esc_html_e( 'No se detectan cursos de Tutor LMS en esta instalacion.', 'aula-virtual' ); ?></p>
+		<p><?php esc_html_e( 'No se detectan cursos de Tutor LMS en esta instalación.', 'aula-virtual' ); ?></p>
 		<?php return; ?>
 	<?php endif; ?>
 
 	<div class="notice notice-info inline">
-		<p><strong><?php esc_html_e( 'Que hace la migracion', 'aula-virtual' ); ?></strong></p>
+		<p><strong><?php esc_html_e( 'Qué hace la migración', 'aula-virtual' ); ?></strong></p>
 		<ul style="list-style:disc;margin-left:20px">
-			<li><?php esc_html_e( 'Crea un curso de Aula Virtual por cada curso de Tutor, con su landing, imagen, nivel, beneficios y categorias.', 'aula-virtual' ); ?></li>
-			<li><?php esc_html_e( 'Crea una edicion "Alumnos actuales" en estado En curso, con el producto de WooCommerce que tuviera el curso.', 'aula-virtual' ); ?></li>
-			<li><?php esc_html_e( 'Copia los temas como modulos y las lecciones con su video (YouTube, Vimeo, Bunny, URL, incrustado), contenido y adjuntos como materiales. Los quizzes y tareas de Tutor no se migran.', 'aula-virtual' ); ?></li>
-			<li><?php esc_html_e( 'Si en Tutor tienes varias cohortes como cursos separados (G1, G3, G4...), migra la primera como curso nuevo y las demas como "Edicion de" ese curso.', 'aula-virtual' ); ?></li>
-			<li><?php esc_html_e( 'Matricula a cada alumno conservando su fecha original, sus lecciones completadas y si termino el curso.', 'aula-virtual' ); ?></li>
-			<li><strong><?php esc_html_e( 'No envia ningun correo, no modifica ni borra nada de Tutor, y se puede repetir sin duplicar.', 'aula-virtual' ); ?></strong></li>
+			<li><?php esc_html_e( 'Crea un curso de Aula Virtual por cada curso de Tutor, con su landing, imagen, nivel, beneficios y categorías.', 'aula-virtual' ); ?></li>
+			<li><?php esc_html_e( 'Crea una edición "Alumnos actuales" en estado En curso, con el producto de WooCommerce que tuviera el curso.', 'aula-virtual' ); ?></li>
+			<li><?php esc_html_e( 'Copia los temas como módulos y las lecciones con su video (YouTube, Vimeo, Bunny, URL, incrustado), contenido y adjuntos como materiales. Los quizzes y tareas de Tutor no se migran.', 'aula-virtual' ); ?></li>
+			<li><?php esc_html_e( 'Si en Tutor tienes varias cohortes como cursos separados (G1, G3, G4...), migra la primera como curso nuevo y las demás como "Edición de" ese curso.', 'aula-virtual' ); ?></li>
+			<li><?php esc_html_e( 'Matricula a cada alumno conservando su fecha original, sus lecciones completadas y si terminó el curso.', 'aula-virtual' ); ?></li>
+			<li><strong><?php esc_html_e( 'No envía ningún correo, no modifica ni borra nada de Tutor, y se puede repetir sin duplicar.', 'aula-virtual' ); ?></strong></li>
 		</ul>
-		<p><?php esc_html_e( 'Los alumnos se procesan en lotes de 300 por pulsacion. Conviene hacerlo primero en un sitio de pruebas.', 'aula-virtual' ); ?></p>
+		<p><?php esc_html_e( 'Los alumnos se procesan en lotes de 300 por pulsación. Conviene hacerlo primero en un sitio de pruebas.', 'aula-virtual' ); ?></p>
 	</div>
 
 	<?php if ( is_array( $report ) ) : ?>
-		<h2><?php esc_html_e( 'Resultado del ultimo lote', 'aula-virtual' ); ?></h2>
+		<h2><?php esc_html_e( 'Resultado del último lote', 'aula-virtual' ); ?></h2>
 		<table class="widefat striped" style="max-width:560px">
 			<tbody>
 				<tr><td><?php esc_html_e( 'Curso creado', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['course_created'] ); ?></td></tr>
-				<tr><td><?php esc_html_e( 'Edicion creada', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['edition_created'] ); ?></td></tr>
-				<tr><td><?php esc_html_e( 'Modulos', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['modules'] ); ?></td></tr>
+				<tr><td><?php esc_html_e( 'Edición creada', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['edition_created'] ); ?></td></tr>
+				<tr><td><?php esc_html_e( 'Módulos', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['modules'] ); ?></td></tr>
 				<tr><td><?php esc_html_e( 'Lecciones', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['lessons'] ); ?></td></tr>
 				<tr><td><?php esc_html_e( 'Alumnos matriculados', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['enrolled'] ); ?></td></tr>
 				<tr><td><?php esc_html_e( 'Alumnos omitidos (ya migrados o sin usuario)', 'aula-virtual' ); ?></td><td><?php echo esc_html( (string) $report['skipped'] ); ?></td></tr>
@@ -59,7 +59,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</tbody>
 		</table>
 		<?php if ( ! empty( $report['edition_id'] ) ) : ?>
-			<p><a href="<?php echo esc_url( AdminMenu::editions_url( array( 'edition' => (int) $report['edition_id'] ) ) ); ?>"><?php esc_html_e( 'Ver la edicion migrada', 'aula-virtual' ); ?></a></p>
+			<p><a href="<?php echo esc_url( AdminMenu::editions_url( array( 'edition' => (int) $report['edition_id'] ) ) ); ?>"><?php esc_html_e( 'Ver la edición migrada', 'aula-virtual' ); ?></a></p>
 		<?php endif; ?>
 	<?php endif; ?>
 
@@ -90,7 +90,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php if ( null === $av_entry ) : ?>
 						<?php esc_html_e( 'No migrado', 'aula-virtual' ); ?>
 					<?php else : ?>
-						<a href="<?php echo esc_url( AdminMenu::editions_url( array( 'edition' => (int) $av_entry['edition_id'] ) ) ); ?>"><?php esc_html_e( 'Migrado: ver edicion', 'aula-virtual' ); ?></a>
+						<a href="<?php echo esc_url( AdminMenu::editions_url( array( 'edition' => (int) $av_entry['edition_id'] ) ) ); ?>"><?php esc_html_e( 'Migrado: ver edición', 'aula-virtual' ); ?></a>
 					<?php endif; ?>
 				</td>
 				<td>
@@ -102,7 +102,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<select name="target_course_id" style="max-width:180px;margin-bottom:4px">
 								<option value="0"><?php esc_html_e( 'Como curso nuevo', 'aula-virtual' ); ?></option>
 								<?php foreach ( $targets as $av_target ) : ?>
-									<option value="<?php echo esc_attr( (string) $av_target->ID ); ?>"><?php echo esc_html( sprintf( /* translators: %s: course title. */ __( 'Edicion de: %s', 'aula-virtual' ), get_the_title( $av_target ) ) ); ?></option>
+									<option value="<?php echo esc_attr( (string) $av_target->ID ); ?>"><?php echo esc_html( sprintf( /* translators: %s: course title. */ __( 'Edición de: %s', 'aula-virtual' ), get_the_title( $av_target ) ) ); ?></option>
 								<?php endforeach; ?>
 							</select>
 						<?php endif; ?>

@@ -103,7 +103,7 @@ final class ProgressService {
 		if ( null === $lesson || LessonType::STATUS_PUBLISH !== $lesson['status'] ) {
 			return new WP_Error(
 				'av_lesson_not_found',
-				__( 'La sesion no existe o no esta publicada.', 'aula-virtual' ),
+				__( 'La sesión no existe o no está publicada.', 'aula-virtual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -113,7 +113,7 @@ final class ProgressService {
 		if ( ! $this->enrollment_service->has_access( $user_id, $edition_id ) ) {
 			return new WP_Error(
 				'av_no_access',
-				__( 'No tienes acceso a esta edicion.', 'aula-virtual' ),
+				__( 'No tienes acceso a esta edición.', 'aula-virtual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -123,7 +123,7 @@ final class ProgressService {
 		if ( ! ReleaseSchedule::is_available( $lesson, $this->enrollments->find_for_student( $user_id, $edition_id ), $now ) ) {
 			return new WP_Error(
 				'av_lesson_locked',
-				__( 'Esta sesion todavia no esta disponible.', 'aula-virtual' ),
+				__( 'Esta sesión todavía no está disponible.', 'aula-virtual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -220,13 +220,13 @@ final class ProgressService {
 	 */
 	public function reset( int $user_id, int $edition_id ) {
 		if ( ! get_option( 'av_allow_retake', true ) ) {
-			return new WP_Error( 'av_retake_disabled', __( 'Repetir el curso no esta habilitado.', 'aula-virtual' ), array( 'status' => 403 ) );
+			return new WP_Error( 'av_retake_disabled', __( 'Repetir el curso no está habilitado.', 'aula-virtual' ), array( 'status' => 403 ) );
 		}
 
 		$enrollment = $this->enrollments->find_for_student( $user_id, $edition_id );
 
 		if ( null === $enrollment || ! in_array( $enrollment['status'], array( EnrollmentStatus::ACTIVE, EnrollmentStatus::COMPLETED ), true ) ) {
-			return new WP_Error( 'av_retake_forbidden', __( 'No tienes una matricula activa en esta edicion.', 'aula-virtual' ), array( 'status' => 403 ) );
+			return new WP_Error( 'av_retake_forbidden', __( 'No tienes una matrícula activa en esta edición.', 'aula-virtual' ), array( 'status' => 403 ) );
 		}
 
 		$deleted = $this->progress->delete_for_edition( $user_id, $edition_id );

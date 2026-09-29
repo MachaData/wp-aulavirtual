@@ -51,7 +51,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php endif; ?>
 
 	<?php if ( empty( $items ) ) : ?>
-		<p><?php esc_html_e( 'Esta edicion todavia no tiene sesiones publicadas.', 'aula-virtual' ); ?></p>
+		<p><?php esc_html_e( 'Esta edición todavía no tiene sesiones publicadas.', 'aula-virtual' ); ?></p>
 	<?php else : ?>
 		<ol class="av-lesson-list">
 			<?php foreach ( $items as $av_item ) : ?>
@@ -92,7 +92,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<?php if ( ! empty( $can_retake ) ) : ?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="av-retake"
-			onsubmit="return confirm('<?php echo esc_js( __( 'Se borrara tu progreso en esta edicion y empezaras desde la primera sesion. Tu certificado, si lo tienes, se conserva.', 'aula-virtual' ) ); ?>');">
+			onsubmit="return confirm('<?php echo esc_js( __( 'Se borrará tu progreso en esta edición y empezarás desde la primera sesión. Tu certificado, si lo tienes, se conserva.', 'aula-virtual' ) ); ?>');">
 			<input type="hidden" name="action" value="<?php echo esc_attr( CampusController::ACTION_RETAKE ); ?>">
 			<input type="hidden" name="edition_id" value="<?php echo esc_attr( (string) (int) $edition['id'] ); ?>">
 			<?php wp_nonce_field( CampusController::ACTION_RETAKE ); ?>

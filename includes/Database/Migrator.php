@@ -159,6 +159,14 @@ final class Migrator {
 
 				flush_rewrite_rules();
 			},
+			// 1.3.1: las direcciones de inscripcion admiten guiones (/inscripcion/numbasica-set2026/).
+			'1.3.1' => static function (): void {
+				if ( class_exists( \SIQA\AulaVirtual\Enrollments\RegistrationController::class ) ) {
+					\SIQA\AulaVirtual\Enrollments\RegistrationController::register_rewrite();
+				}
+
+				flush_rewrite_rules();
+			},
 		);
 	}
 
