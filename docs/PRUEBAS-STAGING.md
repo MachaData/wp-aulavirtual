@@ -204,6 +204,26 @@ retirarlo para conservar las URLs antiguas.
 - [ ] El formulario público se ve en dos columnas en escritorio y en una en el móvil, con el
       color de marca de *Configuración → General*.
 
+## 8g. Gestión de alumnos y acceso
+
+- [ ] *Alumnos*: buscar por parte del correo y filtrar por edición; abrir una ficha.
+- [ ] Inscribir a una persona nueva y aprobarla: la ficha muestra *Aún no creó su contraseña*;
+      la bienvenida trae *Crear mi contraseña* y dice cuánto dura el enlace.
+- [ ] Matricular en otro curso a alguien que ya entró antes: la bienvenida dice "entra con tu
+      contraseña de siempre".
+- [ ] *Reenviar enlace de acceso*: llega el correo; el enlace anterior deja de funcionar.
+- [ ] *Poner una contraseña* con *Generar una segura*; entrar con ella; la sesión abierta en
+      otro navegador queda cerrada.
+- [ ] Cambiar el correo en *Datos personales*: WordPress avisa a la dirección anterior.
+- [ ] *Mover a otra edición* y *Reiniciar avance*: el porcentaje vuelve a 0 y el temario nuevo
+      aparece en el campus.
+- [ ] Suspender y reactivar: al reactivar llega la bienvenida con un enlace que funciona.
+- [ ] En la pestaña *Alumnos* de una edición, marcar dos y *Reenviar enlace de acceso*: el
+      aviso dice "aplicada a 2".
+- [ ] Como instructor: no aparece *Poner una contraseña* ni *Datos personales* editables, y no
+      puede abrir la ficha de alguien que solo está en cursos ajenos.
+- [ ] *Emails → Bienvenida → Restaurar texto original* trae el bloque de acceso nuevo.
+
 ## 8e. Seguridad
 
 Recorrer la lista de la sección 9 de [`SEGURIDAD.md`](SEGURIDAD.md).

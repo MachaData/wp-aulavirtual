@@ -348,6 +348,9 @@ final class OrderHandler {
 			return $user_id;
 		}
 
+		// Contrasena aleatoria y desconocida: el alumno debe crear la suya.
+		\SIQA\AulaVirtual\Students\AccountHelper::mark_needs_password( (int) $user_id );
+
 		$phone = sanitize_text_field( $order->get_billing_phone() );
 
 		if ( '' !== $phone ) {

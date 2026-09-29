@@ -46,6 +46,7 @@ final class Events {
 	public const ANNOUNCEMENT_CREATED = 'announcement_created';
 	public const MATERIAL_ADDED       = 'material_added';
 	public const COMMENT_POSTED       = 'comment_posted';
+	public const ACCESS_LINK_SENT     = 'access_link_sent';
 
 	public const CERTIFICATE_ISSUED = 'certificate_issued';
 

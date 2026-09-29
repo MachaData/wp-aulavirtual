@@ -309,3 +309,42 @@ function set_transient( $key, $value, $expiration = 0 ) {
 function wp_unslash( $value ) {
 	return is_string( $value ) ? stripslashes( $value ) : $value;
 }
+
+function _n( $single, $plural, $number, $domain = 'default' ) {
+	return 1 === (int) $number ? $single : $plural;
+}
+
+function esc_html_e( $text, $domain = 'default' ) {
+	echo htmlspecialchars( (string) $text, ENT_QUOTES );
+}
+
+// WP_Error compartido por las dos pruebas.
+class WP_Error {
+
+	/** @var array<string, mixed> */
+	public array $data;
+
+	public function __construct( public string $code = '', public string $message = '', $data = array() ) {
+		$this->data = (array) $data;
+	}
+
+	public function get_error_message(): string {
+		return $this->message;
+	}
+
+	public function get_error_code(): string {
+		return $this->code;
+	}
+
+	public function get_error_data() {
+		return $this->data;
+	}
+
+	public function add_data( $data ): void {
+		$this->data = (array) $data;
+	}
+}
+
+function is_wp_error( $thing ) {
+	return $thing instanceof WP_Error;
+}

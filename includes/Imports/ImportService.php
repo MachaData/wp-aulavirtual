@@ -378,6 +378,9 @@ final class ImportService {
 			return $user_id;
 		}
 
+		// Contrasena aleatoria y desconocida: el alumno debe crear la suya.
+		\SIQA\AulaVirtual\Students\AccountHelper::mark_needs_password( (int) $user_id );
+
 		if ( '' !== $row['phone'] ) {
 			update_user_meta( (int) $user_id, 'av_phone', $row['phone'] );
 		}

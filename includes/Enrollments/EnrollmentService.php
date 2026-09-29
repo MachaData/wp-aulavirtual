@@ -301,10 +301,13 @@ final class EnrollmentService {
 			$this->events->dispatch(
 				$event,
 				array(
-					'enrollment_id' => $enrollment_id,
-					'user_id'       => (int) $enrollment['user_id'],
-					'edition_id'    => (int) $enrollment['edition_id'],
-					'status'        => $status,
+					'enrollment_id'      => $enrollment_id,
+					'user_id'            => (int) $enrollment['user_id'],
+					'edition_id'         => (int) $enrollment['edition_id'],
+					'course_id'          => (int) $enrollment['course_id'],
+					'status'             => $status,
+					// Al reactivar, la bienvenida vuelve a llevar un enlace valido.
+					'with_password_link' => Events::ENROLLMENT_APPROVED === $event,
 				)
 			);
 		}

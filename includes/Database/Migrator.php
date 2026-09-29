@@ -159,6 +159,9 @@ final class Migrator {
 
 				flush_rewrite_rules();
 			},
+			// 1.3.2 no cambia tablas: el hook schema_migrated siembra la plantilla
+			// "Enlace de acceso" en sitios ya instalados.
+			'1.3.2' => static function (): void {},
 			// 1.3.1: las direcciones de inscripcion admiten guiones (/inscripcion/numbasica-set2026/).
 			'1.3.1' => static function (): void {
 				if ( class_exists( \SIQA\AulaVirtual\Enrollments\RegistrationController::class ) ) {

@@ -3,6 +3,38 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.14.0] - 2026-09-29
+
+Gestión de alumnos para el equipo y acceso más claro para el alumno.
+
+### Anadido
+
+- Pantalla Aula Virtual > Alumnos: busqueda por nombre o correo, filtros por edicion y estado,
+  estado de la contrasena, ultimo ingreso y ultima actividad.
+- Ficha del alumno con pestanas:
+  - Matriculas: cambiar estado (solo transiciones permitidas), fecha de acceso propia, mover a
+    otra edicion, reiniciar avance, matricular en otra edicion con o sin bienvenida.
+  - Acceso: reenviar enlace de acceso, poner una contrasena (generador seguro, no se envia),
+    cerrar sesiones.
+  - Datos personales editables (administradores) e historial de acciones del equipo.
+- Acciones en lote en la pestana Alumnos de cada edicion: reenviar acceso, activar, suspender,
+  completar, cancelar, matricular en otra edicion. Enlaces a la ficha de cada alumno.
+- Plantilla "Enlace de acceso" y variables `{{access_instructions}}` (crear contrasena para
+  cuentas nuevas, "entra con tu contrasena de siempre" para las existentes) y `{{link_expiry}}`.
+- Validez configurable del enlace de contrasena (72 h por defecto, maximo 168 h).
+- Registro del ultimo ingreso y de las cuentas que aun no crearon contrasena.
+- Emails: boton "Restaurar texto original" por plantilla.
+
+### Corregido
+
+- Al reactivar una matricula, la bienvenida salia con el boton "Crear mi contrasena" vacio.
+- A quien ya tenia contrasena, la bienvenida le generaba un enlace de restablecimiento
+  innecesario que anulaba enlaces anteriores.
+
+### Cambiado
+
+- Esquema 1.3.2 (siembra la plantilla nueva en sitios instalados). 279 comprobaciones.
+
 ## [0.13.0] - 2026-09-29
 
 Pantalla de edición reorganizada, direcciones de inscripción legibles y textos con tildes.

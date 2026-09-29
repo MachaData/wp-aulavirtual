@@ -81,6 +81,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php submit_button( __( 'Enviarme una prueba', 'aula-virtual' ), 'secondary', 'submit', false ); ?>
 				<p class="description"><?php esc_html_e( 'Usa datos de ejemplo y la versión guardada de la plantilla.', 'aula-virtual' ); ?></p>
 			</form>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:16px" onsubmit="return confirm('<?php echo esc_js( __( '¿Restaurar el asunto y el texto originales? Se pierden tus cambios en esta plantilla.', 'aula-virtual' ) ); ?>');">
+				<input type="hidden" name="action" value="<?php echo esc_attr( EmailsScreen::ACTION_RESET ); ?>">
+				<input type="hidden" name="template_id" value="<?php echo esc_attr( (string) (int) $template['id'] ); ?>">
+				<?php wp_nonce_field( EmailsScreen::ACTION_RESET ); ?>
+				<?php submit_button( __( 'Restaurar texto original', 'aula-virtual' ), 'secondary', 'submit', false ); ?>
+				<p class="description"><?php esc_html_e( 'Útil tras actualizar el plugin: trae la versión nueva del correo por defecto.', 'aula-virtual' ); ?></p>
+			</form>
 		</div>
 	</div>
 </div>

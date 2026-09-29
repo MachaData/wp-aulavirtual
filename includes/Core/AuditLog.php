@@ -35,6 +35,11 @@ final class AuditLog {
 	public const IMPORT_EXECUTED    = 'import.executed';
 	public const CERTIFICATE_ISSUED = 'certificate.issued';
 	public const SETTINGS_UPDATED   = 'settings.updated';
+	public const STUDENT_UPDATED    = 'student.updated';
+	public const PASSWORD_SET       = 'student.password_set';
+	public const ACCESS_LINK_SENT   = 'student.access_link';
+	public const ENROLLMENT_MOVED   = 'enrollment.moved';
+	public const PROGRESS_RESET     = 'progress.reset';
 
 	/**
 	 * Table definitions.
@@ -79,5 +84,27 @@ final class AuditLog {
 			),
 			array( '%d', '%s', '%s', '%d', '%d', '%s', '%s' )
 		);
+	}
+
+	/**
+	 * Latest actions that affected a user, newest first.
+	 *
+	 * @param int $user_id User id.
+	 * @param int $limit   Maximum rows.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function for_user( int $user_id, int $limit = 50 ): array {
+		global $wpdb;
+
+		if ( $user_id <= 0 ) {
+			return array();
+		}
+
+		$table = $this->schema->table( 'audit_log' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from the schema.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE target_user_id = %d ORDER BY id DESC LIMIT %d", $user_id, max( 1, $limit ) ), ARRAY_A );
+
+		return is_array( $rows ) ? $rows : array();
 	}
 }

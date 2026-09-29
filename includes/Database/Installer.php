@@ -109,6 +109,7 @@ final class Installer {
 			'av_progress_mode'           => 'flexible',
 			'av_allow_retake'            => true,
 			'av_lesson_comments'         => true,
+			'av_password_link_hours'     => 72,
 			'av_protect_materials'       => true,
 			'av_auto_certificate'        => true,
 			'av_certificate_signature_name'  => '',

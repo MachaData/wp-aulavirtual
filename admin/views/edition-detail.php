@@ -14,6 +14,7 @@
  * @var array<string, int|float>                       $stats
  * @var string                                         $tab
  * @var string                                         $suggested_slug
+ * @var array<int, array<string, mixed>>               $other_editions
  * @var array{type: string, message: string}|null      $notice
  */
 
@@ -23,6 +24,7 @@ use SIQA\AulaVirtual\Admin\ImportScreen;
 use SIQA\AulaVirtual\Admin\LessonScreen;
 use SIQA\AulaVirtual\Admin\ReportsScreen;
 use SIQA\AulaVirtual\Admin\RequestsScreen;
+use SIQA\AulaVirtual\Admin\StudentsScreen;
 use SIQA\AulaVirtual\Curriculum\LessonType;
 use SIQA\AulaVirtual\Editions\EditionService;
 use SIQA\AulaVirtual\Editions\EditionStatus;
@@ -284,9 +286,38 @@ $av_tabs       = array(
 				<p><?php esc_html_e( 'Los alumnos llegan por el enlace de inscripción, por una compra o los matriculas tú desde aquí.', 'aula-virtual' ); ?></p>
 			</div>
 		<?php else : ?>
+			<form method="post" action="<?php echo esc_url( $av_post ); ?>" id="av-bulk-form" data-av-confirm="<?php esc_attr_e( '¿Aplicar la acción a los alumnos marcados?', 'aula-virtual' ); ?>">
+			<input type="hidden" name="action" value="<?php echo esc_attr( StudentsScreen::ACTION_BULK ); ?>">
+			<input type="hidden" name="edition_id" value="<?php echo esc_attr( (string) $av_id ); ?>">
+			<?php wp_nonce_field( StudentsScreen::ACTION_BULK ); ?>
+			<div class="av-bulk">
+				<label class="screen-reader-text" for="av-bulk-action"><?php esc_html_e( 'Acción en lote', 'aula-virtual' ); ?></label>
+				<select name="bulk_action" id="av-bulk-action">
+					<option value=""><?php esc_html_e( 'Acciones con los marcados…', 'aula-virtual' ); ?></option>
+					<option value="access_link"><?php esc_html_e( 'Reenviar enlace de acceso', 'aula-virtual' ); ?></option>
+					<option value="status_active"><?php esc_html_e( 'Activar', 'aula-virtual' ); ?></option>
+					<option value="status_suspended"><?php esc_html_e( 'Suspender', 'aula-virtual' ); ?></option>
+					<option value="status_completed"><?php esc_html_e( 'Marcar como completada', 'aula-virtual' ); ?></option>
+					<option value="status_cancelled"><?php esc_html_e( 'Cancelar matrícula', 'aula-virtual' ); ?></option>
+					<?php if ( ! empty( $other_editions ) ) : ?>
+						<option value="enroll"><?php esc_html_e( 'Matricular también en otra edición', 'aula-virtual' ); ?></option>
+					<?php endif; ?>
+				</select>
+				<?php if ( ! empty( $other_editions ) ) : ?>
+					<select name="target_edition" aria-label="<?php esc_attr_e( 'Otra edición', 'aula-virtual' ); ?>">
+						<option value="0"><?php esc_html_e( '(solo para "matricular en otra edición")', 'aula-virtual' ); ?></option>
+						<?php foreach ( $other_editions as $av_other ) : ?>
+							<option value="<?php echo esc_attr( (string) (int) $av_other['id'] ); ?>"><?php echo esc_html( get_the_title( (int) $av_other['course_id'] ) . ' · ' . $av_other['name'] ); ?></option>
+						<?php endforeach; ?>
+					</select>
+					<label><input type="checkbox" name="notify" value="1" checked> <?php esc_html_e( 'con correo de bienvenida', 'aula-virtual' ); ?></label>
+				<?php endif; ?>
+				<?php submit_button( __( 'Aplicar', 'aula-virtual' ), 'secondary', '', false ); ?>
+			</div>
 			<table class="widefat striped av-table">
 				<thead>
 					<tr>
+						<td class="check-column"><input type="checkbox" data-av-check-all="enrollment_ids[]" aria-label="<?php esc_attr_e( 'Marcar todos', 'aula-virtual' ); ?>"></td>
 						<th scope="col"><?php esc_html_e( 'Alumno', 'aula-virtual' ); ?></th>
 						<th scope="col" class="av-hide-sm"><?php esc_html_e( 'Origen', 'aula-virtual' ); ?></th>
 						<th scope="col"><?php esc_html_e( 'Estado', 'aula-virtual' ); ?></th>
@@ -304,11 +335,16 @@ $av_tabs       = array(
 					$av_pct    = max( 0.0, min( 100.0, (float) $av_student['progress_percentage'] ) );
 					?>
 					<tr>
+						<th scope="row" class="check-column"><input type="checkbox" name="enrollment_ids[]" value="<?php echo esc_attr( (string) (int) $av_student['id'] ); ?>" aria-label="<?php echo esc_attr( $av_person['name'] ); ?>"></th>
 						<td>
-							<strong><?php echo esc_html( $av_person['name'] ); ?></strong>
+							<strong><a href="<?php echo esc_url( StudentsScreen::url( (int) $av_student['user_id'] ) ); ?>"><?php echo esc_html( $av_person['name'] ); ?></a></strong>
 							<?php if ( '' !== $av_person['email'] ) : ?>
 								<span class="av-sub"><?php echo esc_html( $av_person['email'] ); ?></span>
 							<?php endif; ?>
+							<div class="row-actions">
+								<span><a href="<?php echo esc_url( StudentsScreen::url( (int) $av_student['user_id'] ) ); ?>"><?php esc_html_e( 'Gestionar', 'aula-virtual' ); ?></a> | </span>
+								<span><a href="<?php echo esc_url( StudentsScreen::url( (int) $av_student['user_id'], 'acceso' ) ); ?>"><?php esc_html_e( 'Acceso y contraseña', 'aula-virtual' ); ?></a></span>
+							</div>
 						</td>
 						<td class="av-hide-sm"><?php echo esc_html( $av_sources[ $av_student['source'] ] ?? (string) $av_student['source'] ); ?></td>
 						<td><?php echo $av_badge( EnrollmentStatus::label( (string) $av_student['status'] ), $av_enroll_tone[ $av_student['status'] ] ?? 'gray' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the closure. ?></td>
@@ -323,6 +359,7 @@ $av_tabs       = array(
 				<?php endforeach; ?>
 				</tbody>
 			</table>
+			</form>
 		<?php endif; ?>
 
 		<div class="av-grid-2" style="margin-top:16px">

@@ -43,6 +43,8 @@ use SIQA\AulaVirtual\Migration\TutorReader;
 use SIQA\AulaVirtual\Permissions\AccessControl;
 use SIQA\AulaVirtual\Reports\ReportRepository;
 use SIQA\AulaVirtual\Reports\ReportService;
+use SIQA\AulaVirtual\Students\StudentRepository;
+use SIQA\AulaVirtual\Students\StudentService;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -157,6 +159,19 @@ final class AdminServiceProvider implements ServiceProvider {
 		);
 
 		$container->singleton(
+			StudentsScreen::class,
+			static fn( Container $c ): StudentsScreen => new StudentsScreen(
+				$c->get( StudentRepository::class ),
+				$c->get( StudentService::class ),
+				$c->get( EnrollmentRepository::class ),
+				$c->get( EnrollmentService::class ),
+				$c->get( EditionRepository::class ),
+				$c->get( AccessControl::class ),
+				$c->get( AuditLog::class )
+			)
+		);
+
+		$container->singleton(
 			ReportsScreen::class,
 			static fn( Container $c ): ReportsScreen => new ReportsScreen(
 				$c->get( ReportRepository::class ),
@@ -177,7 +192,8 @@ final class AdminServiceProvider implements ServiceProvider {
 				$c->get( SettingsScreen::class ),
 				$c->get( ImportScreen::class ),
 				$c->get( ReportsScreen::class ),
-				$c->get( CertificatesScreen::class )
+				$c->get( CertificatesScreen::class ),
+				$c->get( StudentsScreen::class )
 			)
 		);
 	}
@@ -233,6 +249,14 @@ final class AdminServiceProvider implements ServiceProvider {
 			RequestsScreen::ACTION_MARK_PAID    => array( RequestsScreen::class, 'handle_mark_paid' ),
 			EmailsScreen::ACTION_SAVE           => array( EmailsScreen::class, 'handle_save' ),
 			EmailsScreen::ACTION_TEST           => array( EmailsScreen::class, 'handle_test' ),
+			EmailsScreen::ACTION_RESET          => array( EmailsScreen::class, 'handle_reset' ),
+			StudentsScreen::ACTION_ACCESS_LINK  => array( StudentsScreen::class, 'handle_access_link' ),
+			StudentsScreen::ACTION_PASSWORD     => array( StudentsScreen::class, 'handle_password' ),
+			StudentsScreen::ACTION_LOGOUT       => array( StudentsScreen::class, 'handle_logout' ),
+			StudentsScreen::ACTION_PROFILE      => array( StudentsScreen::class, 'handle_profile' ),
+			StudentsScreen::ACTION_ENROLL       => array( StudentsScreen::class, 'handle_enroll' ),
+			StudentsScreen::ACTION_ENROLLMENT   => array( StudentsScreen::class, 'handle_enrollment' ),
+			StudentsScreen::ACTION_BULK         => array( StudentsScreen::class, 'handle_bulk' ),
 			MigrationScreen::ACTION_MIGRATE     => array( MigrationScreen::class, 'handle_migrate' ),
 			LessonScreen::ACTION_SAVE           => array( LessonScreen::class, 'handle_save' ),
 			LessonScreen::ACTION_DELETE         => array( LessonScreen::class, 'handle_delete' ),

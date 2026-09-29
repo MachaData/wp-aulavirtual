@@ -28,6 +28,7 @@ final class EmailsScreen {
 	public const SLUG        = 'aula-virtual-emails';
 	public const ACTION_SAVE = 'av_save_email_template';
 	public const ACTION_TEST = 'av_send_test_email';
+	public const ACTION_RESET = 'av_reset_email_template';
 
 	/**
 	 * Template persistence.
@@ -141,6 +142,45 @@ final class EmailsScreen {
 		);
 
 		$this->redirect( $template_id, 'success', __( 'Plantilla guardada.', 'aula-virtual' ) );
+	}
+
+	/**
+	 * Restores the default subject and body of a template.
+	 *
+	 * @return void
+	 */
+	public function handle_reset(): void {
+		$this->guard( self::ACTION_RESET );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
+		$template_id = isset( $_POST['template_id'] ) ? absint( wp_unslash( $_POST['template_id'] ) ) : 0;
+		$template    = $this->templates->find( $template_id );
+		$default     = null;
+
+		if ( null !== $template ) {
+			foreach ( \SIQA\AulaVirtual\Emails\EmailDefaults::definitions() as $definition ) {
+				if ( $definition['event'] === $template['event'] && $definition['recipient'] === $template['recipient'] ) {
+					$default = $definition;
+					break;
+				}
+			}
+		}
+
+		if ( null === $default ) {
+			$this->redirect( $template_id, 'error', __( 'Esta plantilla no tiene un texto original que restaurar.', 'aula-virtual' ) );
+		}
+
+		$this->templates->update(
+			$template_id,
+			array(
+				'subject'    => (string) $default['subject'],
+				'body'       => (string) $default['body'],
+				'updated_at' => current_time( 'mysql', true ),
+				'updated_by' => get_current_user_id(),
+			)
+		);
+
+		$this->redirect( $template_id, 'success', __( 'Se restauró el texto original de la plantilla.', 'aula-virtual' ) );
 	}
 
 	/**

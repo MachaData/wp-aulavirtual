@@ -158,7 +158,11 @@ final class EmailNotifier {
 			'lesson_url'       => home_url( '/campus/' ),
 			'comment_author'   => 'Ana Perez',
 			'comment_content'  => __( 'Este es un comentario de prueba.', 'aula-virtual' ),
+			'link_expiry'      => \SIQA\AulaVirtual\Students\AccountHelper::lifetime_label( \SIQA\AulaVirtual\Students\AccountHelper::link_hours() ),
 		);
+
+		// La prueba muestra el bloque de una cuenta nueva, el caso con boton.
+		$sample['access_instructions'] = VariableResolver::access_instructions( true, home_url( '/' ), home_url( '/campus/' ), $sample['link_expiry'] );
 
 		$vars = array_merge( $vars, $sample );
 

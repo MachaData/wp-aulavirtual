@@ -128,6 +128,13 @@ final class SettingsScreen {
 						'default' => true,
 						'help'    => __( 'El alumno puede reiniciar su progreso en una edición y volver a hacerla desde la primera sesión.', 'aula-virtual' ),
 					),
+					\SIQA\AulaVirtual\Students\AccountHelper::OPTION_LINK_HOURS => array(
+						'label'   => __( 'Validez del enlace para crear la contraseña (horas)', 'aula-virtual' ),
+						'type'    => 'int',
+						'default' => \SIQA\AulaVirtual\Students\AccountHelper::DEFAULT_LINK_HOURS,
+						'min'     => 1,
+						'help'    => __( 'Cuánto dura el enlace del correo de bienvenida y del reenvío de acceso (máximo 168, una semana). WordPress trae 24 horas; 72 da margen a quien abre el correo tarde. Aplica también a «Olvidé mi contraseña».', 'aula-virtual' ),
+					),
 					CommentService::OPTION_ENABLED => array(
 						'label'   => __( 'Comentarios en las sesiones', 'aula-virtual' ),
 						'type'    => 'bool',

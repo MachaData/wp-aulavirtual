@@ -330,6 +330,12 @@ final class EditionsScreen {
 				'links'          => $links,
 				'stats'          => self::stats( $students, $lessons, $this->requests->count( array( 'edition_id' => $edition_id, 'status' => RegistrationRequestRepository::STATUS_PENDING ) ) ),
 				'tab'            => $tab,
+				'other_editions' => array_values(
+					array_filter(
+						$this->editions->all( array( 'order_by' => 'start_date', 'order' => 'DESC', 'limit' => 300 ) ),
+						fn( array $e ): bool => (int) $e['id'] !== $edition_id && $this->access->can_manage_editions( (int) $e['course_id'] )
+					)
+				),
 				'suggested_slug' => self::suggest_slug( (string) $edition['code'], array_map( static fn( array $l ): string => (string) $l['token'], $links ) ),
 				'notice'         => $notice,
 			)

@@ -71,7 +71,7 @@
 .av-table td, .av-table th { vertical-align: middle; }
 .av-table .av-col-order { width: 44px; text-align: center; color: var(--av-muted); }
 .av-table .av-col-actions { width: 110px; text-align: right; white-space: nowrap; }
-.av-table .av-sub { display: block; margin-top: 2px; color: var(--av-muted); font-size: 12px; }
+.av-admin .av-sub { display: block; margin-top: 2px; color: var(--av-muted); font-size: 12px; font-weight: 400; }
 .av-move { display: inline-flex; gap: 2px; }
 .av-move .button { min-height: 26px; line-height: 24px; padding: 0 6px; }
 .av-move .button .dashicons { font-size: 16px; width: 16px; height: 18px; margin-top: 3px; }
@@ -108,4 +108,34 @@
 	.av-header__actions { width: 100%; }
 	.av-table .av-hide-sm { display: none; }
 	.av-panel { padding: 14px; }
+}
+
+/* Fila flexible para formularios dentro de tarjetas estrechas */
+.av-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.av-row > * { min-width: 0; }
+.av-row .av-grow { flex: 1 1 160px; }
+.av-row .av-grow input, .av-row .av-grow select, .av-row > select, .av-row > input[type=date] { width: 100%; min-height: 32px; }
+.av-row > select, .av-row > input[type=date] { flex: 1 1 160px; }
+.av-row label { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 500; color: var(--av-muted); }
+
+/* Ficha del alumno: matrículas desplegables */
+.av-enrollments { display: grid; gap: 10px; }
+.av-enrollment { border: 1px solid var(--av-border); border-radius: 8px; background: var(--av-card); }
+.av-enrollment[open] { box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.av-enrollment > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 200px auto; gap: 16px; align-items: center; padding: 12px 16px; cursor: pointer; list-style: none; }
+.av-enrollment > summary::-webkit-details-marker { display: none; }
+.av-enrollment > summary:focus-visible { outline: 2px solid var(--av-primary); outline-offset: -2px; border-radius: 8px; }
+.av-enrollment__toggle { color: var(--av-primary); font-weight: 500; white-space: nowrap; }
+.av-enrollment__toggle::after { content: " ▾"; }
+.av-enrollment[open] .av-enrollment__toggle::after { content: " ▴"; }
+.av-enrollment__body { padding: 0 16px 16px; }
+.av-enrollment__body .av-card { margin-top: 0; }
+.av-enrollment__foot { margin: 0; padding: 0 16px 14px; }
+.av-enrollment__foot a { text-decoration: none; }
+.av-bulk { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 10px; }
+.av-bulk select { min-height: 32px; }
+.av-table .check-column { width: 32px; padding-left: 10px; }
+@media (max-width: 782px) {
+	.av-enrollment > summary { grid-template-columns: 1fr auto; }
+	.av-enrollment > summary .av-progress { grid-column: 1 / -1; width: 100% !important; }
 }

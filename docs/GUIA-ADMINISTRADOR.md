@@ -265,6 +265,53 @@ por estado y origen, avance medio, tasa de finalización, activos en los último
 comentarios y el avance sesión por sesión. Desde ahí, o desde el detalle de la edición, se
 exporta la lista de alumnos a CSV (separado por punto y coma, abre directo en Excel).
 
+## 6d. Gestión de alumnos
+
+*Aula Virtual → Alumnos* lista a todas las personas con al menos una matrícula. Se busca por
+nombre o correo y se filtra por edición y estado. La columna *Acceso* indica si la persona ya
+creó su contraseña. Al abrir una ficha:
+
+- **Matrículas.** Cada matrícula se despliega con *Gestionar*:
+  - *Cambiar estado*: solo ofrece los cambios permitidos. Suspender quita el acceso sin borrar
+    nada; activar lo devuelve y reenvía la bienvenida con un enlace válido.
+  - *Acceso hasta*: amplía o recorta el acceso de esa persona; vacío sigue las fechas de la
+    edición.
+  - *Mover a otra edición*: para pasarla a otra cohorte u otro curso. El avance empieza de cero.
+  - *Reiniciar avance*: borra las sesiones completadas; conserva el certificado.
+  - Debajo, **Matricular en otra edición**, con o sin correo de bienvenida.
+- **Acceso y contraseña.**
+  - *Reenviar enlace de acceso*: le llega un correo para crear o cambiar su contraseña. Anula
+    cualquier enlace anterior. También está arriba a la derecha de la ficha.
+  - *Poner una contraseña*: para soporte, por ejemplo si el correo no le llega. El botón
+    *Generar una segura* propone una. **No se envía por correo**: compártela por un canal
+    seguro y pídele que la cambie. Cierra sus sesiones abiertas.
+  - *Cerrar sus sesiones abiertas*: si sospechas que otra persona usa su cuenta.
+- **Datos personales.** Nombre, apellido, correo, teléfono y documento. Si cambias el correo,
+  WordPress avisa a la dirección anterior.
+- **Historial.** Qué hizo el equipo con esa cuenta y cuándo: matrículas, cambios de estado,
+  enlaces enviados, contraseñas puestas. No guarda contraseñas ni datos personales.
+
+Los instructores ven y gestionan solo matrículas de sus cursos. Poner contraseñas, cerrar
+sesiones y editar datos personales queda para los administradores del sitio.
+
+En la pestaña *Alumnos* de cada edición también hay **acciones en lote**: marca varios alumnos
+y elige *Reenviar enlace de acceso*, *Activar*, *Suspender*, *Marcar como completada*,
+*Cancelar matrícula* o *Matricular también en otra edición*. Cada nombre lleva a su ficha.
+
+### Cómo recibe el acceso un alumno
+
+- **Cuenta nueva** (creada al aprobar, comprar, importar o por la API): el correo de bienvenida
+  trae el botón *Crear mi contraseña*. El enlace dura 72 horas por defecto (*Configuración →
+  Matrículas*, máximo una semana) y avisa de que, si venció, use «Olvidé mi contraseña».
+- **Ya tenía cuenta**: el correo le dice que entre con su contraseña de siempre y le ofrece
+  crear una nueva si no la recuerda. Así no se anulan contraseñas que funcionan.
+- En la ficha se ve *Sin contraseña aún* hasta que la crea o entra por primera vez, y la fecha
+  de su último ingreso.
+
+Si tu sitio ya tenía guardado el correo de bienvenida de una versión anterior, abre
+*Emails → Bienvenida* y pulsa **Restaurar texto original** para usar el nuevo bloque
+`{{access_instructions}}`.
+
 ## 7. Emails
 
 *Aula Virtual → Emails*. Cada correo es una plantilla con asunto y contenido editables, una

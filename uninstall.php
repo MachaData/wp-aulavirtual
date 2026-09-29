@@ -70,6 +70,7 @@ $av_options = array(
 	'av_lesson_comments',
 	'av_log_level',
 	'av_pages',
+	'av_password_link_hours',
 	'av_progress_mode',
 	'av_protect_materials',
 	'av_roles_version',

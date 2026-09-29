@@ -48,6 +48,43 @@
 		} );
 	} );
 
+	// Generar contrasena: rellena los campos indicados y la muestra para copiarla.
+	document.addEventListener( 'click', function ( event ) {
+		var button = event.target.closest( '[data-av-generate]' );
+		if ( ! button ) {
+			return;
+		}
+		event.preventDefault();
+		var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%*?';
+		var bytes = new Uint32Array( 14 );
+		window.crypto.getRandomValues( bytes );
+		var value = '';
+		for ( var i = 0; i < bytes.length; i++ ) {
+			value += chars.charAt( bytes[ i ] % chars.length );
+		}
+		button.getAttribute( 'data-av-generate' ).split( ',' ).forEach( function ( id ) {
+			var field = document.getElementById( id.trim() );
+			if ( field ) {
+				field.value = value;
+				field.type = 'text';
+			}
+		} );
+	} );
+
+	// Casilla "marcar todos" de las acciones en lote.
+	document.addEventListener( 'change', function ( event ) {
+		var all = event.target.closest( '[data-av-check-all]' );
+		if ( ! all ) {
+			return;
+		}
+		var form = all.closest( 'form' );
+		if ( form ) {
+			form.querySelectorAll( 'input[name="' + all.getAttribute( 'data-av-check-all' ) + '"]' ).forEach( function ( box ) {
+				box.checked = all.checked;
+			} );
+		}
+	} );
+
 	document.addEventListener( 'submit', function ( event ) {
 		var form = event.target;
 		var message = form.getAttribute( 'data-av-confirm' );

@@ -11,6 +11,7 @@ namespace SIQA\AulaVirtual\Emails;
 
 use SIQA\AulaVirtual\Campus\CampusController;
 use SIQA\AulaVirtual\Comments\CommentRepository;
+use SIQA\AulaVirtual\Students\AccountHelper;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Editions\EditionService;
@@ -99,6 +100,8 @@ final class VariableResolver {
 			'price'            => __( 'Precio informativo de la edición', 'aula-virtual' ),
 			'payment_url'      => __( 'Enlace de pago (WooCommerce)', 'aula-virtual' ),
 			'set_password_url' => __( 'Enlace seguro para crear la contraseña', 'aula-virtual' ),
+			'access_instructions' => __( 'Bloque de acceso: "crea tu contraseña" para cuentas nuevas o "entra con tu contraseña" para quien ya la tiene', 'aula-virtual' ),
+			'link_expiry'      => __( 'Validez del enlace de contraseña (por ejemplo, 3 días)', 'aula-virtual' ),
 			'login_url'        => __( 'Página de ingreso al campus', 'aula-virtual' ),
 			'campus_url'       => __( 'Página del campus', 'aula-virtual' ),
 			'lesson_name'      => __( 'Nombre de la sesión', 'aula-virtual' ),
@@ -155,9 +158,14 @@ final class VariableResolver {
 			$vars['last_name']  = $user->last_name;
 			$vars['email']      = $user->user_email;
 
-			if ( ! empty( $payload['with_password_link'] ) ) {
-				$vars['set_password_url'] = $this->set_password_url( $user );
-			}
+			$needs = AccountHelper::needs_password( (int) $user->ID );
+			$reset = ! empty( $payload['with_password_link'] ) && ( $needs || ! empty( $payload['force_reset_link'] ) );
+
+			// Un enlace nuevo anula el anterior: solo se genera cuando hace falta.
+			// Quien ya tiene contrasena recibe la pagina de "Olvide mi contrasena".
+			$vars['set_password_url']    = $reset ? $this->set_password_url( $user ) : wp_lostpassword_url( $this->campus_url() );
+			$vars['link_expiry']         = AccountHelper::lifetime_label( AccountHelper::link_hours() );
+			$vars['access_instructions'] = self::access_instructions( $needs && $reset, $vars['set_password_url'], $this->campus_url(), $vars['link_expiry'] );
 		}
 
 		foreach ( array( 'announcement_title', 'announcement_content' ) as $key ) {
@@ -242,7 +250,7 @@ final class VariableResolver {
 	 * @return array<string, string>
 	 */
 	public static function escape_all( array $vars ): array {
-		$html_allowed = array( 'comment_content', 'announcement_content' );
+		$html_allowed = array( 'comment_content', 'announcement_content', 'access_instructions' );
 
 		foreach ( $vars as $key => $value ) {
 			$value = (string) $value;
@@ -341,7 +349,39 @@ final class VariableResolver {
 	}
 
 	/**
-	 * Returns the campus page URL.
+	 * HTML block with the access instructions of a welcome email.
+	 *
+	 * @param bool   $new_account  Whether the person still has to create a password.
+	 * @param string $password_url Reset link, or the "lost password" page.
+	 * @param string $campus_url   Campus page.
+	 * @param string $expiry       Human lifetime of the link.
+	 * @return string
+	 */
+	public static function access_instructions( bool $new_account, string $password_url, string $campus_url, string $expiry ): string {
+		$campus = '<a href="' . esc_url( $campus_url ) . '">' . esc_html( $campus_url ) . '</a>';
+		$small  = 'font-size:13px;color:#6b7280';
+
+		if ( $new_account ) {
+			return '<p>' . esc_html__( 'Crea tu contraseña para entrar al campus:', 'aula-virtual' ) . '</p>'
+				. '<p><a href="' . esc_url( $password_url ) . '" style="display:inline-block;padding:12px 22px;border-radius:8px;background:#111827;color:#ffffff;text-decoration:none;font-weight:600">' . esc_html__( 'Crear mi contraseña', 'aula-virtual' ) . '</a></p>'
+				. '<p style="' . $small . '">' . esc_html(
+					sprintf(
+						/* translators: %s: link lifetime, e.g. "3 días". */
+						__( 'El enlace vence en %s. Si venció, usa «Olvidé mi contraseña» en el campus.', 'aula-virtual' ),
+						$expiry
+					)
+				) . '</p>'
+				/* translators: %s: campus link. */
+				. '<p>' . sprintf( esc_html__( 'Luego entra siempre desde %s con tu correo y tu contraseña.', 'aula-virtual' ), $campus ) . '</p>';
+		}
+
+		/* translators: %s: campus link. */
+		return '<p>' . sprintf( esc_html__( 'Entra al campus con tu correo y tu contraseña de siempre: %s', 'aula-virtual' ), $campus ) . '</p>'
+			. '<p style="' . $small . '">' . esc_html__( '¿No la recuerdas?', 'aula-virtual' ) . ' <a href="' . esc_url( $password_url ) . '">' . esc_html__( 'Crea una nueva aquí', 'aula-virtual' ) . '</a>.</p>';
+	}
+
+	/**
+	 * Campus page URL.
 	 *
 	 * @return string
 	 */

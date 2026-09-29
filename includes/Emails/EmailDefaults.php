@@ -77,6 +77,7 @@ final class EmailDefaults {
 			Events::COURSE_COMPLETED              => __( 'Curso finalizado', 'aula-virtual' ),
 			Events::CERTIFICATE_ISSUED            => __( 'Certificado disponible', 'aula-virtual' ),
 			Events::COMMENT_POSTED                => __( 'Nuevo comentario en una sesión', 'aula-virtual' ),
+			Events::ACCESS_LINK_SENT              => __( 'Enlace de acceso (reenviado por el administrador)', 'aula-virtual' ),
 		);
 	}
 
@@ -138,7 +139,7 @@ final class EmailDefaults {
 				'event'     => Events::ENROLLMENT_APPROVED,
 				'recipient' => $student,
 				'subject'   => 'Bienvenido a {{course_name}}',
-				'body'      => "<p>Hola {{first_name}},</p>\n<p>Ya estás matriculado en <strong>{{course_name}}</strong> ({{edition_name}}).</p>\n<ul>\n<li>Modalidad: {{modality}}</li>\n<li>Inicio: {{start_date}}</li>\n<li>Fin: {{end_date}}</li>\n<li>Días: {{schedule_days}}</li>\n<li>Horario: {{schedule_time}} ({{timezone}})</li>\n</ul>\n<p>Crea tu contraseña para entrar al campus:</p>\n<p><a href=\"{{set_password_url}}\">Crear mi contraseña</a></p>\n<p>Luego podrás ingresar siempre desde <a href=\"{{campus_url}}\">{{campus_url}}</a>.</p>\n<p>{{site_name}}</p>",
+				'body'      => "<p>Hola {{first_name}},</p>\n<p>Ya estás matriculado en <strong>{{course_name}}</strong> ({{edition_name}}).</p>\n<ul>\n<li>Modalidad: {{modality}}</li>\n<li>Inicio: {{start_date}}</li>\n<li>Fin: {{end_date}}</li>\n<li>Días: {{schedule_days}}</li>\n<li>Horario: {{schedule_time}} ({{timezone}})</li>\n</ul>\n{{access_instructions}}\n<p>{{site_name}}</p>",
 				'enabled'   => true,
 			),
 			array(
@@ -169,6 +170,13 @@ final class EmailDefaults {
 				'recipient' => $replied,
 				'subject'   => 'Respondieron a tu comentario en {{lesson_name}}',
 				'body'      => "<p>Hola,</p>\n<p><strong>{{comment_author}}</strong> respondió a tu comentario en la sesión <strong>{{lesson_name}}</strong> de <strong>{{course_name}}</strong>:</p>\n<blockquote>{{comment_content}}</blockquote>\n<p><a href=\"{{lesson_url}}\">Ver la conversación</a></p>\n<p>{{site_name}}</p>",
+				'enabled'   => true,
+			),
+			array(
+				'event'     => Events::ACCESS_LINK_SENT,
+				'recipient' => $student,
+				'subject'   => 'Tu acceso a {{site_name}}',
+				'body'      => "<p>Hola {{first_name}},</p>\n<p>Aquí tienes tu enlace para crear o cambiar tu contraseña del campus:</p>\n<p><a href=\"{{set_password_url}}\">Crear mi contraseña</a></p>\n<p>El enlace vence en {{link_expiry}}. Si venció, pide otro desde «Olvidé mi contraseña» en el campus.</p>\n<p>Luego entra siempre desde <a href=\"{{campus_url}}\">{{campus_url}}</a> con tu correo y tu contraseña.</p>\n<p>{{site_name}}</p>",
 				'enabled'   => true,
 			),
 		);

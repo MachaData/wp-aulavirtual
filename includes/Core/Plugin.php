@@ -31,6 +31,7 @@ use SIQA\AulaVirtual\Migration\MigrationServiceProvider;
 use SIQA\AulaVirtual\Permissions\PermissionsServiceProvider;
 use SIQA\AulaVirtual\Progress\ProgressServiceProvider;
 use SIQA\AulaVirtual\REST\RestServiceProvider;
+use SIQA\AulaVirtual\Students\StudentsServiceProvider;
 use SIQA\AulaVirtual\Reports\ReportsServiceProvider;
 use SIQA\AulaVirtual\WooCommerce\WooCommerceServiceProvider;
 
@@ -179,6 +180,7 @@ final class Plugin {
 			new MigrationServiceProvider(),
 			new LandingServiceProvider(),
 			new ImportsServiceProvider(),
+			new StudentsServiceProvider(),
 			new AdminServiceProvider(),
 			new CampusServiceProvider(),
 			new RestServiceProvider(),

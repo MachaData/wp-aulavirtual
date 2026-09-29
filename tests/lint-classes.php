@@ -13,16 +13,6 @@ declare( strict_types = 1 );
 require_once __DIR__ . '/wp-stubs.php';
 
 // Stubs for the WordPress classes the plugin extends or type-hints.
-class WP_Error {
-
-	/** @var array<string, mixed> */
-	public array $data;
-
-	public function __construct( public string $code = '', public string $message = '', $data = array() ) {
-		$this->data = (array) $data;
-	}
-}
-
 class WP_Post {
 
 	public int $ID = 0;

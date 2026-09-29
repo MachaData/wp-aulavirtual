@@ -155,6 +155,21 @@ Los alias `nombre+algo@` cuentan como el mismo correo. Detrás de Cloudflare, us
   y **cierra todas las demás sesiones**.
 - El correo del alumno es de solo lectura en el campus.
 
+### 3.10b Gestión de alumnos por el equipo
+
+- Ver una ficha exige `av_view_students` y, para instructores, que la persona tenga una
+  matrícula en uno de sus cursos. Solo se muestran esas matrículas.
+- Cambiar estado, fecha de acceso, reiniciar avance, mover o matricular exige
+  `av_enroll_students` y propiedad del curso de origen y de destino.
+- Poner contraseña, cerrar sesiones y editar datos personales exigen la capacidad de
+  WordPress `edit_user` sobre esa cuenta (administradores) y nunca sobre la propia cuenta.
+- La contraseña que pone un administrador no se guarda en claro, no se registra y no se envía;
+  se cierran todas las sesiones de esa cuenta.
+- Las acciones en lote solo tocan matrículas de la edición desde la que se lanzan.
+- El historial registra qué campos cambiaron, nunca sus valores.
+- El enlace de contraseña dura lo configurado (72 h por defecto, máximo 168 h) y cada enlace
+  nuevo anula el anterior.
+
 ### 3.11 Secretos
 
 - Claves de Bunny y de integración: en Configuración se muestran como campo de contraseña vacío;

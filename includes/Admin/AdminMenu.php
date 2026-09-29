@@ -91,6 +91,13 @@ final class AdminMenu {
 	private CertificatesScreen $certificates;
 
 	/**
+	 * Students screen.
+	 *
+	 * @var StudentsScreen
+	 */
+	private StudentsScreen $students;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param EditionsScreen $editions Editions screen.
@@ -102,6 +109,7 @@ final class AdminMenu {
 	 * @param ImportScreen        $import        Import screen.
 	 * @param ReportsScreen       $reports       Reports screen.
 	 * @param CertificatesScreen  $certificates  Certificates screen.
+	 * @param StudentsScreen      $students      Students screen.
 	 */
 	public function __construct(
 		EditionsScreen $editions,
@@ -112,7 +120,8 @@ final class AdminMenu {
 		SettingsScreen $settings,
 		ImportScreen $import,
 		ReportsScreen $reports,
-		CertificatesScreen $certificates
+		CertificatesScreen $certificates,
+		StudentsScreen $students
 	) {
 		$this->editions      = $editions;
 		$this->requests      = $requests;
@@ -123,6 +132,7 @@ final class AdminMenu {
 		$this->import        = $import;
 		$this->reports       = $reports;
 		$this->certificates  = $certificates;
+		$this->students      = $students;
 	}
 
 	/**
@@ -148,6 +158,15 @@ final class AdminMenu {
 			Capabilities::MANAGE_EDITIONS,
 			self::EDITIONS_SLUG,
 			array( $this->editions, 'render' )
+		);
+
+		add_submenu_page(
+			self::EDITIONS_SLUG,
+			__( 'Alumnos', 'aula-virtual' ),
+			__( 'Alumnos', 'aula-virtual' ),
+			Capabilities::VIEW_STUDENTS,
+			StudentsScreen::SLUG,
+			array( $this->students, 'render' )
 		);
 
 		add_submenu_page(

@@ -360,6 +360,7 @@ foreach (
 		new MigrationServiceProvider(),
 		new LandingServiceProvider(),
 		new ImportsServiceProvider(),
+		new \SIQA\AulaVirtual\Students\StudentsServiceProvider(),
 		new AdminServiceProvider(),
 		new CampusServiceProvider(),
 		new RestServiceProvider(),
@@ -810,7 +811,18 @@ check( 'todas las plantillas por defecto usan solo variables del catalogo', arra
 $pairs = array_map( static fn( array $d ): string => $d['event'] . '/' . $d['recipient'], EmailDefaults::definitions() );
 check( 'no hay dos plantillas por defecto para el mismo evento y destinatario', count( $pairs ) === count( array_unique( $pairs ) ) );
 check( 'cada plantilla por defecto pertenece a un evento notificable', array() === array_diff( array_column( EmailDefaults::definitions(), 'event' ), array_keys( EmailDefaults::events() ) ) );
-check( 'la bienvenida lleva el enlace para crear la contrasena', str_contains( EmailDefaults::definitions()[4]['body'], '{{set_password_url}}' ) );
+check( 'la bienvenida lleva el bloque de acceso (crear contrasena o entrar)', str_contains( EmailDefaults::definitions()[4]['body'], '{{access_instructions}}' ) );
+check( 'existe la plantilla de reenvio de acceso con enlace y validez', 1 === count( array_filter( EmailDefaults::definitions(), static fn( array $d ): bool => \SIQA\AulaVirtual\Core\Events\Events::ACCESS_LINK_SENT === $d['event'] && str_contains( $d['body'], '{{set_password_url}}' ) && str_contains( $d['body'], '{{link_expiry}}' ) ) ) );
+$av_new = VariableResolver::access_instructions( true, 'https://example.test/wp-login.php?action=rp&key=abc', 'https://example.test/aula/', '3 días' );
+$av_old = VariableResolver::access_instructions( false, 'https://example.test/wp-login.php?action=lostpassword', 'https://example.test/aula/', '3 días' );
+check( 'una cuenta nueva recibe el boton de crear contrasena con la validez', str_contains( $av_new, 'Crear mi contraseña' ) && str_contains( $av_new, 'action=rp' ) && str_contains( $av_new, '3 días' ) );
+check( 'quien ya tiene contrasena recibe "entra con tu contrasena de siempre"', str_contains( $av_old, 'contraseña de siempre' ) && str_contains( $av_old, 'lostpassword' ) && ! str_contains( $av_old, 'Crear mi contraseña' ) );
+check( 'el bloque de acceso no se vuelve a escapar en el correo', $av_new === VariableResolver::escape_all( array( 'access_instructions' => $av_new ) )['access_instructions'] );
+check( 'la validez se expresa en dias o en horas', '3 días' === \SIQA\AulaVirtual\Students\AccountHelper::lifetime_label( 72 ) && '24 horas' === \SIQA\AulaVirtual\Students\AccountHelper::lifetime_label( 24 ) && '1 hora' === \SIQA\AulaVirtual\Students\AccountHelper::lifetime_label( 1 ) );
+check( 'la validez por defecto es de 72 horas y no pasa de una semana', 72 === \SIQA\AulaVirtual\Students\AccountHelper::link_hours() && 168 * 3600 >= \SIQA\AulaVirtual\Students\AccountHelper::link_lifetime( 86400 ) );
+check( 'contrasena corta, distinta o con espacios se rechaza', \SIQA\AulaVirtual\Students\StudentService::validate_password( 'corta', 'corta' ) instanceof WP_Error && \SIQA\AulaVirtual\Students\StudentService::validate_password( 'largaSegura1', 'otraCosa12' ) instanceof WP_Error && \SIQA\AulaVirtual\Students\StudentService::validate_password( ' largaSegura1', ' largaSegura1' ) instanceof WP_Error );
+check( 'una contrasena valida pasa', true === \SIQA\AulaVirtual\Students\StudentService::validate_password( 'largaSegura1', 'largaSegura1' ) );
+check( 'la ficha del alumno tiene cuatro pestanas', array( 'matriculas', 'acceso', 'datos', 'historial' ) === \SIQA\AulaVirtual\Admin\StudentsScreen::TABS );
 
 echo "\n{$av_checks} comprobaciones, {$av_failures} fallos\n";
 
