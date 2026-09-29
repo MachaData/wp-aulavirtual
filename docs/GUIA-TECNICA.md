@@ -111,7 +111,7 @@ entrada ahí.
 
 ## 6. Esquema y migraciones
 
-`Database\Schema::VERSION` (hoy `1.1.0`) se compara con la opción `av_db_version`. Para
+`Database\Schema::VERSION` (hoy `1.3.2`) se compara con la opción `av_db_version`. Para
 cambiar una tabla: editar su `CREATE TABLE` en `Schema::definitions()` (dbDelta aplica la
 diferencia), subir `VERSION` y, si hace falta un backfill, añadir una entrada en
 `Migrator::data_migrations()` con esa versión. El migrador corre en la activación y en

@@ -3,6 +3,26 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [Sin publicar]
+
+Documentación de traspaso y herramientas de entrega. El código del plugin no cambia.
+
+### Añadido
+
+- `docs/TRASPASO.md`: estado, historia de versiones, cobertura del brief, pendientes
+  priorizados, decisiones abiertas y cómo trabajar, para retomar el proyecto desde otra cuenta.
+- `CLAUDE.md`: reglas, comandos y lista de cierre para sesiones de Claude Code.
+- `docs/BRIEF-ORIGINAL.md`: los requisitos originales completos.
+- `bin/build-zip.sh`: genera el zip instalable de forma reproducible.
+- `bin/preview-landing.php`: vista previa de la landing con datos de ejemplo, sin WordPress.
+
+### Cambiado
+
+- El zip ya no incluye `docs/`, `CLAUDE.md` ni `ARCHITECTURE.md`: en el servidor quedaban
+  accesibles públicamente.
+- Actualizados README (versiones 0.10–0.15), la versión del esquema en la guía técnica y las
+  filas ya resueltas del flujo comercial (repetir curso, comentarios, modo enfoque).
+
 ## [0.15.0] - 2026-09-29
 
 Rediseño completo de la landing del curso.

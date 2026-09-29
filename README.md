@@ -21,19 +21,31 @@ Tutor LMS Pro, cuyos alumnos se migran con la herramienta incluida).
 | 0.7 | Perfil del alumno, editor de sesión, clases en vivo, materiales |
 | 0.8 | Videos con Bunny Stream (embeds firmados), migración de adjuntos y cohortes como ediciones |
 | 0.9 | Pantalla de configuración, anuncios con correo a la edición, modo enfoque |
+| 0.10 | Duplicar ediciones y cursos, reordenar sesiones, importar Excel/CSV, repetir curso |
+| 0.11 | Content drip, materiales protegidos, URLs limpias del campus, comentarios |
+| 0.12 | Certificados, reportes, API REST; dos revisiones de seguridad (0.12.1–0.12.3) |
+| 0.13 | Pantalla de edición con pestañas, enlaces de inscripción legibles |
+| 0.14 | Gestión de alumnos: ficha, reenviar acceso, contraseñas, mover, acciones en lote |
+| 0.15 | Rediseño completo de la landing del curso |
 
 El flujo completo funciona de punta a punta:
 `Landing → Inscripción o Compra → Aprobación → Pago → Matrícula → Bienvenida → Campus →
 Clase en vivo / Materiales → Progreso`.
 
-**Nada de esto ha corrido todavía contra un WordPress real.** Las 290 comprobaciones
-automáticas cubren la lógica pura y el cableado de los módulos; el SQL, los hooks de
-WooCommerce y las pantallas se validan siguiendo `docs/PRUEBAS-STAGING.md`.
+El plugin está instalado en `astronumerologia.com` (0.13.0 confirmado en vivo el 2026-09-29).
+Las 290 comprobaciones automáticas cubren la lógica pura y el cableado de los módulos; el SQL,
+los hooks de WooCommerce y las pantallas se validan siguiendo `docs/PRUEBAS-STAGING.md`, que
+todavía no se ha recorrido completo en el sitio real.
+
+**Para retomar el proyecto desde otra cuenta: [`docs/TRASPASO.md`](docs/TRASPASO.md).**
 
 ## Documentación
 
 | Documento | Para quién | Qué contiene |
 |---|---|---|
+| [`docs/TRASPASO.md`](docs/TRASPASO.md) | Quien retome el proyecto | Estado, historia, pendientes priorizados, decisiones abiertas, cómo trabajar |
+| [`CLAUDE.md`](CLAUDE.md) | Sesiones de Claude Code | Reglas, comandos y lista de cierre de cada cambio |
+| [`docs/BRIEF-ORIGINAL.md`](docs/BRIEF-ORIGINAL.md) | Desarrollo | Requisitos originales completos del proyecto |
 | [`docs/GUIA-ADMINISTRADOR.md`](docs/GUIA-ADMINISTRADOR.md) | Coordinación académica | Cómo crear cursos, ediciones, sesiones, aprobar inscripciones, vincular productos, editar correos y landings, migrar desde Tutor |
 | [`docs/PRUEBAS-STAGING.md`](docs/PRUEBAS-STAGING.md) | Quien instala | Lista de verificación para la primera activación en un sitio de pruebas |
 | [`docs/GUIA-TECNICA.md`](docs/GUIA-TECNICA.md) | Desarrollo | Mapa de módulos, convenciones, hooks, eventos, shortcodes, opciones, cómo añadir un módulo |
@@ -45,9 +57,9 @@ WooCommerce y las pantallas se validan siguiendo `docs/PRUEBAS-STAGING.md`.
 
 ## Instalación
 
-1. Copiar la carpeta del repositorio como `wp-content/plugins/aula-virtual/` en el WordPress
-   del campus (`/campus/`). El plugin no tiene dependencias obligatorias: `composer install`
-   solo hace falta para la importación por Excel (fase siguiente) y para el linter.
+1. Generar el zip con `bin/build-zip.sh` (queda en `dist/`) e instalarlo desde *Plugins →
+   Añadir nuevo → Subir plugin*. Incluye PhpSpreadsheet para importar Excel; no incluye
+   pruebas ni documentación interna.
 2. Activar desde *Plugins*. La activación crea las tablas, los roles, las plantillas de correo
    por defecto y la página del campus (`/campus/aula/` en esa instalación).
 3. Ir a *Aula Virtual → Configuración* (color, remitente, Bunny, WooCommerce) y a *Emails*
@@ -64,6 +76,8 @@ WordPress 6.4+, PHP 8.1+, MySQL 5.7+ o MariaDB 10.3+. WooCommerce es opcional.
 ```bash
 php tests/smoke-test.php      # 290 comprobaciones de logica y cableado
 php tests/lint-classes.php    # carga las 116 clases del plugin
+bin/build-zip.sh             # zip instalable en dist/
+php bin/preview-landing.php > dist/landing.html   # vista previa de la landing sin WordPress
 composer install && composer lint   # WordPress Coding Standards (opcional)
 ```
 

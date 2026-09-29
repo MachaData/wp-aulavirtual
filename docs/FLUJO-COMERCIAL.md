@@ -226,13 +226,13 @@ la vez a un curso de Tutor y a una edición de Aula Virtual.
 | Precios | Precio normal y de oferta en el curso ($612 → $430) | La migración copia el precio de oferta como precio informativo de la edición |
 | Proceso de finalización | Flexible; autocompletar curso al completar lecciones | Igual: `av_progress_mode = flexible`; la matrícula pasa a *Completada* sola |
 | Acceso sin inscribirse para admin e instructores | Activado | Igual: los roles con `view_students` siempre pasan |
-| Volver a hacer el curso | Activado | No existe todavía (fase siguiente: "repetir curso") |
-| Comentarios en lecciones | Activado | No existe todavía (fase 2, punto 44 del brief) |
-| Modo de enfoque (sin cabecera ni pie en las lecciones) | Activado | El campus se muestra dentro del tema. Plantilla "enfoque" pendiente para la fase Campus |
+| Volver a hacer el curso | Activado | Igual desde v0.10: *Repetir el curso* (opción `av_allow_retake`) |
+| Comentarios en lecciones | Activado | Igual desde v0.11: hilo por sesión con moderación del instructor (opción `av_lesson_comments`) |
+| Modo de enfoque (sin cabecera ni pie en las lecciones) | Activado | Igual desde v0.9: *Configuración → Matrículas → Modo enfoque* |
 | Adjuntos: abrir en pestaña nueva | Activado | Igual: los materiales abren en pestaña nueva |
 | Fuentes de video | Todas, incluida BunnyNet; reproductor de Tutor desactivado | Todas cubiertas (v0.8.1). Los videos reales están como "URL externa" del CDN de Bunny |
 | Emails activos | Bienvenida tras registro, Curso inscrito, Nuevo pedido, Estado del pedido, suscripciones | Cubiertos por las plantillas por defecto (solicitud, aprobación, bienvenida). "Curso finalizado" viene activa: desactivarla si no se quiere, como en Tutor |
-| Email manual (a un tipo de destinatario) | Disponible | Llega con **Anuncios** (siguiente bloque): mensaje a los alumnos de una edición, con envío por correo |
+| Email manual (a un tipo de destinatario) | Disponible | **Anuncios** (v0.9): mensaje a los alumnos de una edición, con envío por correo |
 | Diseño: color principal `#3E64DE`, hover `#395BCA`, texto `#212327` | Personalizado | `av_brand_color = #3e64de` para landing, campus y correos |
 | Diseño: elementos visibles en el curso (nivel, duración, barra de progreso, material, beneficios, requisitos, anuncios sí; instructor, autor, reseñas, público objetivo, compartir no) | Configurado | Las secciones de la landing se apagan por curso (v0.6). Los toggles globales (punto 37 del brief) quedan para la pantalla de configuración |
 | Enlace permanente del curso | `/campus/cursos/{slug}/`, lecciones `/clases/` | El plugin usa `/campus/curso/{slug}/` mientras Tutor siga activo (sin choque). Al retirar Tutor, poner `av_course_slug = cursos`: los cursos migrados conservan el mismo slug, así que **las URLs antiguas siguen funcionando** |
@@ -284,5 +284,6 @@ pocos clics.
 3. ~~**Perfil del alumno**~~ Hecho en v0.7.0, junto con el editor de sesión, clases en vivo
    y materiales.
 4. **Integración con el otro WordPress**, según la decisión 3.
-5. Después: importación Excel, anuncios, content drip, URLs limpias del campus, pantalla de
-   configuración, endpoint de descarga protegido para materiales.
+5. ~~Después: importación Excel, anuncios, content drip, URLs limpias del campus, pantalla de
+   configuración, endpoint de descarga protegido para materiales.~~ Hecho entre v0.9 y v0.11.
+6. Estado actual y pendientes: `docs/TRASPASO.md`.
