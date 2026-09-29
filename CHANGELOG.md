@@ -3,6 +3,34 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 Este plugin sigue versionado semántico.
 
+## [0.15.0] - 2026-09-29
+
+Rediseño completo de la landing del curso.
+
+### Cambiado
+
+- Presentación oscura con el estado y la edición, cuatro datos clave con iconos (inicio,
+  modalidad, horario, sesiones y horas), precio con precio tachado, botón principal y "Ver
+  temario". Sin imagen ni video muestra una ilustración con la fecha de inicio.
+- Menú fijo de secciones con botón de compra; solo lista las secciones con contenido.
+- Beneficios en tarjetas; temario en módulos desplegables con número, tipo y duración de cada
+  sesión y el total de horas; instructor en tarjeta (iniciales si no hay foto); una tarjeta por
+  edición con estado, cupos restantes y barra de ocupación; tarjeta de precio con "Incluye";
+  preguntas frecuentes en acordeón; cierre oscuro con botón y WhatsApp.
+- En el celular, barra inferior con precio, fecha y botón que aparece al bajar y se oculta cuando
+  otro botón de compra está a la vista. Se quitó el espacio en blanco antes del pie.
+- El color de los botones sale de *Configuración → General → Color principal* y el texto sobre
+  él se elige solo (negro o blanco) para que siempre se lea.
+- El bloque `[av_course_editions]` lleva sus propios colores para verse igual dentro de otras
+  páginas.
+
+### Corregido
+
+- El título "Borrador automático" ya no aparece: si el título de la landing está vacío o es el
+  marcador de WordPress, se usa el nombre del curso.
+- Títulos de secciones guardados sin tildes ("Que vas a lograr", "Inversion") se muestran con
+  tildes.
+
 ## [0.14.0] - 2026-09-29
 
 Gestión de alumnos para el equipo y acceso más claro para el alumno.

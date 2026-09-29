@@ -171,7 +171,50 @@ final class LandingData {
 		$stored = get_post_meta( $course_id, self::META_KEY, true );
 		$stored = is_array( $stored ) ? $stored : array();
 
-		return self::merge( self::defaults( $course_id ), $stored );
+		return self::normalize( self::merge( self::defaults( $course_id ), $stored ), $course_id );
+	}
+
+	/**
+	 * Fixes values that should never reach the page: the "Auto Draft"
+	 * placeholder WordPress gives a new post (saved as the hero title when the
+	 * landing was first edited) and the old default titles without accents.
+	 *
+	 * @param array<string, array<string, mixed>> $landing   Landing data.
+	 * @param int                                 $course_id Course id.
+	 * @return array<string, array<string, mixed>>
+	 */
+	public static function normalize( array $landing, int $course_id ): array {
+		$title = trim( (string) ( $landing['hero']['title'] ?? '' ) );
+
+		if ( self::is_placeholder_title( $title ) ) {
+			$landing['hero']['title'] = $course_id > 0 ? (string) get_the_title( $course_id ) : '';
+		}
+
+		$legacy = array(
+			'benefits' => array( 'Que vas a lograr', __( 'Qué vas a lograr', 'aula-virtual' ) ),
+			'info'     => array( 'Informacion del curso', __( 'Información del curso', 'aula-virtual' ) ),
+			'price'    => array( 'Inversion', __( 'Inversión', 'aula-virtual' ) ),
+		);
+
+		foreach ( $legacy as $section => $pair ) {
+			if ( isset( $landing[ $section ]['title'] ) && $pair[0] === $landing[ $section ]['title'] ) {
+				$landing[ $section ]['title'] = $pair[1];
+			}
+		}
+
+		return $landing;
+	}
+
+	/**
+	 * Whether a title is empty or the WordPress auto-draft placeholder.
+	 *
+	 * @param string $title Title.
+	 * @return bool
+	 */
+	public static function is_placeholder_title( string $title ): bool {
+		$title = trim( $title );
+
+		return '' === $title || in_array( $title, array( 'Auto Draft', 'Borrador automático', __( 'Auto Draft' ) ), true ); // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- core string on purpose.
 	}
 
 	/**
@@ -231,6 +274,12 @@ final class LandingData {
 					default => Sanitizer::text( $value ?? '' ),
 				};
 			}
+		}
+
+		// El titulo provisional de un curso recien creado no se guarda: se deja
+		// vacio para que la landing use siempre el titulo real del curso.
+		if ( isset( $clean['hero']['title'] ) && self::is_placeholder_title( (string) $clean['hero']['title'] ) ) {
+			$clean['hero']['title'] = '';
 		}
 
 		return $clean;

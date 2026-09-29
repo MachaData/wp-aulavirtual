@@ -38,7 +38,8 @@ final class LandingServiceProvider implements ServiceProvider {
 				$c->get( EditionRepository::class ),
 				$c->get( EnrollmentLinkRepository::class ),
 				$c->get( ModuleRepository::class ),
-				$c->get( LessonRepository::class )
+				$c->get( LessonRepository::class ),
+				$c->get( \SIQA\AulaVirtual\Enrollments\EnrollmentRepository::class )
 			)
 		);
 

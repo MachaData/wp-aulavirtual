@@ -82,6 +82,7 @@ use SIQA\AulaVirtual\LiveClasses\LiveClassesServiceProvider;
 use SIQA\AulaVirtual\Materials\MaterialService;
 use SIQA\AulaVirtual\Materials\MaterialsServiceProvider;
 use SIQA\AulaVirtual\Landing\LandingData;
+use SIQA\AulaVirtual\Landing\LandingRenderer;
 use SIQA\AulaVirtual\Landing\LandingServiceProvider;
 use SIQA\AulaVirtual\Landing\LandingTemplate;
 use SIQA\AulaVirtual\Migration\MigrationServiceProvider;
@@ -823,6 +824,28 @@ check( 'la validez por defecto es de 72 horas y no pasa de una semana', 72 === \
 check( 'contrasena corta, distinta o con espacios se rechaza', \SIQA\AulaVirtual\Students\StudentService::validate_password( 'corta', 'corta' ) instanceof WP_Error && \SIQA\AulaVirtual\Students\StudentService::validate_password( 'largaSegura1', 'otraCosa12' ) instanceof WP_Error && \SIQA\AulaVirtual\Students\StudentService::validate_password( ' largaSegura1', ' largaSegura1' ) instanceof WP_Error );
 check( 'una contrasena valida pasa', true === \SIQA\AulaVirtual\Students\StudentService::validate_password( 'largaSegura1', 'largaSegura1' ) );
 check( 'la ficha del alumno tiene cuatro pestanas', array( 'matriculas', 'acceso', 'datos', 'historial' ) === \SIQA\AulaVirtual\Admin\StudentsScreen::TABS );
+
+
+echo "\nLanding\n";
+check( 'sobre dorado el texto del boton es oscuro', '#111111' === LandingRenderer::on_color( '#c9a45c' ) );
+check( 'sobre azul o negro el texto del boton es blanco', '#ffffff' === LandingRenderer::on_color( '#1d4ed8' ) && '#ffffff' === LandingRenderer::on_color( '#111111' ) );
+check( 'un color invalido no rompe el calculo', '#ffffff' === LandingRenderer::on_color( 'rojo' ) );
+$GLOBALS['av_test_options']['av_brand_color'] = '#C9A45C';
+check( 'el acento sale del color de marca configurado', '#c9a45c' === LandingRenderer::accent() );
+$GLOBALS['av_test_options']['av_brand_color'] = 'url(javascript:1)';
+check( 'un color de marca invalido vuelve al azul por defecto', '#1d4ed8' === LandingRenderer::accent() );
+unset( $GLOBALS['av_test_options']['av_brand_color'] );
+check( 'duraciones legibles', '45 min' === LandingRenderer::duration_label( 45 ) && '2 h' === LandingRenderer::duration_label( 120 ) && '10 h 45 min' === LandingRenderer::duration_label( 645 ) && '' === LandingRenderer::duration_label( 0 ) );
+check( 'los iconos son SVG sin datos externos y uno desconocido queda vacio', str_starts_with( LandingRenderer::icon( 'calendar' ), '<svg' ) && ! str_contains( LandingRenderer::icon( 'calendar' ), 'http' ) && '' === LandingRenderer::icon( 'nada' ) );
+check( 'el titulo "Borrador automatico" cuenta como vacio', LandingData::is_placeholder_title( 'Borrador automático' ) && LandingData::is_placeholder_title( 'Auto Draft' ) && LandingData::is_placeholder_title( '  ' ) && ! LandingData::is_placeholder_title( 'Numerología' ) );
+$av_legacy = LandingData::normalize( array( 'hero' => array( 'title' => 'Numerología' ), 'benefits' => array( 'title' => 'Que vas a lograr' ), 'price' => array( 'title' => 'Inversion' ) ), 0 );
+check( 'los titulos antiguos sin tildes se corrigen', 'Qué vas a lograr' === $av_legacy['benefits']['title'] && 'Inversión' === $av_legacy['price']['title'] && 'Numerología' === $av_legacy['hero']['title'] );
+$av_tpl = array();
+foreach ( glob( __DIR__ . '/../templates/landing/sections/*.php' ) as $av_file ) {
+	$av_tpl[ basename( $av_file, '.php' ) ] = (string) file_get_contents( $av_file );
+}
+check( 'cada seccion del menu tiene su ancla', array() === array_filter( array( 'benefits', 'content', 'instructor', 'info', 'price', 'faq', 'cta', 'hero' ), static fn( string $k ): bool => ! str_contains( $av_tpl[ $k ] ?? '', 'id="av-' . $k . '"' ) ) );
+check( 'el temario trata las sesiones como datos (titulo, tipo, duracion)', str_contains( $av_tpl['content'], "\$av_lesson['title']" ) && str_contains( $av_tpl['content'], "\$av_lesson['duration']" ) );
 
 echo "\n{$av_checks} comprobaciones, {$av_failures} fallos\n";
 

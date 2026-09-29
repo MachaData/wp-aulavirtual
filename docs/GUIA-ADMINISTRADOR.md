@@ -343,6 +343,34 @@ Los botones *Comprar* e *Inscribirse* se resuelven solos con la edición abierta
 poner URLs a mano. Para usar la landing dentro de una página de Elementor: `[av_course_landing
 id="ID"]` o solo el bloque de ediciones con `[av_course_editions id="ID"]`.
 
+**Diseño (desde 0.15.0).** La landing se arma sola en este orden:
+
+1. **Presentación oscura** con el nombre del curso, el estado y la edición abierta, cuatro datos
+   clave (inicio, modalidad, horario, sesiones y horas totales), precio y botón. Si no se sube
+   imagen ni video se muestra una ilustración de constelación con la fecha de inicio.
+2. **Menú fijo de secciones** (Qué aprenderás, Temario, Instructor, Fechas, Inversión,
+   Preguntas) con el botón de compra siempre a mano. Solo aparecen las secciones con contenido.
+3. Secciones claras: beneficios en tarjetas, temario en módulos desplegables con tipo y duración
+   de cada sesión, instructor (sin foto se muestran sus iniciales), una tarjeta por edición con
+   barra de cupos, tarjeta de precio con lo que incluye, preguntas en acordeón y un cierre oscuro
+   con botón y WhatsApp.
+4. En el celular, una **barra inferior** con precio, fecha y botón aparece al bajar y se oculta
+   cuando ya hay un botón de compra a la vista.
+
+Recomendaciones para que se vea bien:
+
+- **Color principal** (*Configuración → General*): es el color de los botones y detalles. Para
+  una marca negro y dorado, usar el dorado (por ejemplo `#c9a45c`). El texto de los botones se
+  pone solo en negro o blanco según lo que se lea mejor.
+- El **título** de la presentación toma el nombre del curso si se deja vacío (ya no aparece
+  "Borrador automático").
+- Revisar que los textos no tengan contenido de prueba (beneficios, temario manual, qué
+  incluye) antes de publicar.
+- Si el tema tiene cabecera fija que tapa el menú de secciones, agregar en *Apariencia →
+  Personalizar → CSS adicional*: `.av-landing{--av-sticky-top:80px}` (la altura de la cabecera).
+- Para cambiar el diseño a fondo, copiar `templates/landing/` del plugin a
+  `wp-content/themes/TU-TEMA/aula-virtual/landing/` y editar ahí.
+
 ## 9. Migrar desde Tutor LMS
 
 *Aula Virtual → Migrar desde Tutor* (aparece solo si hay cursos de Tutor). Un curso por

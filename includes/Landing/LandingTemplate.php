@@ -81,12 +81,9 @@ final class LandingTemplate {
 			return;
 		}
 
+		// El color de acento va en el propio contenedor (LandingRenderer::accent()).
 		wp_enqueue_style( 'av-landing', AV_URL . 'assets/css/landing.css', array(), AV_VERSION );
-
-		$color = get_option( 'av_brand_color', '#1d4ed8' );
-		$color = is_string( $color ) && preg_match( '/^#[0-9a-f]{6}$/i', $color ) ? $color : '#1d4ed8';
-
-		wp_add_inline_style( 'av-landing', ':root{--av-brand:' . $color . ';}' );
+		wp_enqueue_script( 'av-landing', AV_URL . 'assets/js/landing.js', array(), AV_VERSION, array( 'in_footer' => true, 'strategy' => 'defer' ) );
 	}
 
 	/**
