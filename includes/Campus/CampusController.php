@@ -14,6 +14,7 @@ use SIQA\AulaVirtual\Certificates\CertificateRepository;
 use SIQA\AulaVirtual\Certificates\CertificateService;
 use SIQA\AulaVirtual\Comments\CommentService;
 use SIQA\AulaVirtual\Curriculum\LessonType;
+use SIQA\AulaVirtual\Landing\LandingRenderer;
 use SIQA\AulaVirtual\Curriculum\ReleaseSchedule;
 use SIQA\AulaVirtual\Materials\DownloadController;
 use SIQA\AulaVirtual\Permissions\Capabilities;
@@ -192,6 +193,8 @@ final class CampusController {
 	 * @return string
 	 */
 	public function render(): string {
+		self::enqueue_assets( true );
+
 		if ( ! is_user_logged_in() ) {
 			return $this->template( 'login', array( 'redirect' => $this->campus_url() ) );
 		}
@@ -405,9 +408,30 @@ final class CampusController {
 			);
 		}
 
+		$position = 0;
+		$prev     = null;
+		$next     = null;
+		$siblings = array_values( $this->lessons->for_edition( (int) $lesson['edition_id'] ) );
+
+		foreach ( $siblings as $index => $sibling ) {
+			if ( (int) $sibling['id'] === $lesson_id ) {
+				$position = $index + 1;
+				$prev     = $siblings[ $index - 1 ] ?? null;
+				$next     = $siblings[ $index + 1 ] ?? null;
+			}
+		}
+
+		$total  = count( $siblings );
+		$course = null === $edition ? null : get_post( (int) $edition['course_id'] );
+
 		return $this->template(
 			'lesson',
 			array(
+				'position'     => $position,
+				'total'        => $total,
+				'prev'         => null === $prev ? null : array( 'title' => (string) $prev['title'], 'url' => $this->campus_url( array( self::QUERY_LESSON => (int) $prev['id'] ) ) ),
+				'next'         => null === $next ? null : array( 'title' => (string) $next['title'], 'url' => $this->campus_url( array( self::QUERY_LESSON => (int) $next['id'] ) ) ),
+				'course_title' => $course instanceof \WP_Post ? get_the_title( $course ) : (string) ( $edition['name'] ?? '' ),
 				'lesson'    => $lesson,
 				'live'      => $live_view,
 				'materials' => $materials,
@@ -690,8 +714,7 @@ final class CampusController {
 			return $template;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only navigation.
-		if ( empty( $_GET[ self::QUERY_LESSON ] ) ) {
+		if ( '' === $this->query( self::QUERY_LESSON ) ) {
 			return $template;
 		}
 
@@ -793,6 +816,91 @@ final class CampusController {
 		foreach ( self::rewrite_rules( is_string( $uri ) ? $uri : '', $page_id ) as $regex => $query ) {
 			add_rewrite_rule( $regex, $query, 'top' );
 		}
+	}
+
+	/**
+	 * Loads the campus stylesheet on the campus page.
+	 *
+	 * @param bool $force Load it even outside the campus page (shortcode elsewhere).
+	 * @return void
+	 */
+	public static function enqueue_assets( bool $force = false ): void {
+		$page_id = self::page_id();
+		$post    = get_post();
+		$here    = ( $page_id > 0 && is_page( $page_id ) ) || ( $post instanceof \WP_Post && has_shortcode( (string) $post->post_content, 'av_campus' ) );
+
+		if ( ! $force && ! $here ) {
+			return;
+		}
+
+		if ( ! wp_style_is( 'av-campus', 'enqueued' ) ) {
+			wp_enqueue_style( 'av-campus', AV_URL . 'assets/css/campus.css', array(), AV_VERSION );
+			wp_add_inline_style( 'av-campus', self::inline_css( LandingRenderer::accent() ) );
+		}
+	}
+
+	/**
+	 * Brand variables of the campus.
+	 *
+	 * @param string $accent Brand colour.
+	 * @return string
+	 */
+	public static function inline_css( string $accent ): string {
+		$accent = 1 === preg_match( '/^#[0-9a-fA-F]{6}$/', $accent ) ? strtolower( $accent ) : '#1d4ed8';
+
+		return '.av-campus,.av-focus{--av-accent:' . $accent . ';}';
+	}
+
+	/**
+	 * Whether any campus rule is absent from the rules WordPress has stored.
+	 *
+	 * @param mixed                 $stored Value of the rewrite_rules option.
+	 * @param array<string, string> $rules  Campus rules (regex => query).
+	 * @return bool
+	 */
+	public static function rules_missing( $stored, array $rules ): bool {
+		if ( array() === $rules ) {
+			return false;
+		}
+
+		if ( ! is_array( $stored ) ) {
+			return true;
+		}
+
+		foreach ( $rules as $regex => $query ) {
+			if ( ! isset( $stored[ $regex ] ) || $stored[ $regex ] !== $query ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Regenerates the permalinks when the campus rules are not stored yet.
+	 *
+	 * Happens after installing or updating the plugin, or after renaming the
+	 * campus page (e.g. /campus/ to /aula-virtual/): without it, the clean
+	 * URLs /{campus}/curso/{codigo}/ answer 404 until someone saves
+	 * Settings > Permalinks. Guarded so it runs at most once an hour.
+	 *
+	 * @return void
+	 */
+	public static function ensure_rewrite(): void {
+		if ( '' === (string) get_option( 'permalink_structure', '' ) ) {
+			return;
+		}
+
+		$page_id = self::page_id();
+		$uri     = $page_id > 0 ? get_page_uri( $page_id ) : '';
+		$rules   = self::rewrite_rules( is_string( $uri ) ? $uri : '', $page_id );
+
+		if ( ! self::rules_missing( get_option( 'rewrite_rules' ), $rules ) || false !== get_transient( 'av_campus_rewrite_flush' ) ) {
+			return;
+		}
+
+		set_transient( 'av_campus_rewrite_flush', 1, HOUR_IN_SECONDS );
+		flush_rewrite_rules( false );
 	}
 
 	/**

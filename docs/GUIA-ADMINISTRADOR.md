@@ -220,8 +220,14 @@ El correo es de solo lectura: solo lo cambia un administrador desde *Usuarios*.
 
 Con enlaces permanentes activos, el campus usa direcciones limpias: `/aula/` (mis cursos),
 `/aula/curso/{código-de-la-edición}/` (temario), `/aula/sesion/{id}/` (sesión) y
-`/aula/perfil/` (mis datos). Si se renombra la página del campus, guardar de nuevo
-*Ajustes → Enlaces permanentes* para regenerar las reglas.
+`/aula/perfil/` (mis datos). Desde la 0.17, si se renombra la página del campus o se
+actualiza el plugin, las reglas se regeneran solas en la siguiente visita; ya no hace falta
+guardar *Ajustes → Enlaces permanentes*.
+
+El campus toma la tipografía del tema, el **color principal** de *Configuración → General*
+(acento de barras y detalles) y la **imagen destacada** de cada curso para su tarjeta en *Mis
+cursos*. Si el tema quiere otro diseño, puede sobrescribir las plantillas en
+`aula-virtual/campus/` o los estilos de `assets/css/campus.css`.
 
 ### Preguntas y comentarios en las sesiones
 

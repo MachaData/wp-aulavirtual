@@ -866,6 +866,23 @@ check( 'las opciones del acceso estan en Configuracion', isset( $all_fields[ Log
 check( 'la hoja de estilos del acceso existe', is_readable( __DIR__ . '/../assets/css/login.css' ) && str_contains( (string) file_get_contents( __DIR__ . '/../assets/css/login.css' ), 'body.av-login' ) );
 check( 'las opciones del acceso se borran al desinstalar', str_contains( (string) file_get_contents( __DIR__ . '/../uninstall.php' ), "'av_login_logo'" ) );
 
+echo "\nCampus: enlaces y diseño\n";
+$av_rules = CampusController::rewrite_rules( 'aula-virtual', 12 );
+check( 'con las reglas guardadas no se regeneran los enlaces', ! CampusController::rules_missing( $av_rules + array( 'otra/?$' => 'index.php' ), $av_rules ) );
+check( 'si falta una regla del campus se regeneran los enlaces', CampusController::rules_missing( array_slice( $av_rules, 1, null, true ), $av_rules ) && CampusController::rules_missing( '', $av_rules ) );
+check( 'si la pagina del campus cambia de nombre las reglas viejas no sirven', CampusController::rules_missing( CampusController::rewrite_rules( 'campus', 12 ), $av_rules ) );
+check( 'sin pagina del campus no hay nada que regenerar', ! CampusController::rules_missing( array(), array() ) );
+check( 'el campus usa el color de marca y valida el valor', str_contains( CampusController::inline_css( '#B8962E' ), '--av-accent:#b8962e;' ) && str_contains( CampusController::inline_css( 'red;}x{' ), '--av-accent:#1d4ed8;' ) );
+check( 'la hoja de estilos del campus existe', is_readable( __DIR__ . '/../assets/css/campus.css' ) && str_contains( (string) file_get_contents( __DIR__ . '/../assets/css/campus.css' ), '.av-c-lesson' ) );
+check( 'hay iconos de candado, usuario y salida', '' !== LandingRenderer::icon( 'lock' ) && '' !== LandingRenderer::icon( 'user' ) && '' !== LandingRenderer::icon( 'logout' ) );
+$av_campus_tpl = array();
+foreach ( glob( __DIR__ . '/../templates/campus/*.php' ) as $av_file ) {
+	$av_campus_tpl[ basename( $av_file, '.php' ) ] = (string) file_get_contents( $av_file );
+}
+check( 'el temario marca la siguiente sesion y ofrece continuar', str_contains( $av_campus_tpl['edition'], 'is-next' ) && str_contains( $av_campus_tpl['edition'], 'Tu siguiente sesión' ) );
+check( 'la sesion tiene anterior, siguiente y marcar como completada', str_contains( $av_campus_tpl['lesson'], 'av-c-lesson-nav' ) && str_contains( $av_campus_tpl['lesson'], 'ACTION_COMPLETE' ) );
+check( 'las plantillas del campus no usan header ni footer (el tema los estiliza)', array() === array_filter( $av_campus_tpl, static fn( string $t ): bool => (bool) preg_match( '/<(header|footer)[\s>]/', $t ) && ! str_contains( $t, '<!DOCTYPE' ) ) );
+
 echo "\n{$av_checks} comprobaciones, {$av_failures} fallos\n";
 
 exit( $av_failures > 0 ? 1 : 0 );

@@ -13,9 +13,16 @@
  * @var array<int, array<string, mixed>> $comments
  * @var bool                             $can_moderate
  * @var int                              $current_user_id
+ * @var int                              $position
+ * @var int                              $total
+ * @var array{title: string, url: string}|null $prev
+ * @var array{title: string, url: string}|null $next
+ * @var string                           $course_title
  */
 
 use SIQA\AulaVirtual\Campus\CampusController;
+use SIQA\AulaVirtual\Curriculum\LessonType;
+use SIQA\AulaVirtual\Landing\LandingRenderer;
 use SIQA\AulaVirtual\LiveClasses\LiveClassService;
 use SIQA\AulaVirtual\Videos\VideoEmbed;
 
@@ -23,14 +30,39 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
+<?php
+$av_duration = LandingRenderer::duration_label( (int) ( $lesson['duration'] ?? 0 ) );
+?>
 <div class="av-campus av-campus--lesson">
-	<p><a href="<?php echo esc_url( $back_url ); ?>">&larr; <?php esc_html_e( 'Volver al temario', 'aula-virtual' ); ?></a></p>
+	<a class="av-c-back" href="<?php echo esc_url( $back_url ); ?>"><?php echo LandingRenderer::icon( 'back' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?><?php echo esc_html( '' !== (string) ( $course_title ?? '' ) ? (string) $course_title : __( 'Volver al temario', 'aula-virtual' ) ); ?></a>
 
-	<h2><?php echo esc_html( (string) $lesson['title'] ); ?></h2>
+	<div class="av-c-lesson-head">
+		<p class="av-c-eyebrow">
+			<?php if ( ! empty( $position ) && ! empty( $total ) ) : ?>
+				<?php
+				printf(
+					/* translators: 1: session number, 2: total sessions. */
+					esc_html__( 'Sesión %1$d de %2$d', 'aula-virtual' ),
+					(int) $position,
+					(int) $total
+				);
+				?>
+				&middot;
+			<?php endif; ?>
+			<?php echo esc_html( LessonType::label( (string) $lesson['lesson_type'] ) ); ?>
+			<?php if ( '' !== $av_duration ) : ?>
+				&middot; <?php echo esc_html( $av_duration ); ?>
+			<?php endif; ?>
+		</p>
+		<h1 class="av-c-title"><?php echo esc_html( (string) $lesson['title'] ); ?></h1>
+		<?php if ( $completed ) : ?>
+			<p class="av-c-badge av-c-badge--done"><?php echo LandingRenderer::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?><?php esc_html_e( 'Completada', 'aula-virtual' ); ?></p>
+		<?php endif; ?>
+	</div>
 
 	<?php if ( null !== $live ) : ?>
-		<section class="av-live av-live--<?php echo esc_attr( $live['state'] ); ?>">
-			<h3><?php esc_html_e( 'Clase en vivo', 'aula-virtual' ); ?> &middot; <?php echo esc_html( $live['provider'] ); ?></h3>
+		<section class="av-live av-c-card av-live--<?php echo esc_attr( $live['state'] ); ?>">
+			<h2 class="av-c-card__title"><?php echo LandingRenderer::icon( 'live' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?><?php esc_html_e( 'Clase en vivo', 'aula-virtual' ); ?> &middot; <?php echo esc_html( $live['provider'] ); ?></h2>
 			<p class="av-live__when">
 				<?php echo esc_html( $live['start_local'] ); ?> &ndash; <?php echo esc_html( $live['end_local'] ); ?>
 				<small>(<?php echo esc_html( $live['timezone'] ); ?>)</small>
@@ -42,7 +74,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<p class="av-live__state"><?php esc_html_e( 'Esta clase fue cancelada.', 'aula-virtual' ); ?></p>
 			<?php elseif ( LiveClassService::WINDOW_OPEN === $live['state'] && '' !== $live['url'] ) : ?>
 				<p>
-					<a class="av-live__join" href="<?php echo esc_url( $live['url'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Entrar a la clase', 'aula-virtual' ); ?></a>
+					<a class="av-live__join av-c-btn" href="<?php echo esc_url( $live['url'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Entrar a la clase', 'aula-virtual' ); ?></a>
 				</p>
 				<?php if ( '' !== $live['meeting_id'] || '' !== $live['access_code'] ) : ?>
 					<p class="av-live__credentials">
@@ -76,35 +108,63 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php endif; ?>
 
 	<?php if ( ! empty( $lesson['description'] ) ) : ?>
-		<p class="av-lesson__description"><?php echo esc_html( (string) $lesson['description'] ); ?></p>
+		<p class="av-lesson__description av-c-lead"><?php echo esc_html( (string) $lesson['description'] ); ?></p>
 	<?php endif; ?>
 
 	<?php if ( ! empty( $lesson['content'] ) ) : ?>
-		<div class="av-lesson__content"><?php echo wp_kses_post( (string) $lesson['content'] ); ?></div>
+		<div class="av-lesson__content av-c-prose"><?php echo wp_kses_post( (string) $lesson['content'] ); ?></div>
 	<?php endif; ?>
 
 	<?php if ( ! empty( $materials ) ) : ?>
-		<section class="av-materials">
-			<h3><?php esc_html_e( 'Materiales', 'aula-virtual' ); ?></h3>
-			<ul>
+		<section class="av-materials av-c-section">
+			<h2 class="av-c-section__title"><?php esc_html_e( 'Materiales', 'aula-virtual' ); ?></h2>
+			<ul class="av-c-files">
 				<?php foreach ( $materials as $av_material ) : ?>
 					<li>
-						<a href="<?php echo esc_url( $av_material['url'] ); ?>" target="_blank" rel="noopener noreferrer" <?php echo $av_material['downloadable'] && 'link' !== $av_material['type'] ? 'download' : ''; ?>>
-							<?php echo esc_html( $av_material['title'] ); ?>
+						<a class="av-c-file" href="<?php echo esc_url( $av_material['url'] ); ?>" target="_blank" rel="noopener noreferrer" <?php echo $av_material['downloadable'] && 'link' !== $av_material['type'] ? 'download' : ''; ?>>
+							<span class="av-c-file__icon"><?php echo LandingRenderer::icon( 'link' === $av_material['type'] ? 'link' : 'file' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?></span>
+							<span class="av-c-file__text">
+								<strong><?php echo esc_html( $av_material['title'] ); ?></strong>
+								<?php if ( '' !== $av_material['description'] ) : ?>
+									<small><?php echo esc_html( $av_material['description'] ); ?></small>
+								<?php endif; ?>
+							</span>
+							<span class="av-c-file__type"><?php echo esc_html( strtoupper( $av_material['type'] ) ); ?></span>
+							<span class="av-c-file__go"><?php echo LandingRenderer::icon( $av_material['downloadable'] && 'link' !== $av_material['type'] ? 'download' : 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?></span>
 						</a>
-						<small><?php echo esc_html( strtoupper( $av_material['type'] ) ); ?></small>
-						<?php if ( '' !== $av_material['description'] ) : ?>
-							<p><?php echo esc_html( $av_material['description'] ); ?></p>
-						<?php endif; ?>
 					</li>
 				<?php endforeach; ?>
 			</ul>
 		</section>
 	<?php endif; ?>
 
+	<nav class="av-c-lesson-nav" aria-label="<?php esc_attr_e( 'Navegación entre sesiones', 'aula-virtual' ); ?>">
+		<div class="av-c-lesson-nav__prev">
+			<?php if ( ! empty( $prev ) ) : ?>
+				<a href="<?php echo esc_url( $prev['url'] ); ?>"><small><?php esc_html_e( 'Anterior', 'aula-virtual' ); ?></small><span><?php echo esc_html( $prev['title'] ); ?></span></a>
+			<?php endif; ?>
+		</div>
+		<div class="av-c-lesson-nav__done">
+			<?php if ( $completed ) : ?>
+				<span class="av-c-badge av-c-badge--done"><?php echo LandingRenderer::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?><?php esc_html_e( 'Sesión completada', 'aula-virtual' ); ?></span>
+			<?php else : ?>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<input type="hidden" name="action" value="<?php echo esc_attr( CampusController::ACTION_COMPLETE ); ?>">
+					<input type="hidden" name="lesson_id" value="<?php echo esc_attr( (string) (int) $lesson['id'] ); ?>">
+					<?php wp_nonce_field( CampusController::ACTION_COMPLETE ); ?>
+					<button type="submit" class="av-c-btn"><?php echo LandingRenderer::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?><?php esc_html_e( 'Marcar como completada', 'aula-virtual' ); ?></button>
+				</form>
+			<?php endif; ?>
+		</div>
+		<div class="av-c-lesson-nav__next">
+			<?php if ( ! empty( $next ) ) : ?>
+				<a href="<?php echo esc_url( $next['url'] ); ?>"><small><?php esc_html_e( 'Siguiente', 'aula-virtual' ); ?></small><span><?php echo esc_html( $next['title'] ); ?></span></a>
+			<?php endif; ?>
+		</div>
+	</nav>
 	<?php if ( ! empty( $comments_enabled ) ) : ?>
-		<section class="av-comments" id="av-comments">
-			<h3><?php esc_html_e( 'Preguntas y comentarios', 'aula-virtual' ); ?></h3>
+		<section class="av-comments av-c-section" id="av-comments">
+			<h2 class="av-c-section__title"><?php esc_html_e( 'Preguntas y comentarios', 'aula-virtual' ); ?></h2>
 
 			<?php if ( empty( $comments ) ) : ?>
 				<p class="av-comments__empty"><?php esc_html_e( 'Todavía no hay comentarios. Escribe el primero.', 'aula-virtual' ); ?></p>
@@ -137,7 +197,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 											<input type="hidden" name="parent_id" value="<?php echo esc_attr( (string) (int) $c['id'] ); ?>">
 											<?php wp_nonce_field( CampusController::ACTION_COMMENT ); ?>
 											<textarea name="content" rows="3" required maxlength="2000"></textarea>
-											<button type="submit"><?php esc_html_e( 'Enviar respuesta', 'aula-virtual' ); ?></button>
+											<button type="submit" class="av-c-btn av-c-btn--small"><?php esc_html_e( 'Enviar respuesta', 'aula-virtual' ); ?></button>
 										</form>
 									</details>
 								<?php endif; ?>
@@ -161,19 +221,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php wp_nonce_field( CampusController::ACTION_COMMENT ); ?>
 				<label for="av-comment-content"><?php esc_html_e( 'Escribe tu pregunta o comentario', 'aula-virtual' ); ?></label>
 				<textarea name="content" id="av-comment-content" rows="4" required maxlength="2000"></textarea>
-				<button type="submit"><?php esc_html_e( 'Publicar', 'aula-virtual' ); ?></button>
+				<button type="submit" class="av-c-btn"><?php esc_html_e( 'Publicar', 'aula-virtual' ); ?></button>
 			</form>
 		</section>
 	<?php endif; ?>
 
-	<?php if ( $completed ) : ?>
-		<p class="av-lesson__done"><?php esc_html_e( 'Ya marcaste esta sesión como completada.', 'aula-virtual' ); ?></p>
-	<?php else : ?>
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-			<input type="hidden" name="action" value="<?php echo esc_attr( CampusController::ACTION_COMPLETE ); ?>">
-			<input type="hidden" name="lesson_id" value="<?php echo esc_attr( (string) (int) $lesson['id'] ); ?>">
-			<?php wp_nonce_field( CampusController::ACTION_COMPLETE ); ?>
-			<button type="submit"><?php esc_html_e( 'Marcar como completada', 'aula-virtual' ); ?></button>
-		</form>
-	<?php endif; ?>
 </div>

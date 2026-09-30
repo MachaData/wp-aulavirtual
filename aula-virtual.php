@@ -3,7 +3,7 @@
  * Plugin Name:       Aula Virtual SIQA
  * Plugin URI:        https://siqafree.pe/
  * Description:       Sistema de gestion academica para WordPress basado en el modelo Curso -> Ediciones -> Matriculas.
- * Version:           0.16.0
+ * Version:           0.17.0
  * Requires at least: 6.4
  * Requires PHP:      8.1
  * Author:            FARGIL S.A.C.
@@ -27,7 +27,7 @@ if ( defined( 'AV_VERSION' ) ) {
 	return;
 }
 
-define( 'AV_VERSION', '0.16.0' );
+define( 'AV_VERSION', '0.17.0' );
 define( 'AV_MIN_PHP', '8.1' );
 define( 'AV_MIN_WP', '6.4' );
 define( 'AV_FILE', __FILE__ );

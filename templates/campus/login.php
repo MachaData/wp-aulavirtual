@@ -12,21 +12,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="av-campus av-campus--login">
-	<h2><?php esc_html_e( 'Ingresa al campus', 'aula-virtual' ); ?></h2>
-	<?php
-	wp_login_form(
-		array(
-			'redirect'       => $redirect,
-			'label_username' => __( 'Correo o usuario', 'aula-virtual' ),
-			'label_password' => __( 'Contraseña', 'aula-virtual' ),
-			'label_log_in'   => __( 'Entrar', 'aula-virtual' ),
-			'remember'       => true,
-		)
-	);
-	?>
-	<p>
-		<a href="<?php echo esc_url( wp_lostpassword_url( $redirect ) ); ?>">
-			<?php esc_html_e( 'Olvidé mi contraseña', 'aula-virtual' ); ?>
-		</a>
-	</p>
+	<div class="av-c-auth">
+		<p class="av-c-eyebrow"><?php esc_html_e( 'Campus virtual', 'aula-virtual' ); ?></p>
+		<h1 class="av-c-title"><?php esc_html_e( 'Ingresa a tu campus', 'aula-virtual' ); ?></h1>
+		<p class="av-c-lead"><?php esc_html_e( 'Usa el correo con el que te inscribiste y tu contraseña.', 'aula-virtual' ); ?></p>
+		<?php
+		wp_login_form(
+			array(
+				'redirect'       => $redirect,
+				'form_id'        => 'av-login-form',
+				'label_username' => __( 'Correo', 'aula-virtual' ),
+				'label_password' => __( 'Contraseña', 'aula-virtual' ),
+				'label_remember' => __( 'Recordarme en este equipo', 'aula-virtual' ),
+				'label_log_in'   => __( 'Entrar', 'aula-virtual' ),
+				'remember'       => true,
+			)
+		);
+		?>
+		<p class="av-c-auth__links">
+			<a href="<?php echo esc_url( wp_lostpassword_url( $redirect ) ); ?>">
+				<?php esc_html_e( '¿Olvidaste tu contraseña o es tu primera vez?', 'aula-virtual' ); ?>
+			</a>
+		</p>
+	</div>
 </div>

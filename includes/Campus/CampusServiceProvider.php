@@ -70,6 +70,16 @@ final class CampusServiceProvider implements ServiceProvider {
 
 		add_action( 'init', array( CampusController::class, 'register_rewrite' ), 20 );
 		add_filter( 'query_vars', array( CampusController::class, 'query_vars' ) );
+		add_action( 'wp_loaded', array( CampusController::class, 'ensure_rewrite' ) );
+		add_action(
+			'save_post_page',
+			static function ( $post_id ): void {
+				if ( (int) $post_id === CampusController::page_id() ) {
+					delete_transient( 'av_campus_rewrite_flush' );
+				}
+			}
+		);
+		add_action( 'wp_enqueue_scripts', array( CampusController::class, 'enqueue_assets' ) );
 
 		foreach ( array( CampusController::ACTION_COMMENT => 'handle_comment', CampusController::ACTION_DELETE_COMMENT => 'handle_delete_comment' ) as $action => $method ) {
 			add_action(

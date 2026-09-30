@@ -23,6 +23,38 @@ Documentación de traspaso y herramientas de entrega. El código del plugin no c
 - Actualizados README (versiones 0.10–0.15), la versión del esquema en la guía técnica y las
   filas ya resueltas del flujo comercial (repetir curso, comentarios, modo enfoque).
 
+## [0.17.0] - 2026-09-30
+
+Campus del alumno rediseñado y arreglo de las direcciones del campus.
+
+### Corregido
+
+- Entrar a un curso desde el campus daba **«Página no encontrada»** cuando la página del
+  campus tenía otro nombre (por ejemplo `/aula-virtual/`) o tras actualizar el plugin, porque
+  las reglas de `/{campus}/curso/{código}/`, `/sesion/{id}/` y `/perfil/` no estaban
+  registradas en WordPress. Ahora el plugin las detecta y regenera los enlaces permanentes solo
+  (como mucho una vez por hora, y otra vez si se edita la página del campus). Ya no hace falta
+  ir a *Ajustes → Enlaces permanentes → Guardar*.
+- El modo enfoque también funciona con las direcciones limpias (`/sesion/{id}/`).
+
+### Cambiado
+
+- Campus con la línea gráfica de astronumerologia.com: tipografía del tema, fondo crema,
+  botones negros y el color principal (dorado) como acento. Nueva hoja `assets/css/campus.css`,
+  que antes no existía (el campus salía sin estilos).
+- **Mis cursos:** saludo, menú (Mis cursos, Mis datos, Salir), tarjetas con la imagen
+  destacada del curso, estado de la edición, barra de progreso y botón *Empezar* / *Continuar*
+  / *Repasar*.
+- **Temario de la edición:** cabecera con progreso («1 de 5 sesiones») y la tarjeta *Tu
+  siguiente sesión* con el botón para continuar; sesiones numeradas con tipo, duración y estado
+  (completada, disponible o «Se abre el …»).
+- **Sesión:** «Sesión 2 de 5 · Video · 48 min», materiales como tarjetas de descarga y una
+  barra con *Anterior*, *Marcar como completada* y *Siguiente* antes de los comentarios.
+- **Mis datos**, el acceso al campus, «Sin acceso» y las sesiones aún cerradas con el mismo
+  diseño. El modo enfoque pasa a fondo claro.
+- La pantalla de WordPress para crear la contraseña usa fondo crema y botón negro, como el
+  sitio.
+
 ## [0.16.0] - 2026-09-30
 
 Pantallas de acceso de WordPress con la marca.
