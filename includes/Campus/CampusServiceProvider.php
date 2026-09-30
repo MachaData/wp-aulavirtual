@@ -66,6 +66,8 @@ final class CampusServiceProvider implements ServiceProvider {
 	 * @return void
 	 */
 	public function boot( Container $container ): void {
+		LoginBranding::register();
+
 		add_action( 'init', array( CampusController::class, 'register_rewrite' ), 20 );
 		add_filter( 'query_vars', array( CampusController::class, 'query_vars' ) );
 

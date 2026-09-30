@@ -115,6 +115,8 @@ final class Installer {
 			'av_certificate_signature_name'  => '',
 			'av_certificate_signature_title' => '',
 			'av_certificate_logo'        => 0,
+			'av_login_branding'          => true,
+			'av_login_logo'              => 0,
 			'av_wc_enroll_status'        => 'processing',
 			'av_wc_refund_action'        => 'suspend',
 		);

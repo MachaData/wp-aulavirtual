@@ -305,6 +305,9 @@ y elige *Reenviar enlace de acceso*, *Activar*, *Suspender*, *Marcar como comple
   Matrículas*, máximo una semana) y avisa de que, si venció, use «Olvidé mi contraseña».
 - **Ya tenía cuenta**: el correo le dice que entre con su contraseña de siempre y le ofrece
   crear una nueva si no la recuerda. Así no se anulan contraseñas que funcionan.
+- Al pulsar el botón llega a la pantalla **Crea tu contraseña** con el logo y el color de la
+  marca. Al guardarla ve *¡Listo! Contraseña guardada* y el botón *Entrar al campus*. El logo
+  se elige en *Configuración → General* (ver sección 11).
 - En la ficha se ve *Sin contraseña aún* hasta que la crea o entra por primera vez, y la fecha
   de su último ingreso.
 
@@ -404,7 +407,7 @@ Hacerlo primero en un sitio de pruebas y comparar los conteos con los de Tutor.
 
 | Pestaña | Qué se define |
 |---|---|
-| General | Color principal, correo de avisos al administrador, remitente de los correos, slug de las landings (`/curso/…`). Enlace a la página del campus para cambiar su slug |
+| General | Color principal, **pantalla de acceso con la marca** y su logo (ID de una imagen de *Medios*; sin él se usa el logo del tema o el ícono del sitio), correo de avisos al administrador, remitente de los correos, slug de las landings (`/curso/…`). Enlace a la página del campus para cambiar su slug |
 | Matrículas | Aprobación automática de solicitudes, bloqueo de wp-admin a alumnos, **modo enfoque** (sesiones a pantalla limpia, sin cabecera ni pie del tema) |
 | Videos | Bunny Stream: ID de biblioteca, clave de token de la biblioteca, clave de token del CDN, validez del token |
 | WooCommerce | Cuándo matricula un pedido (procesando o completado) y qué hacer ante reembolso (nada, suspender, cancelar) |

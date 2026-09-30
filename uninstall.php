@@ -51,6 +51,8 @@ $av_options = array(
 	'av_auto_certificate',
 	'av_block_wp_admin',
 	'av_brand_color',
+	'av_login_branding',
+	'av_login_logo',
 	'av_bunny_cdn_token_key',
 	'av_bunny_library_id',
 	'av_bunny_token_key',

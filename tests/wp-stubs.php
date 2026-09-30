@@ -348,3 +348,15 @@ class WP_Error {
 function is_wp_error( $thing ) {
 	return $thing instanceof WP_Error;
 }
+
+function get_theme_mod( $name, $default = false ) {
+	return $GLOBALS['av_test_theme_mods'][ $name ] ?? $default;
+}
+
+function wp_get_attachment_image_url( $id, $size = 'thumbnail', $icon = false ) {
+	return (int) $id > 0 ? 'https://example.test/uploads/logo-' . (int) $id . '.png' : false;
+}
+
+function get_site_icon_url( $size = 512, $url = '', $blog_id = 0 ) {
+	return (string) ( $GLOBALS['av_test_options']['site_icon_url'] ?? $url );
+}

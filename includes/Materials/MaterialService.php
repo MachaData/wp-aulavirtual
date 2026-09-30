@@ -258,7 +258,7 @@ final class MaterialService {
 	public static function is_site_image( int $attachment_id ): bool {
 		global $wpdb;
 
-		if ( (int) get_option( 'av_certificate_logo', 0 ) === $attachment_id || (int) get_option( 'site_icon', 0 ) === $attachment_id || (int) get_theme_mod( 'custom_logo', 0 ) === $attachment_id ) {
+		if ( (int) get_option( 'av_certificate_logo', 0 ) === $attachment_id || (int) get_option( 'av_login_logo', 0 ) === $attachment_id || (int) get_option( 'site_icon', 0 ) === $attachment_id || (int) get_theme_mod( 'custom_logo', 0 ) === $attachment_id ) {
 			return true;
 		}
 

@@ -42,7 +42,7 @@ final porque consumen servicios de todos los demás.
 | `Migration` | TutorReader, TutorMapping, TutorMigrator | Editions, Curriculum, Enrollments, Progress |
 | `Landing` | LandingData, renderer, plantilla, meta box | Editions, Curriculum, Enrollments |
 | `Imports` | ImportParser (CSV/XLSX, detección de separador y cabeceras), ImportService (validar sin escribir, trabajos por lotes de 200, alta de usuarios sin enviar contraseña), ImportJobRepository | Enrollments |
-| `Campus` | CampusController (dashboard, temario, sesión, perfil) | casi todo |
+| `Campus` | CampusController (dashboard, temario, sesión, perfil), LoginBranding (marca en `wp-login.php`) | casi todo |
 | `Admin` | AdminMenu y pantallas (ediciones, sesión, solicitudes, importar alumnos, emails, anuncios, migración, configuración) | casi todo |
 | `REST` | AbstractController, Courses/Editions/Registrations/Enrollments controllers; ver `docs/API-REST.md` | Courses, Editions, Enrollments |
 

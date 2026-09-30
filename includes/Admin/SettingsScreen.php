@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace SIQA\AulaVirtual\Admin;
 
+use SIQA\AulaVirtual\Campus\LoginBranding;
 use SIQA\AulaVirtual\Certificates\CertificateService;
 use SIQA\AulaVirtual\Comments\CommentService;
 use SIQA\AulaVirtual\Core\AuditLog;
@@ -99,6 +100,19 @@ final class SettingsScreen {
 						'type'    => 'email',
 						'default' => '',
 						'help'    => __( 'Debe ser un correo del dominio configurado en tu SMTP.', 'aula-virtual' ),
+					),
+					LoginBranding::OPTION_ENABLED  => array(
+						'label'   => __( 'Pantalla de acceso con la marca', 'aula-virtual' ),
+						'type'    => 'bool',
+						'default' => true,
+						'help'    => __( 'Aplica el logo y el color principal a las pantallas de WordPress para entrar, recuperar y crear la contraseña (el enlace del correo de bienvenida).', 'aula-virtual' ),
+					),
+					LoginBranding::OPTION_LOGO     => array(
+						'label'   => __( 'Logo de la pantalla de acceso (ID de adjunto)', 'aula-virtual' ),
+						'type'    => 'int',
+						'default' => 0,
+						'min'     => 0,
+						'help'    => __( 'ID de una imagen de la biblioteca de medios (mejor horizontal, PNG o SVG con fondo transparente). Vacío o 0: el logo del tema, luego el ícono del sitio y, si no hay, el nombre del sitio.', 'aula-virtual' ),
 					),
 					CoursePostType::SLUG_OPTION    => array(
 						'label'   => __( 'Slug de las landings de curso', 'aula-virtual' ),

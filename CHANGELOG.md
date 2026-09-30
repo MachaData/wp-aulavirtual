@@ -23,6 +23,31 @@ Documentación de traspaso y herramientas de entrega. El código del plugin no c
 - Actualizados README (versiones 0.10–0.15), la versión del esquema en la guía técnica y las
   filas ya resueltas del flujo comercial (repetir curso, comentarios, modo enfoque).
 
+## [0.16.0] - 2026-09-30
+
+Pantallas de acceso de WordPress con la marca.
+
+### Añadido
+
+- La página a la que lleva el botón *Crear mi contraseña* del correo de bienvenida
+  (`wp-login.php?action=rp`) ahora muestra el logo y el color de la marca en una tarjeta
+  centrada, con el encabezado «Crea tu contraseña» (o «Elige tu nueva contraseña» si la
+  persona ya tenía una), el saludo con su nombre, una sugerencia más corta y los botones a
+  todo el ancho.
+- Al guardar la contraseña aparece «¡Listo! Contraseña guardada» con el botón *Entrar al
+  campus*.
+- Las pantallas de entrar y de «¿Olvidaste tu contraseña?» usan el mismo diseño. Se oculta el
+  selector de idioma y el logo enlaza al sitio en lugar de a wordpress.org.
+- *Configuración → General*: **Pantalla de acceso con la marca** (activa por defecto) y **Logo
+  de la pantalla de acceso** (ID de adjunto). Sin logo propio se usa el logo del tema, luego
+  el ícono del sitio y, si no hay ninguno, el nombre del sitio.
+
+### Notas
+
+- Solo cambia la presentación: WordPress sigue validando el enlace, la contraseña y los nonces.
+- Si otro plugin (por ejemplo, el login de Tutor LMS) intercepta `wp-login.php`, esa pantalla
+  no se verá con este diseño.
+
 ## [0.15.0] - 2026-09-29
 
 Rediseño completo de la landing del curso.

@@ -154,6 +154,12 @@ Los alias `nombre+algo@` cuentan como el mismo correo. Detrás de Cloudflare, us
 - El cambio de contraseña desde el campus exige la actual, mínimo 8 caracteres y confirmación,
   y **cierra todas las demás sesiones**.
 - El correo del alumno es de solo lectura en el campus.
+- Pantallas de `wp-login.php` con la marca (0.16, `Campus\LoginBranding`): solo presentación.
+  WordPress sigue validando la clave del enlace, la contraseña y los nonces. El saludo con el
+  nombre lee el usuario de la cookie `wp-resetpass-*` que WordPress fija **después** de validar
+  la clave (una clave inválida redirige a «lostpassword» antes de pintar la página) y se escapa
+  al imprimir. La URL del logo solo entra al CSS si es `http(s)` y no contiene comillas,
+  paréntesis, barras invertidas ni espacios; el color se valida como `#rrggbb`.
 
 ### 3.10b Gestión de alumnos por el equipo
 

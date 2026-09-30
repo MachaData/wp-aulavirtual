@@ -34,6 +34,7 @@ use SIQA\AulaVirtual\Admin\AdminServiceProvider;
 use SIQA\AulaVirtual\Admin\EditionsScreen;
 use SIQA\AulaVirtual\Campus\CampusController;
 use SIQA\AulaVirtual\Campus\CampusServiceProvider;
+use SIQA\AulaVirtual\Campus\LoginBranding;
 use SIQA\AulaVirtual\Core\Container;
 use SIQA\AulaVirtual\Core\Plugin;
 use SIQA\AulaVirtual\Courses\CoursesServiceProvider;
@@ -846,6 +847,24 @@ foreach ( glob( __DIR__ . '/../templates/landing/sections/*.php' ) as $av_file )
 }
 check( 'cada seccion del menu tiene su ancla', array() === array_filter( array( 'benefits', 'content', 'instructor', 'info', 'price', 'faq', 'cta', 'hero' ), static fn( string $k ): bool => ! str_contains( $av_tpl[ $k ] ?? '', 'id="av-' . $k . '"' ) ) );
 check( 'el temario trata las sesiones como datos (titulo, tipo, duracion)', str_contains( $av_tpl['content'], "\$av_lesson['title']" ) && str_contains( $av_tpl['content'], "\$av_lesson['duration']" ) );
+
+echo "\nPantalla de acceso\n";
+check( 'la marca en el acceso viene activa por defecto', LoginBranding::enabled() );
+check( 'el acceso usa el color y el texto legible del boton', str_contains( LoginBranding::inline_css( '#C9A45C', '' ), '--av-accent:#c9a45c;--av-on-accent:#111111;' ) && ! str_contains( LoginBranding::inline_css( '#C9A45C', '' ), 'background-image' ) );
+check( 'un color invalido en el acceso vuelve al azul', str_contains( LoginBranding::inline_css( 'red;}body{x', '' ), '--av-accent:#1d4ed8;' ) );
+check( 'el logo entra en el CSS del acceso', str_contains( LoginBranding::inline_css( '#c9a45c', 'https://example.test/logo.png' ), 'url("https://example.test/logo.png")' ) );
+check( 'una URL de logo que rompe el CSS se descarta', '' === LoginBranding::css_url( 'https://example.test/a").x{' ) && '' === LoginBranding::css_url( 'javascript:alert(1)' ) && '' === LoginBranding::css_url( '' ) );
+check( 'sin logo propio usa el del tema y luego el icono del sitio', 'https://example.test/uploads/logo-7.png' === ( static function (): string { $GLOBALS['av_test_theme_mods']['custom_logo'] = 7; $u = LoginBranding::logo_url(); unset( $GLOBALS['av_test_theme_mods']['custom_logo'] ); return $u; } )() && '' === LoginBranding::logo_url() );
+$GLOBALS['av_test_options'][ LoginBranding::OPTION_LOGO ] = 12;
+check( 'el logo configurado gana al del tema', 'https://example.test/uploads/logo-12.png' === LoginBranding::logo_url() );
+unset( $GLOBALS['av_test_options'][ LoginBranding::OPTION_LOGO ] );
+$av_intro = LoginBranding::intro_html( 'create', '<b>Ana</b>' );
+check( 'la cuenta nueva ve "Crea tu contrasena" y su nombre escapado', str_contains( $av_intro, 'Crea tu contraseña' ) && str_contains( $av_intro, '&lt;b&gt;Ana' ) && ! str_contains( $av_intro, '<b>' ) );
+check( 'al guardar se ofrece entrar al campus', str_contains( LoginBranding::intro_html( 'done', '', 'https://example.test/wp-login.php' ), 'Entrar al campus' ) && ! str_contains( LoginBranding::intro_html( 'change' ), 'Entrar al campus' ) );
+check( 'la sugerencia de contrasena pide 12 caracteres', str_contains( LoginBranding::password_hint(), '12 caracteres' ) );
+check( 'las opciones del acceso estan en Configuracion', isset( $all_fields[ LoginBranding::OPTION_ENABLED ], $all_fields[ LoginBranding::OPTION_LOGO ] ) && 'bool' === $all_fields[ LoginBranding::OPTION_ENABLED ]['type'] );
+check( 'la hoja de estilos del acceso existe', is_readable( __DIR__ . '/../assets/css/login.css' ) && str_contains( (string) file_get_contents( __DIR__ . '/../assets/css/login.css' ), 'body.av-login' ) );
+check( 'las opciones del acceso se borran al desinstalar', str_contains( (string) file_get_contents( __DIR__ . '/../uninstall.php' ), "'av_login_logo'" ) );
 
 echo "\n{$av_checks} comprobaciones, {$av_failures} fallos\n";
 
