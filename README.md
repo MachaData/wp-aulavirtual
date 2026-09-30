@@ -29,13 +29,14 @@ Tutor LMS Pro, cuyos alumnos se migran con la herramienta incluida).
 | 0.15 | Rediseño completo de la landing del curso |
 | 0.16 | Pantallas de acceso y de «Crea tu contraseña» con el logo y el color de la marca |
 | 0.17 | Campus rediseñado con la línea gráfica del sitio; las direcciones limpias del campus ya no dan 404 |
+| 0.18 | Vista de sesión tipo reproductor: panel «Contenido del curso» con secciones y recursos, pestañas bajo el video |
 
 El flujo completo funciona de punta a punta:
 `Landing → Inscripción o Compra → Aprobación → Pago → Matrícula → Bienvenida → Campus →
 Clase en vivo / Materiales → Progreso`.
 
 El plugin está instalado en `astronumerologia.com` (0.13.0 confirmado en vivo el 2026-09-29).
-Las 313 comprobaciones automáticas cubren la lógica pura y el cableado de los módulos; el SQL,
+Las 323 comprobaciones automáticas cubren la lógica pura y el cableado de los módulos; el SQL,
 los hooks de WooCommerce y las pantallas se validan siguiendo `docs/PRUEBAS-STAGING.md`, que
 todavía no se ha recorrido completo en el sitio real.
 
@@ -76,7 +77,7 @@ WordPress 6.4+, PHP 8.1+, MySQL 5.7+ o MariaDB 10.3+. WooCommerce es opcional.
 ## Verificación rápida
 
 ```bash
-php tests/smoke-test.php      # 313 comprobaciones de logica y cableado
+php tests/smoke-test.php      # 323 comprobaciones de logica y cableado
 php tests/lint-classes.php    # carga las 117 clases del plugin
 bin/build-zip.sh             # zip instalable en dist/
 php bin/preview-landing.php > dist/landing.html   # vista previa de la landing sin WordPress

@@ -229,6 +229,18 @@ El campus toma la tipografía del tema, el **color principal** de *Configuració
 cursos*. Si el tema quiere otro diseño, puede sobrescribir las plantillas en
 `aula-virtual/campus/` o los estilos de `assets/css/campus.css`.
 
+### Vista de la sesión
+
+Al abrir una sesión, el alumno ve el video (o la clase en vivo) y a la derecha el panel
+**Contenido del curso**: las secciones del temario (los *módulos* de la edición), cada sesión
+con su estado y duración, y el botón **Recursos** cuando la sesión tiene materiales. Debajo
+del video están las pestañas *Descripción*, *Materiales* y *Preguntas*, y los botones *Marcar
+como completada*, *Anterior* y *Siguiente*. En celular el panel se abre con el botón *Contenido
+del curso*.
+
+Para que el panel se vea ordenado, agrupa las sesiones en módulos y pon la **duración** de
+cada sesión. Los materiales que subas en una sesión aparecen en su botón *Recursos*.
+
 ### Preguntas y comentarios en las sesiones
 
 Debajo de cada sesión hay un hilo de comentarios (activable en *Configuración → Matrículas →

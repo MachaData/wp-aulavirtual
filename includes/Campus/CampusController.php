@@ -19,6 +19,7 @@ use SIQA\AulaVirtual\Curriculum\ReleaseSchedule;
 use SIQA\AulaVirtual\Materials\DownloadController;
 use SIQA\AulaVirtual\Permissions\Capabilities;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
+use SIQA\AulaVirtual\Curriculum\ModuleRepository;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentService;
@@ -137,6 +138,13 @@ final class CampusController {
 	private CertificateService $certificate_service;
 
 	/**
+	 * Module rows (sections of the curriculum).
+	 *
+	 * @var ModuleRepository|null
+	 */
+	private ?ModuleRepository $modules;
+
+	/**
 	 * Edition codes already loaded in this request, for pretty URLs.
 	 *
 	 * @var array<int, string>
@@ -158,6 +166,7 @@ final class CampusController {
 	 * @param CommentService       $comments           Lesson comments.
 	 * @param CertificateRepository $certificates      Certificate persistence.
 	 * @param CertificateService   $certificate_service Certificate rules.
+	 * @param ModuleRepository|null $modules            Curriculum sections.
 	 */
 	public function __construct(
 		EnrollmentRepository $enrollments,
@@ -171,7 +180,8 @@ final class CampusController {
 		AnnouncementRepository $announcements,
 		CommentService $comments,
 		CertificateRepository $certificates,
-		CertificateService $certificate_service
+		CertificateService $certificate_service,
+		?ModuleRepository $modules = null
 	) {
 		$this->enrollments        = $enrollments;
 		$this->enrollment_service = $enrollment_service;
@@ -185,6 +195,7 @@ final class CampusController {
 		$this->comments           = $comments;
 		$this->certificates       = $certificates;
 		$this->certificate_service = $certificate_service;
+		$this->modules             = $modules;
 	}
 
 	/**
@@ -282,18 +293,46 @@ final class CampusController {
 		}
 
 		$edition    = $this->editions->find( $edition_id );
-		$lessons    = $this->lessons->for_edition( $edition_id );
-		$completed  = $this->progress->completed_lesson_ids( $user_id, $edition_id );
 		$enrollment = $this->enrollments->find_for_student( $user_id, $edition_id );
-		$now        = current_time( 'mysql', true );
-		$timezone   = (string) ( $edition['timezone'] ?? '' );
-		$timezone   = '' === $timezone ? wp_timezone_string() : $timezone;
+		$completed  = $this->progress->completed_lesson_ids( $user_id, $edition_id );
 
 		$this->remember_code( $edition );
 
-		$items = array();
+		$items = $this->edition_items( $user_id, $edition_id, $edition, $enrollment );
 
-		foreach ( $lessons as $lesson ) {
+		return $this->template(
+			'edition',
+			array(
+				'edition'    => $edition,
+				'course'     => get_post( (int) $edition['course_id'] ),
+				'items'      => $items,
+				'sections'   => self::build_outline( $this->edition_modules( $edition_id ), $items ),
+				'percentage' => null === $enrollment ? 0.0 : (float) $enrollment['progress_percentage'],
+				'announcements' => $this->announcements->for_student( (int) $edition['course_id'], $edition_id, 10 ),
+				'back_url'   => $this->campus_url(),
+				'can_retake' => (bool) get_option( 'av_allow_retake', true ) && ! empty( $completed ),
+				'certificate_url' => $this->certificate_urls( $user_id )[ $edition_id ] ?? '',
+			)
+		);
+	}
+
+	/**
+	 * Published sessions of an edition with the student's state.
+	 *
+	 * @param int                       $user_id    Student id.
+	 * @param int                       $edition_id Edition id.
+	 * @param array<string, mixed>|null $edition    Edition row.
+	 * @param array<string, mixed>|null $enrollment Enrollment row.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function edition_items( int $user_id, int $edition_id, ?array $edition, ?array $enrollment ): array {
+		$completed = $this->progress->completed_lesson_ids( $user_id, $edition_id );
+		$now       = current_time( 'mysql', true );
+		$timezone  = (string) ( $edition['timezone'] ?? '' );
+		$timezone  = '' === $timezone ? wp_timezone_string() : $timezone;
+		$items     = array();
+
+		foreach ( $this->lessons->for_edition( $edition_id ) as $lesson ) {
 			$available_at = ReleaseSchedule::available_at( $lesson, $enrollment );
 			$available    = null === $available_at || strcmp( $available_at, $now ) <= 0;
 
@@ -306,19 +345,92 @@ final class CampusController {
 			);
 		}
 
-		return $this->template(
-			'edition',
-			array(
-				'edition'    => $edition,
-				'course'     => get_post( (int) $edition['course_id'] ),
-				'items'      => $items,
-				'percentage' => null === $enrollment ? 0.0 : (float) $enrollment['progress_percentage'],
-				'announcements' => $this->announcements->for_student( (int) $edition['course_id'], $edition_id, 10 ),
-				'back_url'   => $this->campus_url(),
-				'can_retake' => (bool) get_option( 'av_allow_retake', true ) && ! empty( $completed ),
-				'certificate_url' => $this->certificate_urls( $user_id )[ $edition_id ] ?? '',
-			)
+		return $items;
+	}
+
+	/**
+	 * Modules of an edition, or none when the repository is not wired.
+	 *
+	 * @param int $edition_id Edition id.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function edition_modules( int $edition_id ): array {
+		return null === $this->modules ? array() : $this->modules->for_edition( $edition_id );
+	}
+
+	/**
+	 * What the campus shows of a material, or null when it has no file.
+	 *
+	 * @param array<string, mixed> $material Material row.
+	 * @return array{title: string, description: string, url: string, type: string, downloadable: bool}|null
+	 */
+	private static function material_view( array $material ): ?array {
+		if ( '' === MaterialService::url( $material ) ) {
+			return null;
+		}
+
+		return array(
+			'title'        => (string) $material['title'],
+			'description'  => (string) $material['description'],
+			// Siempre por el endpoint protegido; la URL directa solo la ve el servidor.
+			'url'          => DownloadController::url( (int) $material['id'] ),
+			'type'         => (string) $material['file_type'],
+			'downloadable' => (bool) $material['downloadable'],
 		);
+	}
+
+	/**
+	 * Groups the sessions by module for the course outline.
+	 *
+	 * Sessions without a module (or whose module is gone) go first in a
+	 * section without title. Numbers run across the whole course, as the
+	 * student sees them in the lesson header ("Sesión 3 de 12").
+	 *
+	 * @param array<int, array<string, mixed>>             $modules   Module rows in order.
+	 * @param array<int, array<string, mixed>>             $items     Session items in order.
+	 * @param array<int, array<int, array<string, mixed>>> $materials Materials by lesson id.
+	 * @return array<int, array{title: string, items: array<int, array<string, mixed>>, done: int, total: int, minutes: int}>
+	 */
+	public static function build_outline( array $modules, array $items, array $materials = array() ): array {
+		$sections = array(
+			0 => array(
+				'title' => '',
+				'items' => array(),
+			),
+		);
+
+		foreach ( $modules as $module ) {
+			$sections[ (int) $module['id'] ] = array(
+				'title' => (string) $module['title'],
+				'items' => array(),
+			);
+		}
+
+		foreach ( array_values( $items ) as $index => $item ) {
+			$lesson_id = (int) $item['lesson']['id'];
+			$module_id = (int) ( $item['lesson']['module_id'] ?? 0 );
+			$key       = isset( $sections[ $module_id ] ) ? $module_id : 0;
+
+			$item['number']    = $index + 1;
+			$item['materials'] = $materials[ $lesson_id ] ?? array();
+
+			$sections[ $key ]['items'][] = $item;
+		}
+
+		$outline = array();
+
+		foreach ( $sections as $section ) {
+			if ( array() === $section['items'] ) {
+				continue;
+			}
+
+			$section['total']   = count( $section['items'] );
+			$section['done']    = count( array_filter( $section['items'], static fn( array $i ): bool => ! empty( $i['completed'] ) ) );
+			$section['minutes'] = (int) array_sum( array_map( static fn( array $i ): int => (int) ( $i['lesson']['duration'] ?? 0 ), $section['items'] ) );
+			$outline[]          = $section;
+		}
+
+		return $outline;
 	}
 
 	/**
@@ -389,48 +501,55 @@ final class CampusController {
 			);
 		}
 
-		$materials = array();
+		$edition_id = (int) $lesson['edition_id'];
+		$items      = $this->edition_items( $user_id, $edition_id, $edition, $enrollment );
+		$by_lesson  = array();
 
-		foreach ( $this->materials->for_lesson( $lesson_id ) as $material ) {
-			$url = MaterialService::url( $material );
+		foreach ( $this->materials->all_for_edition( $edition_id ) as $material ) {
+			$view = self::material_view( $material );
 
-			if ( '' === $url ) {
-				continue;
+			if ( null !== $view && (int) $material['lesson_id'] > 0 ) {
+				$by_lesson[ (int) $material['lesson_id'] ][] = $view;
 			}
-
-			$materials[] = array(
-				'title'        => (string) $material['title'],
-				'description'  => (string) $material['description'],
-				// Siempre por el endpoint protegido; la URL directa solo la ve el servidor.
-				'url'          => DownloadController::url( (int) $material['id'] ),
-				'type'         => (string) $material['file_type'],
-				'downloadable' => (bool) $material['downloadable'],
-			);
 		}
 
-		$position = 0;
-		$prev     = null;
-		$next     = null;
-		$siblings = array_values( $this->lessons->for_edition( (int) $lesson['edition_id'] ) );
+		// Los materiales de una sesión cerrada no se anuncian en el panel.
+		foreach ( $items as $item ) {
+			if ( empty( $item['available'] ) ) {
+				unset( $by_lesson[ (int) $item['lesson']['id'] ] );
+			}
+		}
 
-		foreach ( $siblings as $index => $sibling ) {
-			if ( (int) $sibling['id'] === $lesson_id ) {
+		$materials = $by_lesson[ $lesson_id ] ?? array();
+		$position  = 0;
+		$prev      = null;
+		$next      = null;
+
+		foreach ( $items as $index => $item ) {
+			if ( (int) $item['lesson']['id'] === $lesson_id ) {
 				$position = $index + 1;
-				$prev     = $siblings[ $index - 1 ] ?? null;
-				$next     = $siblings[ $index + 1 ] ?? null;
+				$prev     = $items[ $index - 1 ] ?? null;
+				$next     = $items[ $index + 1 ] ?? null;
 			}
 		}
 
-		$total  = count( $siblings );
-		$course = null === $edition ? null : get_post( (int) $edition['course_id'] );
+		$course     = null === $edition ? null : get_post( (int) $edition['course_id'] );
+		$link       = fn( ?array $item ): ?array => null === $item ? null : array(
+			'title'     => (string) $item['lesson']['title'],
+			'url'       => $this->campus_url( array( self::QUERY_LESSON => (int) $item['lesson']['id'] ) ),
+			'available' => ! empty( $item['available'] ),
+		);
 
 		return $this->template(
 			'lesson',
 			array(
 				'position'     => $position,
-				'total'        => $total,
-				'prev'         => null === $prev ? null : array( 'title' => (string) $prev['title'], 'url' => $this->campus_url( array( self::QUERY_LESSON => (int) $prev['id'] ) ) ),
-				'next'         => null === $next ? null : array( 'title' => (string) $next['title'], 'url' => $this->campus_url( array( self::QUERY_LESSON => (int) $next['id'] ) ) ),
+				'total'        => count( $items ),
+				'prev'         => $link( $prev ),
+				'next'         => $link( $next ),
+				'sections'     => self::build_outline( $this->edition_modules( $edition_id ), $items, $by_lesson ),
+				'done_count'   => count( array_filter( $items, static fn( array $i ): bool => ! empty( $i['completed'] ) ) ),
+				'percentage'   => null === $enrollment ? 0.0 : (float) $enrollment['progress_percentage'],
 				'course_title' => $course instanceof \WP_Post ? get_the_title( $course ) : (string) ( $edition['name'] ?? '' ),
 				'lesson'    => $lesson,
 				'live'      => $live_view,
@@ -836,6 +955,10 @@ final class CampusController {
 		if ( ! wp_style_is( 'av-campus', 'enqueued' ) ) {
 			wp_enqueue_style( 'av-campus', AV_URL . 'assets/css/campus.css', array(), AV_VERSION );
 			wp_add_inline_style( 'av-campus', self::inline_css( LandingRenderer::accent() ) );
+		}
+
+		if ( ! wp_script_is( 'av-campus', 'enqueued' ) ) {
+			wp_enqueue_script( 'av-campus', AV_URL . 'assets/js/campus.js', array(), AV_VERSION, true );
 		}
 	}
 

@@ -89,4 +89,21 @@ final class MaterialRepository extends Repository {
 			)
 		);
 	}
+
+	/**
+	 * Every material of an edition (general and tied to a lesson), in order.
+	 *
+	 * @param int $edition_id Edition id.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function all_for_edition( int $edition_id ): array {
+		return $this->all(
+			array(
+				'where'    => array( 'edition_id' => $edition_id ),
+				'order_by' => 'position',
+				'order'    => 'ASC',
+				'limit'    => 500,
+			)
+		);
+	}
 }

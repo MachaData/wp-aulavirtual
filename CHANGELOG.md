@@ -23,6 +23,37 @@ Documentación de traspaso y herramientas de entrega. El código del plugin no c
 - Actualizados README (versiones 0.10–0.15), la versión del esquema en la guía técnica y las
   filas ya resueltas del flujo comercial (repetir curso, comentarios, modo enfoque).
 
+## [0.18.0] - 2026-09-30
+
+Vista de sesión tipo reproductor, con el contenido del curso a la derecha.
+
+### Añadido
+
+- **Panel «Contenido del curso»** a la derecha del video: progreso («1 de 5 sesiones
+  completadas»), las secciones (módulos) plegables con «completadas / total | duración», y
+  cada sesión con su casilla de estado (completada, pendiente o cerrada con candado), número,
+  título y duración. La sesión actual queda resaltada y su sección abierta.
+- **Recursos por sesión:** si una sesión tiene materiales, aparece el botón *Recursos (n)* en
+  el panel para descargarlos sin entrar a la sesión. Los recursos de sesiones aún cerradas no
+  se muestran.
+- El panel se cierra con la ✕ para ver el video más grande y se vuelve a abrir con el botón
+  *Contenido del curso* (el navegador recuerda la elección). En celular y tablet el panel sale
+  como cajón desde la derecha.
+- **Pestañas bajo el video:** *Descripción*, *Materiales (n)* y *Preguntas (n)*. Un enlace a un
+  comentario abre directamente la pestaña de preguntas.
+- El temario de la edición también se muestra agrupado por secciones.
+- Nuevo `assets/js/campus.js` (sin dependencias). Sin JavaScript todo sigue visible.
+
+### Cambiado
+
+- *Marcar como completada* pasa junto al título de la sesión, y *Anterior* / *Siguiente*
+  quedan justo debajo; si la siguiente aún no se abre, lo indica.
+
+### Seguridad
+
+- Anotado en `docs/SEGURIDAD.md` §6.5 un pendiente previo: la descarga protegida no comprueba
+  si la sesión del material ya se abrió.
+
 ## [0.17.0] - 2026-09-30
 
 Campus del alumno rediseñado y arreglo de las direcciones del campus.

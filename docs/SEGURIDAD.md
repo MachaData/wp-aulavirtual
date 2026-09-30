@@ -261,6 +261,12 @@ Son de severidad baja y no bloquean el uso en pruebas.
    fecha de vencimiento o número de usos al crear enlaces que se publiquen abiertamente.
 4. **Certificado en PDF firmado.** Hoy es una página imprimible; no hay PDF generado en
    servidor.
+5. **Materiales de sesiones aún cerradas (content drip).** La descarga protegida
+   (`admin-post.php?action=av_download`) comprueba la matrícula en la edición, pero no si la
+   sesión del material ya se abrió. Desde 0.18 el panel «Contenido del curso» no muestra los
+   recursos de sesiones cerradas, pero un alumno matriculado que adivine el id podría
+   descargarlos antes de tiempo. Solución prevista: comprobar `ReleaseSchedule` en
+   `DownloadController` cuando el material tiene `lesson_id`.
 
 ---
 

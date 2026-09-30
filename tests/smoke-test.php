@@ -883,6 +883,24 @@ check( 'el temario marca la siguiente sesion y ofrece continuar', str_contains( 
 check( 'la sesion tiene anterior, siguiente y marcar como completada', str_contains( $av_campus_tpl['lesson'], 'av-c-lesson-nav' ) && str_contains( $av_campus_tpl['lesson'], 'ACTION_COMPLETE' ) );
 check( 'las plantillas del campus no usan header ni footer (el tema los estiliza)', array() === array_filter( $av_campus_tpl, static fn( string $t ): bool => (bool) preg_match( '/<(header|footer)[\s>]/', $t ) && ! str_contains( $t, '<!DOCTYPE' ) ) );
 
+echo "\nCampus: contenido del curso\n";
+$av_item = static fn( int $id, int $module, bool $done = false, bool $open = true, int $minutes = 10 ): array => array( 'lesson' => array( 'id' => $id, 'module_id' => $module, 'duration' => $minutes, 'title' => 'S' . $id ), 'completed' => $done, 'available' => $open );
+$av_outline = CampusController::build_outline(
+	array( array( 'id' => 7, 'title' => 'Fundamentos' ), array( 'id' => 8, 'title' => 'Vacío' ), array( 'id' => 9, 'title' => 'Karma' ) ),
+	array( $av_item( 1, 7, true ), $av_item( 2, 7 ), $av_item( 3, 0 ), $av_item( 4, 9, false, false, 0 ), $av_item( 5, 99 ) ),
+	array( 2 => array( array( 'title' => 'Guía' ) ) )
+);
+check( 'las sesiones se agrupan por seccion y las secciones vacias no se muestran', array( '', 'Fundamentos', 'Karma' ) === array_column( $av_outline, 'title' ) );
+check( 'las sesiones sin seccion (o de una seccion borrada) van primero', array( 3, 5 ) === array_map( static fn( array $i ): int => $i['lesson']['id'], $av_outline[0]['items'] ) );
+check( 'la numeracion sigue el orden del curso', array( 1, 2 ) === array_column( $av_outline[1]['items'], 'number' ) && 3 === $av_outline[0]['items'][0]['number'] && 5 === $av_outline[0]['items'][1]['number'] );
+check( 'cada seccion cuenta completadas, total y minutos', 1 === $av_outline[1]['done'] && 2 === $av_outline[1]['total'] && 20 === $av_outline[1]['minutes'] );
+check( 'los materiales quedan en su sesion', 'Guía' === $av_outline[1]['items'][1]['materials'][0]['title'] && array() === $av_outline[1]['items'][0]['materials'] );
+check( 'sin sesiones no hay secciones', array() === CampusController::build_outline( array( array( 'id' => 1, 'title' => 'X' ) ), array() ) );
+check( 'la sesion tiene panel de contenido con recursos y boton para abrirlo', str_contains( $av_campus_tpl['lesson'], 'id="av-outline"' ) && str_contains( $av_campus_tpl['lesson'], 'data-av-outline-toggle' ) && str_contains( $av_campus_tpl['lesson'], 'av-outline__res' ) );
+check( 'la sesion tiene pestanas de descripcion, materiales y preguntas', str_contains( $av_campus_tpl['lesson'], "'about'" ) && str_contains( $av_campus_tpl['lesson'], "'materials'" ) && str_contains( $av_campus_tpl['lesson'], "'comments'" ) );
+check( 'el script del campus existe y abre el panel en celular', str_contains( (string) file_get_contents( __DIR__ . '/../assets/js/campus.js' ), 'is-outline-open' ) );
+check( 'el temario de la edicion muestra las secciones', str_contains( $av_campus_tpl['edition'], 'av-c-module' ) );
+
 echo "\n{$av_checks} comprobaciones, {$av_failures} fallos\n";
 
 exit( $av_failures > 0 ? 1 : 0 );

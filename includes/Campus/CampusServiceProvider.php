@@ -15,6 +15,7 @@ use SIQA\AulaVirtual\Certificates\CertificateService;
 use SIQA\AulaVirtual\Comments\CommentService;
 use SIQA\AulaVirtual\Core\Container;
 use SIQA\AulaVirtual\Core\ServiceProvider;
+use SIQA\AulaVirtual\Curriculum\ModuleRepository;
 use SIQA\AulaVirtual\Curriculum\LessonRepository;
 use SIQA\AulaVirtual\Editions\EditionRepository;
 use SIQA\AulaVirtual\Enrollments\EnrollmentRepository;
@@ -54,7 +55,8 @@ final class CampusServiceProvider implements ServiceProvider {
 				$c->get( AnnouncementRepository::class ),
 				$c->get( CommentService::class ),
 				$c->get( CertificateRepository::class ),
-				$c->get( CertificateService::class )
+				$c->get( CertificateService::class ),
+				$c->get( ModuleRepository::class )
 			)
 		);
 	}

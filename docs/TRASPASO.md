@@ -2,7 +2,7 @@
 
 Documento para retomar el desarrollo desde otra cuenta (persona o sesión de Claude) sin
 depender de conversaciones anteriores. Última actualización: **2026-09-30**, versión
-**0.17.0**.
+**0.18.0**.
 
 Si solo vas a leer una cosa, lee la sección 1 y la 7.
 
@@ -16,14 +16,14 @@ Si solo vas a leer una cosa, lee la sección 1 y la 7.
   WooCommerce, temario y alumnos propios.
 - **Dónde está el código:** `https://github.com/siqatech/wp-aulavirtual`, rama **`main`** (se
   trabaja directo en `main`, sin pull requests, por decisión del equipo).
-- **Estado:** 117 clases, 16 tablas, 313 comprobaciones automáticas en verde. Todo
+- **Estado:** 117 clases, 16 tablas, 323 comprobaciones automáticas en verde. Todo
   el alcance del MVP del brief está construido, más certificados, reportes, API REST,
   comentarios, content drip, gestión de alumnos y landing rediseñada.
 - **En producción:** el plugin está instalado en el WordPress raíz de `astronumerologia.com`
   (tema Minimog + Elementor + WooCommerce). El 2026-09-29 la landing en vivo cargaba la
   versión **0.13.0**. Las versiones 0.14.0 y 0.15.0 se entregaron como zip; **falta confirmar
   que estén instaladas**.
-- **Lo siguiente:** instalar 0.17.0, configurar color y limpiar contenido de prueba (sección
+- **Lo siguiente:** instalar 0.18.0, configurar color y limpiar contenido de prueba (sección
   7A), recorrer `docs/PRUEBAS-STAGING.md` en el sitio real (7B), y decidir la migración de
   Tutor (7E).
 
@@ -64,7 +64,7 @@ Si solo vas a leer una cosa, lee la sección 1 y la 7.
 ```bash
 git clone https://github.com/siqatech/wp-aulavirtual.git
 cd wp-aulavirtual
-php tests/smoke-test.php       # debe terminar en "313 comprobaciones, 0 fallos"
+php tests/smoke-test.php       # debe terminar en "323 comprobaciones, 0 fallos"
 php tests/lint-classes.php     # "117 clases cargadas, 0 fallos"
 ```
 
@@ -110,7 +110,8 @@ esquema corre solo.
 | 0.14.0 | `0b0bcb9` | Gestión de alumnos: ficha, reenviar acceso, contraseñas, mover, lote |
 | 0.15.0 | `e045e3a` | Rediseño completo de la landing del curso |
 | 0.16.0 | `34f3bd2` | Pantallas de acceso y «Crea tu contraseña» con logo y color de la marca |
-| 0.17.0 | — | Campus rediseñado (línea gráfica del sitio) y reglas del campus que se regeneran solas (arregla el 404 en `/aula-virtual/curso/…`) |
+| 0.17.0 | `0f1fd77` | Campus rediseñado (línea gráfica del sitio) y reglas del campus que se regeneran solas (arregla el 404 en `/aula-virtual/curso/…`) |
+| 0.18.0 | — | Sesión tipo reproductor: panel «Contenido del curso» con secciones, estados y recursos; pestañas bajo el video |
 
 El detalle de cada una está en `CHANGELOG.md`.
 
@@ -201,7 +202,7 @@ archivo de traducción `.pot` (punto 53; los textos ya pasan por `__()` con el d
 
 ### 7A. Operativos en el sitio (hacer primero, sin programar)
 
-1. Instalar el zip **0.17.0** y confirmar la versión en *Plugins*.
+1. Instalar el zip **0.18.0** y confirmar la versión en *Plugins*.
    Luego, en *Configuración → General*, poner el ID del logo en **Logo de la pantalla de
    acceso** (si el tema Minimog no usa el logo estándar de WordPress) y abrir un enlace de
    *Crear mi contraseña* para comprobar el diseño.
@@ -230,6 +231,8 @@ fallos. Puntos de mayor riesgo:
 - Landing 0.15 con los datos reales del curso, en escritorio y en celular.
 - Campus 0.17 (mis cursos, temario, sesión, mis datos) dentro del tema Minimog: comprobar que
   los estilos del tema no pisan botones ni campos, y que cada curso tenga imagen destacada.
+- Sesión 0.18: el panel lateral queda fijo al hacer scroll; si la cabecera fija de Minimog lo
+  tapa, ajustar `.av-player{--av-sticky-top:100px}` en *CSS adicional*.
 
 ### 7C. Seguridad (baja severidad, de `docs/SEGURIDAD.md` §6)
 
@@ -239,7 +242,8 @@ fallos. Puntos de mayor riesgo:
 3. Enlaces de inscripción sin límite de usos por defecto (recomendación operativa: poner
    vencimiento o número de usos).
 4. Certificado sin PDF firmado en servidor.
-5. Decisión legal pendiente: texto de consentimiento en el formulario de inscripción y
+5. Materiales de sesiones cerradas descargables por id antes de que se abran (SEGURIDAD §6.5).
+6. Decisión legal pendiente: texto de consentimiento en el formulario de inscripción y
    retención de solicitudes rechazadas (Ley 29733).
 
 ### 7D. Funcionalidades no construidas (según prioridad del negocio)
@@ -268,7 +272,7 @@ fallos. Puntos de mayor riesgo:
 ### 8.1 Comandos
 
 ```bash
-php tests/smoke-test.php                    # 313 comprobaciones de lógica y cableado
+php tests/smoke-test.php                    # 323 comprobaciones de lógica y cableado
 php tests/lint-classes.php                  # carga las 117 clases (detecta errores fatales)
 find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l | grep -v '^No syntax'
 composer install && composer lint           # WordPress Coding Standards (opcional)

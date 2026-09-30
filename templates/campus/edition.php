@@ -7,6 +7,7 @@
  * @var array<string, mixed>             $edition
  * @var WP_Post|null                     $course
  * @var array<int, array<string, mixed>> $items
+ * @var array<int, array<string, mixed>> $sections
  * @var float                            $percentage
  * @var array<int, array<string, mixed>> $announcements
  * @var string                           $back_url
@@ -111,62 +112,73 @@ foreach ( $items as $av_candidate ) {
 				<p><?php esc_html_e( 'Te avisaremos por correo cuando estén disponibles.', 'aula-virtual' ); ?></p>
 			</div>
 		<?php else : ?>
+			<?php
+			$av_sections = isset( $sections ) && is_array( $sections ) && array() !== $sections ? $sections : array( array( 'title' => '', 'items' => array_map( static fn( array $i, int $n ): array => $i + array( 'number' => $n + 1 ), $items, array_keys( $items ) ), 'done' => $av_done, 'total' => $av_total, 'minutes' => 0 ) );
+			?>
+			<?php foreach ( $av_sections as $av_s_index => $av_section ) : ?>
+				<?php if ( '' !== $av_section['title'] ) : ?>
+					<h3 class="av-c-module">
+						<span><?php echo esc_html( sprintf( /* translators: 1: section number, 2: section title. */ __( 'Sección %1$d: %2$s', 'aula-virtual' ), $av_s_index + 1, $av_section['title'] ) ); ?></span>
+						<small><?php echo esc_html( (int) $av_section['done'] . ' / ' . (int) $av_section['total'] . ( (int) $av_section['minutes'] > 0 ? ' · ' . LandingRenderer::duration_label( (int) $av_section['minutes'] ) : '' ) ); ?></small>
+					</h3>
+				<?php endif; ?>
 			<ol class="av-c-lessons">
-				<?php foreach ( $items as $av_number => $av_item ) : ?>
-					<?php
-					$av_lesson    = $av_item['lesson'];
-					$av_type      = (string) $av_lesson['lesson_type'];
-					$av_duration  = LandingRenderer::duration_label( (int) ( $av_lesson['duration'] ?? 0 ) );
-					$av_available = ! empty( $av_item['available'] );
-					$av_state     = $av_item['completed'] ? 'is-completed' : ( $av_available ? 'is-open' : 'is-locked' );
-					$av_is_next   = null !== $av_next && (int) $av_next['lesson']['id'] === (int) $av_lesson['id'];
-					?>
-					<li class="av-c-lesson <?php echo esc_attr( $av_state ); ?><?php echo $av_is_next ? ' is-next' : ''; ?>">
-						<span class="av-c-lesson__status" aria-hidden="true">
-							<?php
-							if ( $av_item['completed'] ) {
-								echo LandingRenderer::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG.
-							} elseif ( ! $av_available ) {
-								echo LandingRenderer::icon( 'lock' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG.
-							} else {
-								echo esc_html( (string) ( $av_number + 1 ) );
-							}
-							?>
-						</span>
-						<span class="av-c-lesson__main">
-							<?php if ( $av_available ) : ?>
-								<a class="av-c-lesson__title" href="<?php echo esc_url( (string) $av_item['url'] ); ?>"><?php echo esc_html( (string) $av_lesson['title'] ); ?></a>
-							<?php else : ?>
-								<span class="av-c-lesson__title"><?php echo esc_html( (string) $av_lesson['title'] ); ?></span>
-							<?php endif; ?>
-							<span class="av-c-lesson__meta">
-								<?php echo LandingRenderer::icon( $av_type_icon[ $av_type ] ?? 'text' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?>
-								<?php echo esc_html( LessonType::label( $av_type ) ); ?>
-								<?php if ( '' !== $av_duration ) : ?>
-									&middot; <?php echo esc_html( $av_duration ); ?>
+				<?php foreach ( $av_section['items'] as $av_item ) : ?>
+						<?php
+						$av_lesson    = $av_item['lesson'];
+						$av_type      = (string) $av_lesson['lesson_type'];
+						$av_duration  = LandingRenderer::duration_label( (int) ( $av_lesson['duration'] ?? 0 ) );
+						$av_available = ! empty( $av_item['available'] );
+						$av_state     = $av_item['completed'] ? 'is-completed' : ( $av_available ? 'is-open' : 'is-locked' );
+						$av_is_next   = null !== $av_next && (int) $av_next['lesson']['id'] === (int) $av_lesson['id'];
+						?>
+						<li class="av-c-lesson <?php echo esc_attr( $av_state ); ?><?php echo $av_is_next ? ' is-next' : ''; ?>">
+							<span class="av-c-lesson__status" aria-hidden="true">
+								<?php
+								if ( $av_item['completed'] ) {
+									echo LandingRenderer::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG.
+								} elseif ( ! $av_available ) {
+									echo LandingRenderer::icon( 'lock' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG.
+								} else {
+									echo esc_html( (string) (int) $av_item['number'] );
+								}
+								?>
+							</span>
+							<span class="av-c-lesson__main">
+								<?php if ( $av_available ) : ?>
+									<a class="av-c-lesson__title" href="<?php echo esc_url( (string) $av_item['url'] ); ?>"><?php echo esc_html( (string) $av_lesson['title'] ); ?></a>
+								<?php else : ?>
+									<span class="av-c-lesson__title"><?php echo esc_html( (string) $av_lesson['title'] ); ?></span>
+								<?php endif; ?>
+								<span class="av-c-lesson__meta">
+									<?php echo LandingRenderer::icon( $av_type_icon[ $av_type ] ?? 'text' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?>
+									<?php echo esc_html( LessonType::label( $av_type ) ); ?>
+									<?php if ( '' !== $av_duration ) : ?>
+										&middot; <?php echo esc_html( $av_duration ); ?>
+									<?php endif; ?>
+								</span>
+							</span>
+							<span class="av-c-lesson__side">
+								<?php if ( $av_item['completed'] ) : ?>
+									<span class="av-c-badge av-c-badge--done"><?php esc_html_e( 'Completada', 'aula-virtual' ); ?></span>
+								<?php elseif ( ! $av_available ) : ?>
+									<span class="av-c-lesson__date">
+										<?php
+										printf(
+											/* translators: %s: date. */
+											esc_html__( 'Se abre el %s', 'aula-virtual' ),
+											esc_html( (string) $av_item['available_at'] )
+										);
+										?>
+									</span>
+								<?php else : ?>
+									<a class="av-c-lesson__go" href="<?php echo esc_url( (string) $av_item['url'] ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: session title. */ __( 'Abrir %s', 'aula-virtual' ), (string) $av_lesson['title'] ) ); ?>"><?php echo LandingRenderer::icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?></a>
 								<?php endif; ?>
 							</span>
-						</span>
-						<span class="av-c-lesson__side">
-							<?php if ( $av_item['completed'] ) : ?>
-								<span class="av-c-badge av-c-badge--done"><?php esc_html_e( 'Completada', 'aula-virtual' ); ?></span>
-							<?php elseif ( ! $av_available ) : ?>
-								<span class="av-c-lesson__date">
-									<?php
-									printf(
-										/* translators: %s: date. */
-										esc_html__( 'Se abre el %s', 'aula-virtual' ),
-										esc_html( (string) $av_item['available_at'] )
-									);
-									?>
-								</span>
-							<?php else : ?>
-								<a class="av-c-lesson__go" href="<?php echo esc_url( (string) $av_item['url'] ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: session title. */ __( 'Abrir %s', 'aula-virtual' ), (string) $av_lesson['title'] ) ); ?>"><?php echo LandingRenderer::icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?></a>
-							<?php endif; ?>
-						</span>
-					</li>
+						</li>
 				<?php endforeach; ?>
 			</ol>
+			<?php endforeach; ?>
 		<?php endif; ?>
 	</section>
 
