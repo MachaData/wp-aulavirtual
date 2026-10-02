@@ -292,6 +292,14 @@ final class AdminServiceProvider implements ServiceProvider {
 				}
 
 				wp_enqueue_style( 'av-admin', AV_URL . 'assets/css/admin.css', array(), AV_VERSION );
+				if ( LessonScreen::SLUG === $page ) {
+					// La biblioteca de medios se carga antes que el script propio.
+					wp_enqueue_media();
+					wp_enqueue_script( 'av-admin', AV_URL . 'assets/js/admin.js', array( 'media-editor' ), AV_VERSION, true );
+
+					return;
+				}
+
 				wp_enqueue_script( 'av-admin', AV_URL . 'assets/js/admin.js', array(), AV_VERSION, true );
 			}
 		);

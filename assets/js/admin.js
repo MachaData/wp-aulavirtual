@@ -92,4 +92,159 @@
 			event.preventDefault();
 		}
 	} );
+
+	/* ===== Editor de sesión ===== */
+
+	// Materiales: abrir la biblioteca de medios (subir o elegir). wp.media se
+	// imprime al pie de la página, por eso se busca en el momento del clic.
+	document.addEventListener( 'click', function ( event ) {
+		var button = event.target.closest( '[data-av-material-choose]' );
+		if ( ! button ) {
+			return;
+		}
+		event.preventDefault();
+		if ( ! window.wp || ! window.wp.media ) {
+			window.alert( 'La biblioteca de medios no cargó. Recarga la página e inténtalo de nuevo.' );
+			return;
+		}
+		var form = button.closest( '[data-av-material-form]' );
+		var frame = button.avFrame;
+		if ( ! frame ) {
+			frame = window.wp.media( {
+				title: button.getAttribute( 'data-av-title' ) || '',
+				button: { text: button.getAttribute( 'data-av-button' ) || '' },
+				multiple: false
+			} );
+			frame.on( 'select', function () {
+				var file = frame.state().get( 'selection' ).first().toJSON();
+				form.querySelector( '[data-av-material-attachment]' ).value = file.id;
+				form.querySelector( '[data-av-material-name]' ).textContent = file.filename || file.title;
+				form.querySelector( '[data-av-material-chip]' ).hidden = false;
+				var title = form.querySelector( '[data-av-material-title]' );
+				if ( title && ! title.value ) {
+					title.value = file.title || '';
+				}
+				var url = form.querySelector( '[data-av-material-url]' );
+				if ( url ) {
+					url.value = '';
+				}
+				materialState( form );
+			} );
+			button.avFrame = frame;
+		}
+		frame.open();
+	} );
+
+	function materialState( form ) {
+		var hasFile = '0' !== form.querySelector( '[data-av-material-attachment]' ).value;
+		var url = form.querySelector( '[data-av-material-url]' );
+		var submit = form.querySelector( '[data-av-material-submit]' );
+		if ( submit ) {
+			submit.disabled = ! hasFile && ! ( url && url.value.trim() );
+		}
+	}
+
+	document.addEventListener( 'click', function ( event ) {
+		var clear = event.target.closest( '[data-av-material-clear]' );
+		if ( ! clear ) {
+			return;
+		}
+		var form = clear.closest( '[data-av-material-form]' );
+		form.querySelector( '[data-av-material-attachment]' ).value = '0';
+		form.querySelector( '[data-av-material-chip]' ).hidden = true;
+		materialState( form );
+	} );
+
+	document.addEventListener( 'input', function ( event ) {
+		if ( event.target.matches( '[data-av-material-url]' ) ) {
+			var form = event.target.closest( '[data-av-material-form]' );
+			if ( event.target.value.trim() ) {
+				form.querySelector( '[data-av-material-attachment]' ).value = '0';
+				form.querySelector( '[data-av-material-chip]' ).hidden = true;
+			}
+			materialState( form );
+		}
+	} );
+
+	// Disponibilidad: mostrar solo el campo de la opción elegida.
+	document.addEventListener( 'change', function ( event ) {
+		if ( ! event.target.matches( '[data-av-release]' ) ) {
+			return;
+		}
+		document.querySelectorAll( '[data-av-release-show]' ).forEach( function ( field ) {
+			field.hidden = field.getAttribute( 'data-av-release-show' ) !== event.target.value;
+		} );
+	} );
+
+	// Clase en vivo: se despliega al elegir el tipo o con el enlace.
+	function openLive() {
+		var card = document.querySelector( '[data-av-live-card]' );
+		if ( card ) {
+			card.classList.remove( 'av-card--collapsed' );
+		}
+		return card;
+	}
+
+	document.addEventListener( 'change', function ( event ) {
+		if ( event.target.matches( '[data-av-lesson-type]' ) && 'live' === event.target.value ) {
+			openLive();
+		}
+	} );
+
+	document.addEventListener( 'click', function ( event ) {
+		if ( event.target.closest( '[data-av-live-open]' ) ) {
+			event.preventDefault();
+			var card = openLive();
+			if ( card ) {
+				card.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+			}
+		}
+	} );
+
+	// Cambios sin guardar: avisar antes de enviar otro formulario o salir.
+	var watched = document.querySelector( '[data-av-dirty-watch]' );
+	if ( watched ) {
+		var dirty = false;
+		var editor = function () {
+			return window.tinymce ? window.tinymce.get( 'av-content' ) : null;
+		};
+		var isDirty = function () {
+			var ed = editor();
+			return dirty || !! ( ed && ed.isDirty() );
+		};
+		var clean = function () {
+			var ed = editor();
+			dirty = false;
+			if ( ed ) {
+				ed.setDirty( false );
+			}
+		};
+		var mark = function ( event ) {
+			if ( event.target.form === watched || watched.contains( event.target ) ) {
+				dirty = true;
+			}
+		};
+		document.addEventListener( 'input', mark );
+		document.addEventListener( 'change', mark );
+		document.addEventListener( 'submit', function ( event ) {
+			if ( event.target === watched ) {
+				clean();
+				return;
+			}
+			if ( isDirty() ) {
+				if ( window.confirm( 'Tienes cambios sin guardar en la sesión (título, video, texto…). Si continúas se perderán. ¿Continuar?' ) ) {
+					clean();
+				} else {
+					event.preventDefault();
+					event.stopImmediatePropagation();
+				}
+			}
+		}, true );
+		window.addEventListener( 'beforeunload', function ( event ) {
+			if ( isDirty() ) {
+				event.preventDefault();
+				event.returnValue = '';
+			}
+		} );
+	}
 } )();

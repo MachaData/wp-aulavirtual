@@ -30,7 +30,7 @@ priorizados y decisiones abiertas. Los requisitos originales están en
 ## Comandos
 
 ```bash
-php tests/smoke-test.php       # 323 comprobaciones, deben quedar 0 fallos
+php tests/smoke-test.php       # 329 comprobaciones, deben quedar 0 fallos
 php tests/lint-classes.php     # carga las 117 clases
 bin/build-zip.sh               # zip instalable en dist/ (usa el último commit)
 php bin/preview-landing.php full '#c9a45c' > dist/landing.html   # vista previa de la landing

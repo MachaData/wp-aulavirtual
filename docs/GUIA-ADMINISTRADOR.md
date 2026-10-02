@@ -85,20 +85,28 @@ curso (por ejemplo, "Numerología básica" → "Numerología básica online") si
 
 En el detalle de la edición, el formulario rápido crea una sesión con título, tipo y video.
 Las flechas ↑ ↓ de la columna *Mover* cambian el orden; el alumno las ve en ese orden.
-Al pulsar el título se abre el **editor de sesión**, con tres zonas:
+Al pulsar el título se abre el **editor de sesión**. Arriba quedan siempre a mano *Ver en el
+campus* y **Guardar sesión**. La pantalla se ordena en tarjetas:
 
-- **Contenido**: título, tipo, estado, descripción, video (YouTube, Vimeo, Bunny, MP4),
-  duración, contenido enriquecido y liberación programada. La liberación admite tres modos:
-  *de inmediato*, *a partir de una fecha* o *X días después de la matrícula* de cada alumno.
-  Una sesión no liberada aparece en el temario con "Disponible el …", no se puede abrir ni
-  marcar como completada, y no cuenta como pendiente hasta que se abre.
-- **Clase en vivo**: plataforma (Zoom, Meet, Teams, otra), inicio y fin **en la hora de la
-  edición**, enlace, ID y código, cuántos minutos antes aparece el botón y cuántos después
-  desaparece, mensaje para el alumno y URL de la grabación cuando termine. El enlace de la
-  reunión solo se muestra al alumno dentro de esa ventana.
-- **Materiales**: archivos de la biblioteca de medios (PDF, Office, ZIP, imágenes, audio,
-  video) o enlaces externos. Se pueden marcar como "solo lectura" para abrirlos en el
-  navegador en vez de descargarlos.
+- **Contenido** (columna principal): título, descripción corta y texto de la sesión.
+- **Video**: pega la URL de Bunny Stream (`…b-cdn.net/…/playlist.m3u8`), YouTube, Vimeo o un
+  MP4; con *Detectar automáticamente* basta. Indica la **duración** en minutos (se muestra al
+  alumno en el temario). *Ver vista previa del video guardado* comprueba que se reproduce.
+- **Materiales**: pulsa **Subir o elegir un archivo** (se abre la biblioteca de medios: puedes
+  arrastrar un archivo nuevo o elegir uno existente) o pega un **enlace externo** (Drive,
+  Notion, web). El nombre es opcional y *Permitir descarga* decide si se descarga o solo se
+  abre en el navegador. Pulsa **Añadir material**. Los materiales se guardan aparte: si
+  cambiaste el título o el video, guarda la sesión antes (la pantalla te avisa).
+- **Clase en vivo**: aparece desplegada cuando el tipo es «Clase en vivo». Plataforma, inicio
+  **en la hora de la edición**, duración, enlace, ID y código, y mensaje para el alumno. En
+  *Más opciones*: cuántos minutos antes aparece el botón y cuántos después desaparece, URL de
+  la grabación y estado. El enlace de la reunión solo se muestra al alumno dentro de esa
+  ventana.
+- **Publicación** (columna lateral): estado (publicada o borrador), tipo de sesión y vista
+  previa gratuita.
+- **Disponibilidad**: *de inmediato*, *a partir de una fecha* o *X días después de la
+  matrícula*. Una sesión no liberada aparece en el temario con candado y «Se abre el …», no se
+  puede abrir ni marcar como completada.
 
 ### Materiales protegidos
 

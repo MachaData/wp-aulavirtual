@@ -23,6 +23,39 @@ Documentación de traspaso y herramientas de entrega. El código del plugin no c
 - Actualizados README (versiones 0.10–0.15), la versión del esquema en la guía técnica y las
   filas ya resueltas del flujo comercial (repetir curso, comentarios, modo enfoque).
 
+## [0.19.0] - 2026-10-02
+
+Editor de sesión reordenado y carga de materiales arreglada.
+
+### Corregido
+
+- **«Elegir archivo de la biblioteca» no hacía nada.** El script del botón se ejecutaba antes
+  de que WordPress cargara la biblioteca de medios, así que nunca se activaba. Ahora la
+  biblioteca se carga con la pantalla y el botón la abre al hacer clic: se puede **subir** un
+  archivo nuevo o elegir uno existente.
+- El botón *Añadir material* queda desactivado hasta elegir un archivo o escribir un enlace,
+  en lugar de devolver un error.
+
+### Cambiado
+
+- La pantalla *Editar sesión* se reorganiza en tarjetas, como el maquetador de cursos:
+  - Arriba, una barra fija con el nombre, el estado y los botones *Ver en el campus* y
+    *Guardar sesión*.
+  - Columna principal: **Contenido** (título, descripción, texto), **Video** (enlace,
+    proveedor, duración y vista previa del video guardado), **Materiales** (lista y zona
+    «Subir o elegir un archivo» o enlace externo), **Clase en vivo** y **Preguntas de los
+    alumnos**.
+  - Columna lateral: **Publicación** (estado, tipo, vista previa gratuita, guardar),
+    **Disponibilidad** (solo aparece el campo de fecha o de días según la opción) y *Eliminar
+    sesión*.
+- La clase en vivo se pliega si la sesión no es «Clase en vivo» y se despliega al elegir ese
+  tipo; se programa con inicio y duración, y las opciones avanzadas (botón, grabación,
+  estado) quedan en «Más opciones».
+- Aviso de **cambios sin guardar** si se añade un material o se sale de la página después de
+  editar la sesión.
+- Quitado el texto que decía que la liberación programada llegaría «en la siguiente fase»: ya
+  funciona en el campus desde la 0.11.
+
 ## [0.18.0] - 2026-09-30
 
 Vista de sesión tipo reproductor, con el contenido del curso a la derecha.

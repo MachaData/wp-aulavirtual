@@ -901,6 +901,17 @@ check( 'la sesion tiene pestanas de descripcion, materiales y preguntas', str_co
 check( 'el script del campus existe y abre el panel en celular', str_contains( (string) file_get_contents( __DIR__ . '/../assets/js/campus.js' ), 'is-outline-open' ) );
 check( 'el temario de la edicion muestra las secciones', str_contains( $av_campus_tpl['edition'], 'av-c-module' ) );
 
+echo "\nEditor de sesión\n";
+$av_le  = (string) file_get_contents( __DIR__ . '/../admin/views/lesson-edit.php' );
+$av_ajs = (string) file_get_contents( __DIR__ . '/../assets/js/admin.js' );
+$av_asp = (string) file_get_contents( __DIR__ . '/../includes/Admin/AdminServiceProvider.php' );
+check( 'el selector de materiales no depende de un script en linea que corre antes que wp.media', ! str_contains( $av_le, 'wp.media(' ) && str_contains( $av_le, 'data-av-material-choose' ) );
+check( 'admin.js busca wp.media al hacer clic', str_contains( $av_ajs, '[data-av-material-choose]' ) && str_contains( $av_ajs, 'window.wp.media' ) );
+check( 'la pantalla de sesion carga la biblioteca de medios antes que admin.js', str_contains( $av_asp, 'wp_enqueue_media();' ) && str_contains( $av_asp, "array( 'media-editor' )" ) );
+check( 'los campos laterales pertenecen al formulario de la sesion', 5 <= substr_count( $av_le, 'form="<?php echo esc_attr( $av_form ); ?>"' ) );
+check( 'la clase en vivo se guarda con inicio y duracion', str_contains( $av_le, 'name="start_local"' ) && str_contains( $av_le, 'name="duration"' ) && ! str_contains( $av_le, 'name="end_local"' ) );
+check( 'se avisa de cambios sin guardar', str_contains( $av_le, 'data-av-dirty-watch' ) && str_contains( $av_ajs, 'beforeunload' ) );
+
 echo "\n{$av_checks} comprobaciones, {$av_failures} fallos\n";
 
 exit( $av_failures > 0 ? 1 : 0 );
